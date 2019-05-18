@@ -56,3 +56,15 @@ describe('algo.isConvex', function() {
     });
 });
 
+describe('algo.makeHull', function () {
+    it('should work', function () {
+        let polygon = new Polygon(new Vector(), [
+            new Vector(0,0), new Vector(5,0), new Vector(10,0), new Vector(10,5),
+            new Vector(10,10),new Vector(5,5),new Vector(0,10),new Vector(0,5)
+        ]);
+        let newPoints = algo.makeHull(polygon.points);
+        expect(algo.isConvex(newPoints)).to.be.true;
+        expect(newPoints.length).to.equal(4);
+    })
+});
+

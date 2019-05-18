@@ -16,10 +16,17 @@ export class Vector {
         }
         return this;
     }
-    // scale another vector first than add to this vector
+    // scale another vector first then add to this vector
     public addMul(v: Vector, scl: number) {
-        this.x = v.x * scl;
-        this.y = v.y * scl;
+        this.x += v.x * scl;
+        this.y += v.y * scl;
+        return this;
+    }
+
+    // scale a vector first then subtract the vector
+    public subMul(v: Vector, scl: number) {
+        this.x -= v.x * scl;
+        this.y -= v.y * scl;
         return this;
     }
     // Scale this vector. An independent scaling factor can be provided
@@ -57,6 +64,11 @@ export class Vector {
         this.x = x * Math.cos(angle) - y * Math.sin(angle);
         this.y = x * Math.sin(angle) + y * Math.cos(angle);
         return this;
+    }
+
+    //  the angle v looks at this
+    public angle(v: Vector) {
+        return Math.atan2(this.y - v.y, this.x - v.x);
     }
 
     public reverse() {
