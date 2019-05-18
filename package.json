@@ -1,15 +1,15 @@
 {
   "name": "geom2.js",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "high performance 2d geometry library",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "test": "mocha --require ts-node/register test/*.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Alchemist0823/g2.js.git"
+    "url": "git+https://github.com/Alchemist0823/geom2.js.git"
   },
   "keywords": [
     "geometry",
@@ -22,9 +22,9 @@
   "author": "Alchemist0823",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Alchemist0823/g2.js/issues"
+    "url": "https://github.com/Alchemist0823/geom2.js/issues"
   },
-  "homepage": "https://github.com/Alchemist0823/g2.js#readme",
+  "homepage": "https://github.com/Alchemist0823/geom2.js#readme",
   "dependencies": {},
   "devDependencies": {
     "typescript": "^3.4.5",
