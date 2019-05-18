@@ -1,10 +1,10 @@
-import Vector from './vector';
-import Shape from './shape';
-import TestResult from './test-result';
-import Box from "./box";
-import Polygon from "./polygon";
+import {Vector} from './vector';
+import {Shape} from './shape';
+import {TestResult} from './test-result';
+import {Box} from "./box";
+import {Polygon} from "./polygon";
 
-export default class Circle implements Shape{
+export class Circle implements Shape{
     public c: Vector;
     public r: number;
     constructor(c: Vector, r: number) {

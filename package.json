@@ -2,7 +2,11 @@
   "name": "geom2.js",
   "version": "0.0.1",
   "description": "high performance 2d geometry library",
-  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "mocha --require ts-node/register test/*.ts"

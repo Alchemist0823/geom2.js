@@ -1,10 +1,10 @@
-import Vector from "./vector";
-import Shape from "./shape";
-import Box from "./box";
-import TestResult from "./test-result";
+import {Vector} from "./vector";
+import {Shape} from "./shape";
+import {Box} from "./box";
+import {TestResult} from "./test-result";
 import {lineHasPoint} from "./util";
 
-export default class Line implements Shape {
+export  class Line implements Shape {
     public v1: Vector;
     public v2: Vector;
     constructor(v1: Vector, v2: Vector) {

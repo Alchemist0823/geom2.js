@@ -1,8 +1,8 @@
-import Shape from "./shape";
-import TestResult from "./test-result";
-import Vector from "./vector";
+import {Shape} from "./shape";
+import {TestResult} from "./test-result";
+import {Vector} from "./vector";
 
-export default class Box implements Shape{
+export class Box implements Shape{
     public left: number;
     public right: number;
     public top: number;

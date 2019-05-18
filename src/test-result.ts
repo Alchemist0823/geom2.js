@@ -1,7 +1,7 @@
-import Vector from "./vector";
-import Shape from "./shape";
+import {Vector} from "./vector";
 
-export default class TestResult {
+
+export class TestResult {
     public overlapN: Vector;
     public overlapV: Vector;
     public aInB: boolean;

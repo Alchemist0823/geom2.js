@@ -1,9 +1,9 @@
-import Polygon from "./polygon";
-import Vector from "./vector";
-import Box from "./box";
-import TestResult from "./test-result";
-import Circle from "./circle";
-import Line from "./line";
+import {Polygon} from "./polygon";
+import {Vector} from "./vector";
+import {Box} from "./box";
+import {TestResult} from "./test-result";
+import {Circle} from "./circle";
+import {Line} from "./line";
 
 
 // ## Object Pools

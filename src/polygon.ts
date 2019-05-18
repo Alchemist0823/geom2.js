@@ -1,11 +1,11 @@
-import Shape from "./shape";
-import Vector from "./vector";
-import TestResult from "./test-result";
-import Box from "./box";
+import {Shape} from "./shape";
+import {Vector} from "./vector";
+import {TestResult} from "./test-result";
+import {Box} from "./box";
 import {lineHasPoint, testPolygonCircle, testPolygonPolygon} from "./util";
-import Circle from "./circle";
+import {Circle} from "./circle";
 
-export default class Polygon implements Shape {
+export class Polygon implements Shape {
     public pos: Vector;
     public points:Array<Vector>;
     constructor(pos: Vector, points: Array<Vector>) {
