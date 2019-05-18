@@ -82,6 +82,23 @@ describe("Collision", function() {
         expect(testResult.overlapV.y.toFixed(2)).to.equal("4.14");
     });
 
+
+    it("testCirclePolygon", function() {
+
+        let circle = new Circle(new Vector(50,50), 20);
+        // A square
+        let polygon = new Polygon(new Vector(), [
+            new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
+        ]);
+        let testResult = new TestResult();
+        let collided = circle.intersect(polygon, testResult);
+
+        expect(collided).to.not.be.null;
+        expect(testResult.overlap.toFixed(2)).to.equal("5.86");
+        expect(testResult.overlapV.x.toFixed(2)).to.equal("-4.14");
+        expect(testResult.overlapV.y.toFixed(2)).to.equal("-4.14");
+    });
+
     it("testPolygonPolygon", function() {
         // A square
         let polygon1 = new Polygon(new Vector(), [

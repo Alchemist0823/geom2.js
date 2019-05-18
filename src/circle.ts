@@ -3,6 +3,7 @@ import {Shape} from './shape';
 import {TestResult} from './test-result';
 import {Box} from "./box";
 import {Polygon} from "./polygon";
+import {testPolygonCircle} from "./util";
 
 export class Circle implements Shape{
     public c: Vector;
@@ -14,7 +15,12 @@ export class Circle implements Shape{
 
     intersect(shape: Shape, result: TestResult): boolean {
         if (shape instanceof Polygon) {
-
+            testPolygonCircle(shape, this, result);
+            let swap = result.aInB;
+            result.aInB = result.bInA;
+            result.bInA = swap;
+            result.overlapN.reverse();
+            result.overlapV.reverse();
         }
         return false;
     }
