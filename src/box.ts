@@ -14,6 +14,18 @@ export class Box implements Shape{
       this.bottom = bottom;
     }
 
+    public getCenter() {
+        return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
+    }
+
+    public get centerX() {
+        return (this.left + this.right) / 2;
+    }
+
+    public get centerY() {
+        return (this.bottom + this.top) / 2;
+    }
+
     intersect(shape: Shape, result: TestResult): boolean {
         throw new Error("Method not implemented.");
     }

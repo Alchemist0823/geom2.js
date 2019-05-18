@@ -11,6 +11,7 @@ It is written in modern **TypeScript**.
 * Polygon
 
 ## Algorithm:
+* Random convex polygon generation
 * QuadTree for world query
 * SAT(Separation Axis Theorem) for polygon collision.
 * Ray-cast

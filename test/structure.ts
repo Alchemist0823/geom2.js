@@ -1,8 +1,8 @@
-import {assert, expect} from 'chai';
-import Vector from "../src/vector";
-import Polygon from "../src/polygon";
-import TestResult from "../src/test-result";
-import Circle from "../src/circle";
+import {expect} from 'chai';
+import {Vector} from "../src/vector";
+import {Polygon} from "../src/polygon";
+import {TestResult} from "../src/test-result";
+import {Circle} from "../src/circle";
 
 describe('Vector.dist', function() {
     it('dist should return correct result', function () {
@@ -76,10 +76,10 @@ describe("Collision", function() {
         let testResult = new TestResult();
         let collided = polygon.intersect(circle, testResult);
 
-        assert(collided);
-        assert(testResult.overlap.toFixed(2) == "5.86");
-        assert(testResult.overlapV.x.toFixed(2) == "4.14");
-        assert(testResult.overlapV.y.toFixed(2) == "4.14");
+        expect(collided).to.not.be.null;
+        expect(testResult.overlap.toFixed(2)).to.equal("5.86");
+        expect(testResult.overlapV.x.toFixed(2)).to.equal("4.14");
+        expect(testResult.overlapV.y.toFixed(2)).to.equal("4.14");
     });
 
     it("testPolygonPolygon", function() {
@@ -111,7 +111,7 @@ describe("No collision", function() {
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
         let collided = box1.intersect(box2, new TestResult());
-        assert(!collided);
+        expect(collided).to.not.null;
     });
 });
 
