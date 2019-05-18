@@ -32,7 +32,7 @@ describe('Vector.scl', function() {
 describe("Polygon.getCentroid", function() {
     it("should calculate the correct value for a square", function() {
         // A square
-        let polygon = new Polygon([
+        let polygon = new Polygon(new Vector(),[
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
         let c = polygon.getCentroid();
@@ -42,7 +42,7 @@ describe("Polygon.getCentroid", function() {
 
     it("should calculate the correct value for a triangle", function() {
         // A triangle
-        let polygon = new Polygon([
+        let polygon = new Polygon(new Vector(),[
             new Vector(0,0), new Vector(100,0), new Vector(50,99)
         ]);
         let c = polygon.getCentroid();
@@ -52,6 +52,7 @@ describe("Polygon.getCentroid", function() {
 });
 
 describe("Collision", function() {
+
     /*
     it("testCircleCircle", function() {
 
@@ -63,33 +64,31 @@ describe("Collision", function() {
         assert(collided);
         assert(response.overlap == 10);
         assert(response.overlapV.x == 10 && response.overlapV.y).to.equal(0);
-    });
+    });*/
 
     it("testPolygonCircle", function() {
 
         let circle = new Circle(new Vector(50,50), 20);
         // A square
-        let polygon = new Polygon([
+        let polygon = new Polygon(new Vector(), [
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
-        let response = new TestResult();
-        let collided = SAT.testPolygonCircle(polygon, circle, response);
+        let testResult = new TestResult();
+        let collided = polygon.intersect(circle, testResult);
 
         assert(collided);
-        assert(response.overlap.toFixed(2) == "5.86");
-        assert(
-            response.overlapV.x.toFixed(2) == "4.14" &&
-            response.overlapV.y.toFixed(2) == "4.14"
-       );
-    });*/
+        assert(testResult.overlap.toFixed(2) == "5.86");
+        assert(testResult.overlapV.x.toFixed(2) == "4.14");
+        assert(testResult.overlapV.y.toFixed(2) == "4.14");
+    });
 
     it("testPolygonPolygon", function() {
         // A square
-        let polygon1 = new Polygon([
+        let polygon1 = new Polygon(new Vector(), [
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
         // A triangle
-        let polygon2 = new Polygon([
+        let polygon2 = new Polygon(new Vector(), [
             new Vector(30,0), new Vector(60, 0), new Vector(30, 30)
         ]);
         let response = new TestResult();
@@ -105,11 +104,11 @@ describe("Collision", function() {
 describe("No collision", function() {
     it("testPolygonPolygon", function(){
 
-        let box1 = new Polygon([
+        let box1 = new Polygon(new Vector(0,0), [
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
-        let box2 = new Polygon([
-            new Vector(50,0), new Vector(90,0), new Vector(90,40), new Vector(50,40)
+        let box2 = new Polygon(new Vector(50,0),[
+            new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
         let collided = box1.intersect(box2, new TestResult());
         assert(!collided);
@@ -127,8 +126,8 @@ describe("Point testing", function() {
 
     it("pointInPolygon", function() {
 
-        let triangle = new Polygon([
-            new Vector(0,0), new Vector(30, 0), new Vector(0, 30)
+        let triangle = new Polygon(new Vector(10, 0), [
+            new Vector(-10,0), new Vector(30, 0), new Vector(0, 30)
         ]);
         expect(triangle.isPointIn(new Vector(0,0))).to.be.true; // true
         expect(triangle.isPointIn(new Vector(10,10))).to.be.true; // true
@@ -139,7 +138,7 @@ describe("Point testing", function() {
     it("pointInPolygon (small)", function () {
 
         let v1 = new Vector(1, 1.1);
-        let p1 = new Polygon([new Vector(2,1), new Vector(2,2), new Vector(1,3), new Vector(0,2),new Vector(0,1),new Vector(1,0)]);
+        let p1 = new Polygon(new Vector(), [new Vector(2,1), new Vector(2,2), new Vector(1,3), new Vector(0,2),new Vector(0,1),new Vector(1,0)]);
         expect(p1.isPointIn(v1)).to.be.true;
     });
 });

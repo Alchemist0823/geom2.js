@@ -2,6 +2,8 @@ import Polygon from "./polygon";
 import Vector from "./vector";
 import Box from "./box";
 import TestResult from "./test-result";
+import Circle from "./circle";
+import Line from "./line";
 
 
 // ## Object Pools
@@ -45,6 +47,8 @@ function flattenPointsOn(points: Array<Vector>, normal: Vector, result: Array<nu
 /**
  * Check whether two convex polygons are separated by the specified
  * axis (must be a unit vector).
+ * @param aPos
+ * @param bPos
  * @param aPoints The points in the first polygon.
  * @param bPoints The points in the second polygon.
  * @param axis The axis (unit sized) to test against.  The points of both polygons
@@ -55,17 +59,24 @@ function flattenPointsOn(points: Array<Vector>, normal: Vector, result: Array<nu
  *   and a response is passed in, information about how much overlap and
  *   the direction of the overlap will be populated.
  */
-export function isSeparatingAxis(aPoints: Array<Vector>, bPoints: Array<Vector>, axis: Vector, testResult: TestResult) {
+export function isSeparatingAxis(aPos: Vector, bPos: Vector, aPoints: Array<Vector>, bPoints: Array<Vector>, axis: Vector, testResult: TestResult) {
     let rangeA = T_ARRAYS.pop();
     let rangeB = T_ARRAYS.pop();
-    if (rangeA === undefined || rangeB === undefined)
+    var offsetV = T_VECTORS.pop();
+    if (rangeA === undefined || rangeB === undefined || offsetV === undefined)
         throw new Error('memory allocation error');
 
+    offsetV.set(bPos).sub(aPos);
+    let projectedOffset = offsetV.dot(axis);
     // Project the polygons onto the axis.
     flattenPointsOn(aPoints, axis, rangeA);
     flattenPointsOn(bPoints, axis, rangeB);
+
+    rangeB[0] += projectedOffset;
+    rangeB[1] += projectedOffset;
     // Check if there is a gap. If there is, this is a separating axis and we can stop
     if (rangeA[0] > rangeB[1] || rangeB[0] > rangeA[1]) {
+        T_VECTORS.push(offsetV);
         T_ARRAYS.push(rangeA);
         T_ARRAYS.push(rangeB);
         return true;
@@ -110,6 +121,7 @@ export function isSeparatingAxis(aPoints: Array<Vector>, bPoints: Array<Vector>,
             }
         }
     }
+    T_VECTORS.push(offsetV);
     T_ARRAYS.push(rangeA);
     T_ARRAYS.push(rangeB);
     return false;
@@ -127,7 +139,7 @@ export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResul
             throw new Error('memory allocation error');
 
         normal.set(aPoints[(i + 1) % aLen]).sub(aPoints[i]).perp().normalize();
-        if (isSeparatingAxis(aPoints, bPoints, normal, testResult)) {
+        if (isSeparatingAxis(a.pos, b.pos, aPoints, bPoints, normal, testResult)) {
             return false;
         }
         T_VECTORS.push(normal);
@@ -139,7 +151,7 @@ export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResul
             throw new Error('memory allocation error');
 
         normal.set(bPoints[(i + 1) % bLen]).sub(bPoints[i]).perp().normalize();
-        if (isSeparatingAxis(aPoints, bPoints, normal, testResult)) {
+        if (isSeparatingAxis(a.pos, b.pos, aPoints, bPoints, normal, testResult)) {
             return false;
         }
         T_VECTORS.push(normal);
@@ -150,6 +162,180 @@ export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResul
     if (testResult) {
         testResult.overlapV.set(testResult.overlapN).scl(testResult.overlap);
     }
+    return true;
+}
+
+enum VORONOI_REGION {
+    LEFT = -1,
+    MIDDLE = 0,
+    RIGHT = 1,
+}
+
+// Calculates which Voronoi region a point is on a line segment.
+// It is assumed that both the line and the point are relative to `(0,0)`
+//
+//            |       (0)      |
+//     (-1)  [S]--------------[E]  (1)
+//            |       (0)      |
+/**
+ * @param {Vector} line The line segment.
+ * @param {Vector} point The point.
+ * @return  {number} LEFT_VORONOI_REGION (-1) if it is the left region,
+ *          MIDDLE_VORONOI_REGION (0) if it is the middle region,
+ *          RIGHT_VORONOI_REGION (1) if it is the right region.
+ */
+function voronoiRegion(line: Vector, point: Vector) {
+    let len2 = line.len2();
+    let dp = point.dot(line);
+    // If the point is beyond the start of the line, it is in the
+    // left voronoi region.
+    if (dp < 0) { return VORONOI_REGION.LEFT; }
+    // If the point is beyond the end of the line, it is in the
+    // right voronoi region.
+    else if (dp > len2) { return VORONOI_REGION.RIGHT; }
+    // Otherwise, it's in the middle one.
+    else { return VORONOI_REGION.MIDDLE; }
+}
+
+/**
+ * Check if a polygon and a circle collide.
+ * @param {Polygon} polygon The polygon.
+ * @param {Circle} circle The circle.
+ * @param {TestResult} response Response object (optional) that will be populated if
+ *   they interset.
+ * @return {boolean} true if they intersect, false if they don't.
+ */
+export function testPolygonCircle(polygon: Polygon, circle: Circle, response: TestResult) {
+    let circlePos = T_VECTORS.pop();
+    if (circlePos === undefined)
+        throw new Error('memory allocation error');
+    // Get the position of the circle relative to the polygon.
+    circlePos.set(circle.c).sub(polygon.pos);
+
+    let radius = circle.r;
+    let radius2 = radius * radius;
+    let points = polygon.points;
+    let len = points.length;
+
+    let edge = T_VECTORS.pop();
+    let point = T_VECTORS.pop();
+    if (point === undefined || edge === undefined)
+        throw new Error('memory allocation error');
+    // For each edge in the polygon:
+    for (let i = 0; i < len; i++) {
+        let next = (i + 1) % len;
+        let prev = (i - 1 + len) % len;
+        let overlap = 0;
+        let overlapN = null;
+
+        // Get the edge.
+        edge.set(polygon.points[next]).sub(polygon.points[i]);
+        // Calculate the center of the circle relative to the starting point of the edge.
+        point.set(circlePos).sub(points[i]);
+
+        // If the distance between the center of the circle and the point
+        // is bigger than the radius, the polygon is definitely not fully in
+        // the circle.
+        if (response && point.len2() > radius2) {
+            response.aInB = false;
+        }
+
+        // Calculate which Voronoi region the center of the circle is in.
+        let region = voronoiRegion(edge, point);
+        // If it's the left region:
+        if (region === VORONOI_REGION.LEFT) {
+            // We need to make sure we're in the RIGHT_VORONOI_REGION of the previous edge.
+            edge.set(polygon.points[i]).sub(polygon.points[prev]);
+            // Calculate the center of the circle relative the starting point of the previous edge
+            let point2 = T_VECTORS.pop();
+            if (point2 === undefined)
+                throw new Error('memory allocation error');
+            point2.set(circlePos).sub(points[prev]);
+            region = voronoiRegion(edge, point2);
+            if (region === VORONOI_REGION.RIGHT) {
+                // It's in the region we want.  Check if the circle intersects the point.
+                let dist = point.len();
+                if (dist > radius) {
+                    // No intersection
+                    T_VECTORS.push(circlePos);
+                    T_VECTORS.push(edge);
+                    T_VECTORS.push(point);
+                    T_VECTORS.push(point2);
+                    return false;
+                } else if (response) {
+                    // It intersects, calculate the overlap.
+                    response.bInA = false;
+                    overlapN = point.normalize();
+                    overlap = radius - dist;
+                }
+            }
+            T_VECTORS.push(point2);
+            // If it's the right region:
+        } else if (region === VORONOI_REGION.RIGHT) {
+            // We need to make sure we're in the left region on the next edge
+            edge.set(polygon.points[(next + 1) % len]).sub(polygon.points[next]);
+            // Calculate the center of the circle relative to the starting point of the next edge.
+            point.set(circlePos).sub(points[next]);
+            region = voronoiRegion(edge, point);
+            if (region === VORONOI_REGION.LEFT) {
+                // It's in the region we want.  Check if the circle intersects the point.
+                let dist = point.len();
+                if (dist > radius) {
+                    // No intersection
+                    T_VECTORS.push(circlePos);
+                    T_VECTORS.push(edge);
+                    T_VECTORS.push(point);
+                    return false;
+                } else if (response) {
+                    // It intersects, calculate the overlap.
+                    response.bInA = false;
+                    overlapN = point.normalize();
+                    overlap = radius - dist;
+                }
+            }
+            // Otherwise, it's the middle region:
+        } else {
+            // Need to check if the circle is intersecting the edge,
+            // Change the edge into its "edge normal".
+            let normal = edge.perp().normalize();
+            // Find the perpendicular distance between the center of the
+            // circle and the edge.
+            let dist = point.dot(normal);
+            let distAbs = Math.abs(dist);
+            // If the circle is on the outside of the edge, there is no intersection.
+            if (dist > 0 && distAbs > radius) {
+                // No intersection
+                T_VECTORS.push(circlePos);
+                T_VECTORS.push(normal);
+                T_VECTORS.push(point);
+                return false;
+            } else if (response) {
+                // It intersects, calculate the overlap.
+                overlapN = normal;
+                overlap = radius - dist;
+                // If the center of the circle is on the outside of the edge, or part of the
+                // circle is on the outside, the circle is not fully inside the polygon.
+                if (dist >= 0 || overlap < 2 * radius) {
+                    response.bInA = false;
+                }
+            }
+        }
+
+        // If this is the smallest overlap we've seen, keep it.
+        // (overlapN may be null if the circle was in the wrong Voronoi region).
+        if (overlapN && response && Math.abs(overlap) < Math.abs(response.overlap)) {
+            response.overlap = overlap;
+            response.overlapN.set(overlapN);
+        }
+    }
+
+    // Calculate the final overlap vector - based on the smallest overlap.
+    if (response) {
+        response.overlapV.set(response.overlapN).scl(response.overlap);
+    }
+    T_VECTORS.push(circlePos);
+    T_VECTORS.push(edge);
+    T_VECTORS.push(point);
     return true;
 }
 

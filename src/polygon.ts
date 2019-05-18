@@ -2,11 +2,14 @@ import Shape from "./shape";
 import Vector from "./vector";
 import TestResult from "./test-result";
 import Box from "./box";
-import {lineHasPoint, testPolygonPolygon} from "./util";
+import {lineHasPoint, testPolygonCircle, testPolygonPolygon} from "./util";
+import Circle from "./circle";
 
 export default class Polygon implements Shape {
+    public pos: Vector;
     public points:Array<Vector>;
-    constructor(points: Array<Vector>) {
+    constructor(pos: Vector, points: Array<Vector>) {
+        this.pos = pos;
         this.points = points;
     }
 
@@ -79,18 +82,21 @@ export default class Polygon implements Shape {
     public intersect(shape: Shape, result: TestResult): boolean {
         if (shape instanceof Polygon) {
             return testPolygonPolygon(this, shape, result);
+        } else if (shape instanceof Circle) {
+            return testPolygonCircle(this, shape, result);
         }
         throw new Error("shape intersect unavailable")
     }
 
     public isPointIn(v: Vector): boolean {
+        let rv = v.clone().sub(this.pos);
         let points = this.points;
         let length = points.length;
         let c = false;
         let i;
         for (i = 0; i < length; i ++) {
-            if (((points[i].y > v.y) !== (points[(i + 1) % length].y > v.y)) &&
-                (v.x < (points[(i + 1) % length].x - points[i].x) * (v.y - points[i].y) / (points[(i + 1) % length].y - points[i].y) + points[i].x)) {
+            if (((points[i].y > rv.y) !== (points[(i + 1) % length].y > rv.y)) &&
+                (rv.x < (points[(i + 1) % length].x - points[i].x) * (rv.y - points[i].y) / (points[(i + 1) % length].y - points[i].y) + points[i].x)) {
                 c = !c;
             }
         }
@@ -100,7 +106,7 @@ export default class Polygon implements Shape {
         for (i = 0; i < length; i ++) {
             let p1 = points[i];
             let p2 = points[(i + 1) % length];
-            if (lineHasPoint(p1, p2, v, 1)) {
+            if (lineHasPoint(p1, p2, rv, 1)) {
                 return true;
             }
         }
