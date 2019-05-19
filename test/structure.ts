@@ -53,18 +53,18 @@ describe("Polygon.getCentroid", function() {
 
 describe("Collision", function() {
 
-    /*
     it("testCircleCircle", function() {
 
         let circle1 = new Circle(new Vector(0,0), 20);
         let circle2 = new Circle(new Vector(30,0), 20);
-        let response = new TestResult();
-        let collided = testCircleCircle(circle1, circle2, response);
+        let testResult = new TestResult();
+        let collided = circle1.intersect(circle2, testResult);
 
-        assert(collided);
-        assert(response.overlap == 10);
-        assert(response.overlapV.x == 10 && response.overlapV.y).to.equal(0);
-    });*/
+        expect(collided).to.be.true;
+        expect(testResult.overlap).to.equal(10);
+        expect(testResult.overlapV.x).to.equal(10);
+        expect(testResult.overlapV.y).to.equal(0);
+    });
 
     it("testPolygonCircle", function() {
 
@@ -76,7 +76,7 @@ describe("Collision", function() {
         let testResult = new TestResult();
         let collided = polygon.intersect(circle, testResult);
 
-        expect(collided).to.not.be.null;
+        expect(collided).to.be.true;
         expect(testResult.overlap.toFixed(2)).to.equal("5.86");
         expect(testResult.overlapV.x.toFixed(2)).to.equal("4.14");
         expect(testResult.overlapV.y.toFixed(2)).to.equal("4.14");
@@ -93,10 +93,18 @@ describe("Collision", function() {
         let testResult = new TestResult();
         let collided = circle.intersect(polygon, testResult);
 
-        expect(collided).to.not.be.null;
+        expect(collided).to.be.true;
         expect(testResult.overlap.toFixed(2)).to.equal("5.86");
         expect(testResult.overlapV.x.toFixed(2)).to.equal("-4.14");
         expect(testResult.overlapV.y.toFixed(2)).to.equal("-4.14");
+
+        circle = new Circle(new Vector(50,50), 5);
+        // A square
+        polygon = new Polygon(new Vector(50, 50), [
+            new Vector(0,0), new Vector(0,10)]);
+
+        collided = circle.intersect(polygon, testResult);
+        expect(collided).to.be.true;
     });
 
     it("testPolygonPolygon", function() {
@@ -111,7 +119,7 @@ describe("Collision", function() {
         let response = new TestResult();
         let collided = polygon1.intersect(polygon2, response);
 
-        expect(collided).to.not.be.null;
+        expect(collided).to.be.true;
         expect(response.overlap).to.equal(10);
         expect(response.overlapV.x).to.equal(10);
         expect(response.overlapV.y).to.equal(0);
@@ -128,7 +136,7 @@ describe("No collision", function() {
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
         let collided = box1.intersect(box2, new TestResult());
-        expect(collided).to.not.null;
+        expect(collided).to.be.false;
     });
 });
 

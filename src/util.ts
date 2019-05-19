@@ -126,6 +126,41 @@ export function isSeparatingAxis(aPos: Vector, bPos: Vector, aPoints: Array<Vect
     T_ARRAYS.push(rangeB);
     return false;
 }
+// Check if two circles collide.
+/**
+ * @param {Circle} a The first circle.
+ * @param {Circle} b The second circle.
+ * @param {TestResult} testResult Response object (optional) that will be populated if
+ *   the circles intersect.
+ * @return {boolean} true if the circles intersect, false if they don't.
+ */
+export function testCircleCircle(a: Circle, b: Circle, testResult: TestResult) {
+    // Check if the distance between the centers of the two
+    // circles is greater than their combined radius.
+    let differenceV = T_VECTORS.pop();
+    if (differenceV === undefined)
+        throw new Error('memory allocation error');
+    differenceV.set(b.c).sub(a.c);
+    let totalRadius = a.r + b.r;
+    let totalRadiusSq = totalRadius * totalRadius;
+    let distanceSq = differenceV.len2();
+    // If the distance is bigger than the combined radius, they don't intersect.
+    if (distanceSq > totalRadiusSq) {
+        T_VECTORS.push(differenceV);
+        return false;
+    }
+    // They intersect.  If we're calculating a testResult, calculate the overlap.
+    if (testResult) {
+        let dist = Math.sqrt(distanceSq);
+        testResult.overlap = totalRadius - dist;
+        testResult.overlapN.set(differenceV.normalize());
+        testResult.overlapV.set(differenceV).scl(testResult.overlap);
+        testResult.aInB= a.r <= b.r && dist <= b.r - a.r;
+        testResult.bInA = b.r <= a.r && dist <= a.r - b.r;
+    }
+    T_VECTORS.push(differenceV);
+    return true;
+}
 
 export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResult) {
     let aPoints = a.points;
@@ -140,6 +175,7 @@ export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResul
 
         normal.set(aPoints[(i + 1) % aLen]).sub(aPoints[i]).perp().normalize();
         if (isSeparatingAxis(a.pos, b.pos, aPoints, bPoints, normal, testResult)) {
+            T_VECTORS.push(normal);
             return false;
         }
         T_VECTORS.push(normal);
@@ -152,6 +188,7 @@ export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResul
 
         normal.set(bPoints[(i + 1) % bLen]).sub(bPoints[i]).perp().normalize();
         if (isSeparatingAxis(a.pos, b.pos, aPoints, bPoints, normal, testResult)) {
+            T_VECTORS.push(normal);
             return false;
         }
         T_VECTORS.push(normal);

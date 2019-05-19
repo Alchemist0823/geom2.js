@@ -12,10 +12,6 @@ describe('algo.generateRandomConvexPolygon', function() {
 
     it('should be convex', function () {
         let polygon = algo.generateRandomConvexPolygon(10, 1);
-        for (let point of polygon.points) {
-            console.log("(" + point.x.toFixed(2) + "," + point.y.toFixed(2) + ")");
-
-        }
         expect(algo.isConvex(polygon.points)).to.be.true;
     });
 
