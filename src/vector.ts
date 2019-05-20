@@ -147,4 +147,9 @@ export class Vector {
     public dist(v: Vector) {
         return Math.sqrt(this.dist2(v));
     }
+
+    // TODO: add tolerance
+    public equalsTo(v: Vector): boolean {
+        return this.x === v.x && this.y === v.y;
+    }
 }

@@ -379,3 +379,75 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response: Te
 export function lineHasPoint(v1:Vector, v2:Vector, p:Vector, tolerance:number = 0.1) {
     return Math.abs(v1.dist2(v2) - (v1.dist2(p) + v2.dist2(p))) <= tolerance;
 }
+
+/**
+ * Calculate distance and closest point between point and segment
+ * @param pt the point
+ * @param seg1 the start of segment
+ * @param seg2 the end of segment
+ * @param cp the closest point
+ * @returns distance
+ */
+export function point2segment(pt: Vector, seg1: Vector, seg2: Vector, cp?: Vector) {
+    /* Degenerated case of zero-length segment */
+    if (seg1.equalsTo(seg2)) {
+        if (cp !== undefined)
+            cp.set(seg1);
+        return pt.dist(seg1);
+    }
+    let vSeg = T_VECTORS.pop();
+    let vSeg1 = T_VECTORS.pop();
+    let vSeg2 = T_VECTORS.pop();
+
+    if (vSeg === undefined || vSeg1 === undefined || vSeg2 === undefined) {
+        throw new Error('temp variable memory allocation error');
+    }
+    vSeg.set(seg1).sub(seg2);
+    vSeg1.set(seg1).sub(pt);
+    vSeg2.set(seg2).sub(pt);
+
+    let start_sp = vSeg.dot(vSeg1);
+    let end_sp = -vSeg.dot(vSeg2);
+
+    let dist;
+    if (start_sp >= 0 && end_sp >= 0) {    /* point inside segment scope */
+        // get unit vector
+        vSeg.normalize();
+        if (cp !== undefined)
+            cp.set(seg1).addMul(vSeg, vSeg.dot(vSeg2));
+        dist = Math.abs(vSeg.cross(vSeg2));
+    } else if (start_sp < 0) {                             /* point is out of scope closer to ps */
+        if (cp !== undefined)
+            cp.set(seg1);
+        dist = pt.dist(seg1);
+    } else {                                               /* point is out of scope closer to pe */
+        if (cp !== undefined)
+            cp.set(seg2);
+        dist = pt.dist(seg2);
+    }
+    T_VECTORS.push(vSeg);
+    T_VECTORS.push(vSeg1);
+    T_VECTORS.push(vSeg2);
+    return dist;
+};
+
+export function point2polygon(pt:Vector, points:Array<Vector>, cp?: Vector): number {
+    let n = points.length;
+    let local_cp = T_VECTORS.pop();
+    let min_dist = Number.POSITIVE_INFINITY;
+    if (local_cp === undefined) {
+        throw new Error('temp variable memory allocation error');
+    }
+    for (let i = 0; i < n; i++) {
+        let next = (i + 1) % n;
+        let dist = point2segment(pt, points[i], points[next], local_cp);
+        if (min_dist > dist) {
+            min_dist = dist;
+            if (cp !== undefined) {
+              cp.set(local_cp);
+            }
+        }
+    }
+    T_VECTORS.push(local_cp);
+    return min_dist;
+}
