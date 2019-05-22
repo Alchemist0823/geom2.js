@@ -147,7 +147,7 @@ export function generateRandomConvexPolygon(n: number, maxSize: number): Polygon
  * @param n end index of the polygon on points
  * @param tolerance tolerance
  */
-export function isConvex(points: Array<Vector>, base: number = 0, n: number = points.length - base, tolerance: number = 0.0001) {
+export function isConvex(points: Array<Vector>, base: number = 0, n: number = points.length - base, tolerance: number = 0.00001) {
     if (n < 4)
         return true;
     let sign = undefined;
@@ -156,7 +156,7 @@ export function isConvex(points: Array<Vector>, base: number = 0, n: number = po
     for (let i = 0; i < n; i++) {
         let i1 = base + (i + 1) % n;
         let i2 = base + (i + 2) % n;
-        let dx1 = points[i1].x - points[i].y;
+        let dx1 = points[i1].x - points[i].x;
         let dy1 = points[i1].y - points[i].y;
         let dx2 = points[i2].x - points[i1].x;
         let dy2 = points[i2].y - points[i1].y;
@@ -165,7 +165,6 @@ export function isConvex(points: Array<Vector>, base: number = 0, n: number = po
             if (sign === undefined)
                 sign = crossproduct > 0;
             else if (sign != (crossproduct > 0)) {
-                console.log(i);
                 return false;
             }
         }

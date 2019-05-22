@@ -13,13 +13,14 @@ describe('algo.generateRandomConvexPolygon', function() {
     it('should be convex', function () {
         for (let i = 0; i < 100; i ++) {
             let polygon = algo.generateRandomConvexPolygon(10, 1);
-            if (!algo.isConvex(polygon.points)) {
-              polygon.pos.x = 1;
-              polygon.pos.y = 1;
-              console.log(i);
-              console.log(polygon.toCanvasDraw(200));
+            let isConvex = algo.isConvex(polygon.points);
+            if (!isConvex) {
+              polygon.pos.x = 0.5;
+              polygon.pos.y = 0.5;
+              //console.log(i);
+              console.log(polygon.toCanvasDraw(1000));
             }
-            expect(algo.isConvex(polygon.points)).to.be.true;
+            expect(isConvex).to.be.true;
         }
     });
 

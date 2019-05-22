@@ -89,7 +89,7 @@ class LQTreeNode<T extends Identifiable> {
 
     public removeElement(element: LQTreeElement<T>): boolean {
         for (let i = 0; i < this.elements.length; i ++) {
-            if (element = this.elements[i]) {
+            if (element === this.elements[i]) {
                 this.elements.slice(i, 1);
                 return true;
             }
@@ -159,36 +159,36 @@ class LQTreeNode<T extends Identifiable> {
  */
 export class LQTree<T extends Identifiable> {
     public readonly maxChildren: number;
-    public readonly minChildren: number;
+    public readonly maxLayer: number;
     public root: LQTreeNode<T>; // public for testing
     protected elementMap: Map<number, LQTreeElement<T>>;
 
-    public constructor(width: number, height: number, maxChildren: number = 10, minChildren: number = 0) {
+    public constructor(width: number, height: number, maxChildren: number = 4, maxLayer: number = 10) {
         this.root = new LQTreeNode(0, 0, width, height);
         this.elementMap = new Map();
         this.maxChildren = maxChildren;
-        this.minChildren = minChildren;
+        this.maxLayer = maxLayer;
     }
 
     public insert(aabb: AABB, data:T) {
         let element = new LQTreeElement(aabb, data);
-        this.insertNode(this.root, element, this.maxChildren);
+        this.insertNode(this.root, element, 0);
         this.elementMap.set(data.getId(), element);
     }
 
-    protected insertNode(node: LQTreeNode<T>, element: LQTreeElement<T>, maxChildren: number) {
+    protected insertNode(node: LQTreeNode<T>, element: LQTreeElement<T>, layer: number) {
         if (node.children === null) {
             node.addElement(element);
-            if (node.elementCount > maxChildren)
-                this.split(node);
+            if (node.elementCount > this.maxChildren && layer < this.maxLayer)
+                this.split(node, layer + 1);
         } else {
             let index = node.getRegion(element.aabb);
-            this.insertNode(node.children[index], element, maxChildren);
+            this.insertNode(node.children[index], element, layer + 1);
         }
         node.count ++;
     }
 
-    public split(node: LQTreeNode<T>) {
+    public split(node: LQTreeNode<T>, layer: number) {
         node.children = [
             new LQTreeNode(node.baseBound.left, node.baseBound.bottom, node.baseBound.centerX, node.baseBound.centerY),
             new LQTreeNode(node.baseBound.left, node.baseBound.centerY, node.baseBound.centerX, node.baseBound.top),
@@ -200,8 +200,8 @@ export class LQTree<T extends Identifiable> {
             node.children[index].addElement(element);
             node.children[index].count ++;
 
-            if (node.children[index].elementCount > this.maxChildren) {
-                this.split(node.children[index]);
+            if (node.children[index].elementCount > this.maxChildren && layer < this.maxLayer) {
+                this.split(node.children[index], layer + 1);
             }
         }
         node.clearElements();
@@ -213,6 +213,7 @@ export class LQTree<T extends Identifiable> {
             this.elementMap.delete(data.getId());
             return this.deleteInNode(this.root, element);
         }
+        throw 'no element';
         return false;
     }
 
@@ -227,12 +228,8 @@ export class LQTree<T extends Identifiable> {
             return false;
         } else {
             // branch
-            let succeed = false;
-            for (let i = 0; i < 4; i ++) {
-                if (node.children[i].contains(element.aabb)) {
-                    succeed = succeed || this.deleteInNode(node.children[i], element);
-                }
-            }
+            let index = node.getRegion(element.aabb);
+            let succeed = this.deleteInNode(node.children[index], element);
             if (succeed) {
                 node.count --;
                 if (node.count > 0)
@@ -279,7 +276,10 @@ export class LQTree<T extends Identifiable> {
     }
 
     public toCanvasDraw() {
-        return this.root.toCanvasDraw();
+        let str = '';
+        str += 'const canvas = document.getElementById("canvas")\n';
+        str += 'const ctx = canvas.getContext("2d");\n';
+        return str + this.root.toCanvasDraw();
     }
 
 }
