@@ -21,6 +21,95 @@ for (let i = 0; i < 5; i++) { T_ARRAYS.push([]); }
 // Temporary response used for polygon hit detection.
 let T_TESTRESULT = new TestResult();
 
+
+/**
+ * Randomly shuffle an array
+ * https://stackoverflow.com/a/2450976/1293256
+ * @param  {Array} array The array to shuffle
+ * @return {String}      The first item in the shuffled array
+ */
+export function shuffle(array: Array<any>) {
+    var currentIndex = array.length;
+    var temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+}
+
+// value
+export function sameSign(num1: number, num2: number)
+{
+    return num1 >= 0 && num2 >= 0 || num1 < 0 && num2 < 0
+}
+
+// Given three colinear points p, q, r, the function checks if
+// point q lies on line segment 'pr'
+export function onSegment(s1: Vector, s2: Vector, v: Vector) : boolean
+{
+    return v.x <= Math.max(s1.x, s2.x) && v.x >= Math.min(s1.x, s2.x) &&
+        v.y <= Math.max(s1.y, s2.y) && v.y >= Math.min(s1.y, s2.y);
+}
+
+// To find orientation of ordered triplet (v1, ref, v2).
+export function crossProduct3(v1: Vector, v2: Vector, v3: Vector) {
+    return (v2.x - v1.x) * (v3.y - v2.y) - (v2.y - v1.y) * (v3.x - v2.x);
+}
+
+
+// To find orientation of ordered triplet (v1, ref, v2).
+export function orientation(s: Segment, v: Vector) {
+    return crossProduct3(s.v1, s.v2, v);
+}
+
+export function testSegmentSegment(s1p1: Vector, s1p2: Vector, s2p1: Vector, s2p2: Vector) : boolean
+{
+    // Find the four orientations needed for general and
+    // special cases
+    let o1 = crossProduct3(s1p1, s1p2, s2p1);
+    let o2 = crossProduct3(s1p1, s1p2, s2p2);
+    let o3 = crossProduct3(s2p1, s2p2, s1p1);
+    let o4 = crossProduct3(s2p1, s2p2, s1p2);
+
+    // General case
+    if (!sameSign(o1, o2) && !sameSign(o3, o4))
+        return true;
+
+
+    // Special Cases
+    // s1p1, s1p2 and s2p1 are colinear and s2p1 lies on segment p1q1
+    if (o1 == 0 && onSegment(s1p1, s2p1, s1p2)) return true;
+
+    // s1p1, s1p2 and s2p2 are colinear and s2p2 lies on segment p1q1
+    if (o2 == 0 && onSegment(s1p1, s2p2, s1p2)) return true;
+
+    // s2p1, s2p2 and s1p1 are colinear and s1p1 lies on segment p2q2
+    if (o3 == 0 && onSegment(s2p1, s1p1, s2p2)) return true;
+
+    // s2p1, s2p2 and s1p2 are colinear and s1p2 lies on segment p2q2
+    if (o4 == 0 && onSegment(s2p1, s1p2, s2p2)) return true;
+
+    return false; // Doesn't fall in any of the above cases
+}
+
+
+export function lineIntersection(p1:Vector, p2:Vector, p3:Vector, p4:Vector):Vector {
+    // From http://paulbourke.net/geometry/lineline2d/
+    var s = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x))
+        / ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
+    return new Vector(p1.x + s * (p2.x - p1.x), p1.y + s * (p2.y - p1.y));
+}
+
 /**
  * Flattens the specified array of points onto a unit vector axis,
  * resulting in a one dimensional range of the minimum and

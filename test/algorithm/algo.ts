@@ -1,6 +1,6 @@
 import {expect} from 'chai';
-import * as algo from "../src/algo";
-import {Polygon, Vector} from "../src";
+import * as algo from "../../src/algorithm";
+import {Polygon, Vector} from "../../src";
 
 describe('algo.generateRandomConvexPolygon', function() {
     it('should be centered', function () {

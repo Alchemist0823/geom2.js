@@ -1,4 +1,6 @@
 export class Vector {
+    public static ZERO: Vector = new Vector();
+
     public x: number;
     public y: number;
     constructor(x: number = 0, y: number= 0) {
