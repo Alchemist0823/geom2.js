@@ -131,8 +131,8 @@ export function isSeparatingAxis(aPos: Vector, bPos: Vector, aPoints: Array<Vect
  * @param {Circle} a The first circle.
  * @param {Circle} b The second circle.
  * @param {TestResult} testResult Response object (optional) that will be populated if
- *   the circles intersect.
- * @return {boolean} true if the circles intersect, false if they don't.
+ *   the circles intersects.
+ * @return {boolean} true if the circles intersects, false if they don't.
  */
 export function testCircleCircle(a: Circle, b: Circle, testResult: TestResult) {
     // Check if the distance between the centers of the two
@@ -144,12 +144,12 @@ export function testCircleCircle(a: Circle, b: Circle, testResult: TestResult) {
     let totalRadius = a.r + b.r;
     let totalRadiusSq = totalRadius * totalRadius;
     let distanceSq = differenceV.len2();
-    // If the distance is bigger than the combined radius, they don't intersect.
+    // If the distance is bigger than the combined radius, they don't intersects.
     if (distanceSq > totalRadiusSq) {
         T_VECTORS.push(differenceV);
         return false;
     }
-    // They intersect.  If we're calculating a testResult, calculate the overlap.
+    // They intersects.  If we're calculating a testResult, calculate the overlap.
     if (testResult) {
         let dist = Math.sqrt(distanceSq);
         testResult.overlap = totalRadius - dist;
@@ -240,7 +240,7 @@ function voronoiRegion(line: Vector, point: Vector) {
  * @param {Circle} circle The circle.
  * @param {TestResult} response Response object (optional) that will be populated if
  *   they interset.
- * @return {boolean} true if they intersect, false if they don't.
+ * @return {boolean} true if they intersects, false if they don't.
  */
 export function testPolygonCircle(polygon: Polygon, circle: Circle, response: TestResult) {
     let circlePos = T_VECTORS.pop();

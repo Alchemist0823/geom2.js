@@ -58,7 +58,7 @@ describe("Collision", function() {
         let circle1 = new Circle(new Vector(0,0), 20);
         let circle2 = new Circle(new Vector(30,0), 20);
         let testResult = new TestResult();
-        let collided = circle1.intersect(circle2, testResult);
+        let collided = circle1.intersects(circle2, testResult);
 
         expect(collided).to.be.true;
         expect(testResult.overlap).to.equal(10);
@@ -74,7 +74,7 @@ describe("Collision", function() {
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
         let testResult = new TestResult();
-        let collided = polygon.intersect(circle, testResult);
+        let collided = polygon.intersects(circle, testResult);
 
         expect(collided).to.be.true;
         expect(testResult.overlap.toFixed(2)).to.equal("5.86");
@@ -91,7 +91,7 @@ describe("Collision", function() {
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
         let testResult = new TestResult();
-        let collided = circle.intersect(polygon, testResult);
+        let collided = circle.intersects(polygon, testResult);
 
         expect(collided).to.be.true;
         expect(testResult.overlap.toFixed(2)).to.equal("5.86");
@@ -103,7 +103,7 @@ describe("Collision", function() {
         polygon = new Polygon(new Vector(50, 50), [
             new Vector(0,0), new Vector(0,10)]);
 
-        collided = circle.intersect(polygon, testResult);
+        collided = circle.intersects(polygon, testResult);
         expect(collided).to.be.true;
     });
 
@@ -117,7 +117,7 @@ describe("Collision", function() {
             new Vector(30,0), new Vector(60, 0), new Vector(30, 30)
         ]);
         let response = new TestResult();
-        let collided = polygon1.intersect(polygon2, response);
+        let collided = polygon1.intersects(polygon2, response);
 
         expect(collided).to.be.true;
         expect(response.overlap).to.equal(10);
@@ -135,7 +135,7 @@ describe("No collision", function() {
         let box2 = new Polygon(new Vector(50,0),[
             new Vector(0,0), new Vector(40,0), new Vector(40,40), new Vector(0,40)
         ]);
-        let collided = box1.intersect(box2, new TestResult());
+        let collided = box1.intersects(box2, new TestResult());
         expect(collided).to.be.false;
     });
 });

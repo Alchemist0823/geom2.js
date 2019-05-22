@@ -44,7 +44,7 @@ class LQTreeNode<T extends Identifiable> {
 
     public intersects(aabb: AABB): boolean {
         if (this.count > 0)
-            return aabb.intersect(this.looseBound);
+            return aabb.intersects(this.looseBound);
         return false;
     }
 
@@ -67,9 +67,11 @@ class LQTreeNode<T extends Identifiable> {
     public recalcBound() {
         if (this.children === null) {
             // leaf
-            this.looseBound.set(this.elements[0].aabb);
-            for (let i = 1; i < this.elements.length; i ++) {
-                this.looseBound.extend(this.elements[i].aabb);
+            if (this.elementCount > 0) {
+                this.looseBound.set(this.elements[0].aabb);
+                for (let i = 1; i < this.elements.length; i++) {
+                    this.looseBound.extend(this.elements[i].aabb);
+                }
             }
         } else {
             // branch
@@ -90,7 +92,7 @@ class LQTreeNode<T extends Identifiable> {
     public removeElement(element: LQTreeElement<T>): boolean {
         for (let i = 0; i < this.elements.length; i ++) {
             if (element === this.elements[i]) {
-                this.elements.slice(i, 1);
+                this.elements.splice(i, 1);
                 return true;
             }
         }
@@ -210,10 +212,12 @@ export class LQTree<T extends Identifiable> {
     public delete(data: T) {
         let element = this.elementMap.get(data.getId());
         if (element !== undefined) {
-            this.elementMap.delete(data.getId());
-            return this.deleteInNode(this.root, element);
+            if (this.deleteInNode(this.root, element)) {
+                this.elementMap.delete(data.getId());
+                return true;
+            }
+            return false;
         }
-        throw 'no element';
         return false;
     }
 
@@ -221,8 +225,8 @@ export class LQTree<T extends Identifiable> {
         if (node.children === null) {
             // leaf
             if (node.removeElement(element)) {
-                node.recalcBound();
                 node.count --;
+                node.recalcBound();
                 return true;
             }
             return false;
@@ -243,17 +247,24 @@ export class LQTree<T extends Identifiable> {
         }
     }
 
-    public search(query: AABB, result: Array<T>, stopCondition?: (data:T)=>boolean): Array<T>{
-        this.searchNode(this.root, query, result, stopCondition);
+    public getAll(query: AABB, result: Array<T>): Array<T>{
+        this.searchNode(this.root, query, (data:T) => {
+            result.push(data);
+            return false;
+        });
         return result;
     }
 
-    protected searchNode(node: LQTreeNode<T>, query: AABB, result: Array<T>, stopCondition?: (data:T)=>boolean) {
+    // callBack if return true stop search
+    public search(query: AABB, callBack: (data:T) => boolean) {
+        this.searchNode(this.root, query, callBack);
+    }
+
+    protected searchNode(node: LQTreeNode<T>, query: AABB, callBack: (data:T)=>boolean) {
         if (node.children === null) {
             for (let element of node.getElements()) {
-                if (query.intersect(element.aabb)) {
-                    result.push(element.data);
-                    if (stopCondition !== undefined && stopCondition(element.data)) {
+                if (query.intersects(element.aabb)) {
+                    if (callBack(element.data)) {
                         return true;
                     }
                 }
@@ -261,7 +272,7 @@ export class LQTree<T extends Identifiable> {
         } else {
             for (let i = 0; i < 4; i ++) {
                 if (node.children[i].intersects(query)) {
-                    let stop = this.searchNode(node.children[i], query, result, stopCondition);
+                    let stop = this.searchNode(node.children[i], query, callBack);
                     if (stop) {
                         return true;
                     }

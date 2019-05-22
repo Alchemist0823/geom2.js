@@ -79,13 +79,13 @@ export class Polygon implements Shape {
         return new Vector(cx, cy);
     }
 
-    public intersect(shape: Shape, result: TestResult): boolean {
+    public intersects(shape: Shape, result: TestResult): boolean {
         if (shape instanceof Polygon) {
             return testPolygonPolygon(this, shape, result);
         } else if (shape instanceof Circle) {
             return testPolygonCircle(this, shape, result);
         }
-        throw new Error("shape intersect unavailable")
+        throw new Error("shape intersects unavailable")
     }
 
     public isPointIn(v: Vector): boolean {

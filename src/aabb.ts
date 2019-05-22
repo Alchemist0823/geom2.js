@@ -33,14 +33,14 @@ export class AABB implements Shape {
         return (this.bottom + this.top) / 2;
     }
 
-    intersect(shape: Shape, result?: TestResult): boolean {
+    intersects(shape: Shape, result?: TestResult): boolean {
         if (shape instanceof AABB) {
             return this.left <= shape.right &&
                 this.right >= shape.left &&
                 this.bottom <= shape.top &&
                 this.top >= shape.bottom;
         }
-        throw new Error("shape intersect unavailable")
+        throw new Error("shape intersects unavailable")
     }
 
     contains(aabb: AABB): boolean {

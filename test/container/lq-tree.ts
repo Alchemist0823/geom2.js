@@ -73,16 +73,39 @@ describe('Loose QuadTree', function() {
 
         it('search', function () {
             let result: Array<NodeObject> = [];
-            tree.search(new AABB(80, 80, 100, 100), result);
+            tree.getAll(new AABB(80, 80, 100, 100), result);
             expect(result.length).to.equals(2);
 
             result.length = 0;
-            tree.search(new AABB(0, 0, 100, 100), result);
+            tree.getAll(new AABB(0, 0, 100, 100), result);
             expect(result.length).to.equals(4);
 
             result.length = 0;
-            tree.search(new AABB(20, 20, 90, 90), result);
+            tree.getAll(new AABB(20, 20, 90, 90), result);
             expect(result.length).to.equals(3);
+        });
+    });
+
+    describe('Loose QuadTree with point insert', function() {
+        it('insert', function () {
+            let tree = new LQTree(1000, 1000, 4, 3);
+            let nodes: Array<NodeObject> = [];
+            for (let i = 0; i < 100; i ++)
+                nodes.push(new NodeObject(i));
+            tree.insert(new AABB(1, 1, 1, 1), nodes[0]);
+            tree.delete(nodes[0]);
+            expect(tree.root.count).to.equals(0);
+            expect(tree.root.getElements().length).to.equals(0);
+            tree.insert(new AABB(1, 1, 1, 1), nodes[0]);
+            tree.delete(nodes[0]);
+            expect(tree.root.count).to.equals(0);
+            expect(tree.root.getElements().length).to.equals(0);
+
+            for (let i = 0; i < 100; i ++) {
+                tree.insert(new AABB(1, 1, 1, 1), nodes[i]);
+            }
+            expect(tree.root.count).to.equals(100);
+
         });
     });
 
@@ -188,7 +211,7 @@ describe('Loose QuadTree', function() {
                     //let x = Math.random() * width - bw;
                     //let y = Math.random() * height - bh;
                     let result: Array<NodeObject> = [];
-                    tree.search(aabbs[i], result);
+                    tree.getAll(aabbs[i], result);
                 }
                 t1 = performance.now();
                 totalSearchTime += t1 - t0;

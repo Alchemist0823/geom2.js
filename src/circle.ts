@@ -13,7 +13,7 @@ export class Circle implements Shape{
         this.r = r;
     }
 
-    intersect(shape: Shape, result: TestResult): boolean {
+    intersects(shape: Shape, result: TestResult): boolean {
         if (shape instanceof Polygon) {
             let ret = testPolygonCircle(shape, this, result);
             let swap = result.aInB;
