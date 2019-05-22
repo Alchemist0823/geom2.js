@@ -11,8 +11,16 @@ describe('algo.generateRandomConvexPolygon', function() {
     });
 
     it('should be convex', function () {
-        let polygon = algo.generateRandomConvexPolygon(10, 1);
-        expect(algo.isConvex(polygon.points)).to.be.true;
+        for (let i = 0; i < 100; i ++) {
+            let polygon = algo.generateRandomConvexPolygon(10, 1);
+            if (!algo.isConvex(polygon.points)) {
+              polygon.pos.x = 1;
+              polygon.pos.y = 1;
+              console.log(i);
+              console.log(polygon.toCanvasDraw(200));
+            }
+            expect(algo.isConvex(polygon.points)).to.be.true;
+        }
     });
 
     it('should be sized', function () {
@@ -63,4 +71,3 @@ describe('algo.makeHull', function () {
         expect(newPoints.length).to.equal(4);
     })
 });
-

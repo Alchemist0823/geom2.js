@@ -1,5 +1,5 @@
 export * from './vector';
-export * from './box';
+export * from './aabb';
 export * from './circle';
 export * from './line';
 export * from './polygon';

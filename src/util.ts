@@ -1,6 +1,6 @@
 import {Polygon} from "./polygon";
 import {Vector} from "./vector";
-import {Box} from "./box";
+import {AABB} from "./aabb";
 import {TestResult} from "./test-result";
 import {Circle} from "./circle";
 import {Line} from "./line";

@@ -1,6 +1,6 @@
 import {Vector} from "./vector";
 import {Shape} from "./shape";
-import {Box} from "./box";
+import {AABB} from "./aabb";
 import {TestResult} from "./test-result";
 import {lineHasPoint} from "./util";
 
@@ -12,8 +12,8 @@ export  class Line implements Shape {
         this.v2 = v2;
     }
 
-    getAABB(): Box {
-        return new Box(Math.min(this.v1.x, this.v2.x), Math.max(this.v1.x, this.v2.x), Math.min(this.v1.y, this.v2.y), Math.max(this.v1.y, this.v2.y));
+    getAABB(): AABB {
+        return new AABB(Math.min(this.v1.x, this.v2.x), Math.min(this.v1.y, this.v2.y), Math.max(this.v1.x, this.v2.x), Math.max(this.v1.y, this.v2.y));
     }
 
     intersect(shape: Shape, result: TestResult): boolean {

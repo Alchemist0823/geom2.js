@@ -134,8 +134,8 @@ export function generateRandomConvexPolygon(n: number, maxSize: number): Polygon
     });
 
     let polygon = new Polygon(new Vector(), points);
-    let box = polygon.getAABB();
-    polygon.translate(-box.centerX, -box.centerY);
+    let aabb = polygon.getAABB();
+    polygon.translate(-aabb.centerX, -aabb.centerY);
 
     return polygon;
 }
@@ -164,8 +164,10 @@ export function isConvex(points: Array<Vector>, base: number = 0, n: number = po
         if (Math.abs(crossproduct) > tolerance) {
             if (sign === undefined)
                 sign = crossproduct > 0;
-            else if (sign != (crossproduct > 0))
+            else if (sign != (crossproduct > 0)) {
+                console.log(i);
                 return false;
+            }
         }
     }
     return true;

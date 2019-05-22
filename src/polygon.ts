@@ -1,7 +1,7 @@
 import {Shape} from "./shape";
 import {Vector} from "./vector";
 import {TestResult} from "./test-result";
-import {Box} from "./box";
+import {AABB} from "./aabb";
 import {lineHasPoint, testPolygonCircle, testPolygonPolygon} from "./util";
 import {Circle} from "./circle";
 
@@ -113,7 +113,7 @@ export class Polygon implements Shape {
         return false;
     }
 
-    public getAABB(): Box {
+    public getAABB(): AABB {
         let points = this.points;
         let len = points.length;
         let xMin = points[0].x;
@@ -135,6 +135,20 @@ export class Polygon implements Shape {
                 yMax = point.y;
             }
         }
-        return new Box(xMin, xMax, yMin, yMax);
+        return new AABB(xMin, yMin, xMax, yMax);
+    }
+
+    public toCanvasDraw(scale: number = 1) {
+        let points = this.points;
+        let len = points.length;
+        let str = 'ctx.beginPath();\n';
+        str += 'ctx.strokeStyle = "black";\n';
+        str += 'ctx.moveTo(' + (points[0].x + this.pos.x) * scale + ',' + (points[0].y + this.pos.y) * scale + ');\n';
+        for (let i = 1; i < len; i++) {
+            str += 'ctx.lineTo(' + (points[i].x + this.pos.x) * scale + ',' + (points[i].y + this.pos.y) * scale + ');\n';
+        }
+        str += 'ctx.lineTo(' + (points[0].x + this.pos.x) * scale + ',' + (points[0].y + this.pos.y) * scale + ');\n';
+        str += 'ctx.stroke();';
+        return str;
     }
 }

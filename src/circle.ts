@@ -1,7 +1,7 @@
 import {Vector} from './vector';
 import {Shape} from './shape';
 import {TestResult} from './test-result';
-import {Box} from "./box";
+import {AABB} from "./aabb";
 import {Polygon} from "./polygon";
 import {testCircleCircle, testPolygonCircle} from "./util";
 
@@ -29,7 +29,7 @@ export class Circle implements Shape{
     }
 
     getAABB() {
-        return new Box(this.c.x - this.r, this.c.x + this.r, this.c.y - this.r, this.c.y + this.r);
+        return new AABB(this.c.x - this.r, this.c.y - this.r, this.c.x + this.r, this.c.y + this.r);
     }
 
     isPointIn(v: Vector): boolean {
