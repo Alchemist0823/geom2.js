@@ -5,16 +5,23 @@ It is written in modern **TypeScript**.
 
 ## Structure:
 * Vector
-* Line
-* Box
+* Segment
+* AABB (Axis-Aligned Bounding Box)
 * Circle
 * Polygon
 
 ## Algorithm:
+* Convex Polygon test
 * Random convex polygon generation
-* QuadTree for world query
-* SAT(Separation Axis Theorem) for polygon collision.
-* Ray-cast
+* Collision between shapes. Resolution distance and normal.
+
+## Container:
+* Loose QuadTree
+    * High-quality quadtree implementation
+    * It can store AABB (Axis-Aligned Bounding Box).
+    * No elements on branch nodes, all data on leaves.
+    * It maintains loose boundary on all nodes.
+    * It outperforms simple-quadtree and all other available js quadtree.
 
 ## Addition Feature:
 * Physics Collision Resolution

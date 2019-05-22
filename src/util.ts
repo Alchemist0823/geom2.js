@@ -3,7 +3,7 @@ import {Vector} from "./vector";
 import {AABB} from "./aabb";
 import {TestResult} from "./test-result";
 import {Circle} from "./circle";
-import {Line} from "./line";
+import {Segment} from "./segment";
 
 
 // ## Object Pools

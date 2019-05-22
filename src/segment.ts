@@ -4,7 +4,7 @@ import {AABB} from "./aabb";
 import {TestResult} from "./test-result";
 import {lineHasPoint} from "./util";
 
-export  class Line implements Shape {
+export  class Segment implements Shape {
     public v1: Vector;
     public v2: Vector;
     constructor(v1: Vector, v2: Vector) {
