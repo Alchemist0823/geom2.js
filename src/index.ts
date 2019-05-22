@@ -6,3 +6,4 @@ export * from './polygon';
 export * from './shape';
 export * from './test-result';
 export * from './algo';
+export * from './container/lq-tree';
