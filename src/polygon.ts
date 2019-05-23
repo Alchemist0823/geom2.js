@@ -4,13 +4,29 @@ import {TestResult} from "./test-result";
 import {AABB} from "./aabb";
 import {lineHasPoint, testPolygonCircle, testPolygonPolygon} from "./util";
 import {Circle} from "./circle";
+import {Transform} from "./transform";
 
+/**
+ * Polygon in this class satisfies:
+ * 1. It must be a simple polygon.
+ * 2. It contain the point (0, 0).
+ * 3. Points are sorted in clockwise order from it's center.
+ */
 export class Polygon implements Shape {
-    public pos: Vector;
-    public points:Array<Vector>;
+    //public pos: Vector;
+    public transform: Transform;
+    protected points: Array<Vector>;
+    public calcPoints: Array<Vector>;
+
     constructor(pos: Vector, points: Array<Vector>) {
-        this.pos = pos;
+        this.transform = new Transform(pos);
         this.points = points;
+        this.calcPoints = new Array<Vector>();
+        this.recalc();
+    }
+
+    public get originPoints() {
+        return this.points;
     }
 
     // Rotates this polygon counter-clockwise around the origin of *its local coordinate system* (i.e. `pos`).
@@ -32,15 +48,14 @@ export class Polygon implements Shape {
 
     // Calculated points - this is what is used for underlying collisions and takes into account
     // the angle/offset set on the polygon.
-    public calcPolygon(angle: number, offset: Vector, calcPolygon: Polygon){
-
-        let lengthChanged = this.points.length !== calcPolygon.points.length;
+    public recalc(){
+        let lengthChanged = this.points.length !== this.calcPoints.length;
         if (lengthChanged) {
-            while(this.points.length < calcPolygon.points.length) {
-                calcPolygon.points.pop();
+            while(this.points.length < this.calcPoints.length) {
+                this.calcPoints.pop();
             }
-            while(this.points.length > calcPolygon.points.length) {
-                calcPolygon.points.push(new Vector());
+            while(this.points.length > this.calcPoints.length) {
+                this.calcPoints.push(new Vector());
             }
         }
 
@@ -49,12 +64,7 @@ export class Polygon implements Shape {
         let len = points.length;
         let i;
         for (i = 0; i < len; i++) {
-            let calcPoint = calcPolygon.points[i].set(points[i]);
-            calcPoint.x += offset.x;
-            calcPoint.y += offset.y;
-            if (angle !== 0) {
-                calcPoint.rotate(angle);
-            }
+            this.transform.transform(points[i], this.calcPoints[i]);
         }
         return this;
     }
@@ -89,14 +99,14 @@ export class Polygon implements Shape {
     }
 
     public isPointIn(v: Vector): boolean {
-        let rv = v.clone().sub(this.pos);
-        let points = this.points;
+        //let rv = v.clone().sub(this.pos);
+        let points = this.calcPoints;
         let length = points.length;
         let c = false;
         let i;
         for (i = 0; i < length; i ++) {
-            if (((points[i].y > rv.y) !== (points[(i + 1) % length].y > rv.y)) &&
-                (rv.x < (points[(i + 1) % length].x - points[i].x) * (rv.y - points[i].y) / (points[(i + 1) % length].y - points[i].y) + points[i].x)) {
+            if (((points[i].y > v.y) !== (points[(i + 1) % length].y > v.y)) &&
+                (v.x < (points[(i + 1) % length].x - points[i].x) * (v.y - points[i].y) / (points[(i + 1) % length].y - points[i].y) + points[i].x)) {
                 c = !c;
             }
         }
@@ -106,7 +116,7 @@ export class Polygon implements Shape {
         for (i = 0; i < length; i ++) {
             let p1 = points[i];
             let p2 = points[(i + 1) % length];
-            if (lineHasPoint(p1, p2, rv, 1)) {
+            if (lineHasPoint(p1, p2, v, 1)) {
                 return true;
             }
         }
@@ -143,11 +153,11 @@ export class Polygon implements Shape {
         let len = points.length;
         let str = 'ctx.beginPath();\n';
         str += 'ctx.strokeStyle = "black";\n';
-        str += 'ctx.moveTo(' + (points[0].x + this.pos.x) * scale + ',' + (points[0].y + this.pos.y) * scale + ');\n';
+        str += 'ctx.moveTo(' + (points[0].x + this.transform.x) * scale + ',' + (points[0].y + this.transform.y) * scale + ');\n';
         for (let i = 1; i < len; i++) {
-            str += 'ctx.lineTo(' + (points[i].x + this.pos.x) * scale + ',' + (points[i].y + this.pos.y) * scale + ');\n';
+            str += 'ctx.lineTo(' + (points[i].x + this.transform.x) * scale + ',' + (points[i].y + this.transform.y) * scale + ');\n';
         }
-        str += 'ctx.lineTo(' + (points[0].x + this.pos.x) * scale + ',' + (points[0].y + this.pos.y) * scale + ');\n';
+        str += 'ctx.lineTo(' + (points[0].x + this.transform.x) * scale + ',' + (points[0].y + this.transform.y) * scale + ');\n';
         str += 'ctx.stroke();';
         return str;
     }

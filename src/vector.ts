@@ -1,3 +1,5 @@
+import {Transform} from "./transform";
+
 export class Vector {
     public static ZERO: Vector = new Vector();
 
@@ -45,7 +47,7 @@ export class Vector {
         return this;
     }
     // Subtract another vector from this one.
-    public sub(v: Vector) {
+    public sub(v: Vector | Transform) {
         this.x -= v.x;
         this.y -= v.y;
         return this;
@@ -84,6 +86,9 @@ export class Vector {
     }
     public cross(v: Vector) :number {
         return this.x * v.y - this.y * v.x;
+    }
+    public crossRef(v: Vector, ref:Vector) :number {
+        return (this.x - ref.x) * (v.y - ref.y) - (this.y - ref.y) * (v.x - ref.x);
     }
     // Project this vector on to another vector.
     public project(v: Vector) {

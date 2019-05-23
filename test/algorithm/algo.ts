@@ -13,13 +13,7 @@ describe('algo.generateRandomConvexPolygon', function() {
     it('should be convex', function () {
         for (let i = 0; i < 100; i ++) {
             let polygon = algo.generateRandomConvexPolygon(10, 1);
-            let isConvex = algo.isConvex(polygon.points);
-            if (!isConvex) {
-              polygon.pos.x = 0.5;
-              polygon.pos.y = 0.5;
-              //console.log(i);
-              console.log(polygon.toCanvasDraw(1000));
-            }
+            let isConvex = algo.isConvex(polygon.calcPoints);
             expect(isConvex).to.be.true;
         }
     });
@@ -45,9 +39,9 @@ describe('algo.isConvex', function() {
         let polygon = new Polygon(new Vector(), [
             new Vector(0,0),new Vector(10,0),new Vector(10,10),new Vector(5,5),new Vector(0,10)
         ]);
-        expect(algo.isConvex(polygon.points)).to.be.false;
-        expect(algo.isConvex(polygon.points, 0, 4)).to.be.true;
-        expect(algo.isConvex(polygon.points, 1, 4)).to.be.true;
+        expect(algo.isConvex(polygon.calcPoints)).to.be.false;
+        expect(algo.isConvex(polygon.calcPoints, 0, 4)).to.be.true;
+        expect(algo.isConvex(polygon.calcPoints, 1, 4)).to.be.true;
     });
 
 
@@ -56,8 +50,8 @@ describe('algo.isConvex', function() {
             new Vector(0,0), new Vector(5,0), new Vector(10,0), new Vector(10,5),
             new Vector(10,10),new Vector(5,5),new Vector(0,10),new Vector(0,5)
         ]);
-        expect(algo.isConvex(polygon.points)).to.be.false;
-        expect(algo.isConvex(polygon.points, 0, 5)).to.be.true;
+        expect(algo.isConvex(polygon.calcPoints)).to.be.false;
+        expect(algo.isConvex(polygon.calcPoints, 0, 5)).to.be.true;
     });
 });
 
@@ -67,7 +61,7 @@ describe('algo.makeHull', function () {
             new Vector(0,0), new Vector(5,0), new Vector(10,0), new Vector(10,5),
             new Vector(10,10),new Vector(5,5),new Vector(0,10),new Vector(0,5)
         ]);
-        let newPoints = algo.makeHull(polygon.points);
+        let newPoints = algo.makeHull(polygon.calcPoints);
         expect(algo.isConvex(newPoints)).to.be.true;
         expect(newPoints.length).to.equal(4);
     })

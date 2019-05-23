@@ -164,6 +164,7 @@ describe("Point testing", function() {
 
         let v1 = new Vector(1, 1.1);
         let p1 = new Polygon(new Vector(), [new Vector(2,1), new Vector(2,2), new Vector(1,3), new Vector(0,2),new Vector(0,1),new Vector(1,0)]);
+
         expect(p1.isPointIn(v1)).to.be.true;
     });
 });

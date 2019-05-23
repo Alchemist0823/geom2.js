@@ -4,6 +4,7 @@ import {AABB} from "./aabb";
 import {TestResult} from "./test-result";
 import {Circle} from "./circle";
 import {Segment} from "./segment";
+import {Transform} from "./transform";
 
 
 // ## Object Pools
@@ -252,9 +253,9 @@ export function testCircleCircle(a: Circle, b: Circle, testResult: TestResult) {
 }
 
 export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResult) {
-    let aPoints = a.points;
+    let aPoints = a.calcPoints;
     let aLen = aPoints.length;
-    let bPoints = b.points;
+    let bPoints = b.calcPoints;
     let bLen = bPoints.length;
     // If any of the edge normals of A is a separating axis, no intersection.
     for (let i = 0; i < aLen; i++) {
@@ -263,7 +264,7 @@ export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResul
             throw new Error('memory allocation error');
 
         normal.set(aPoints[(i + 1) % aLen]).sub(aPoints[i]).perp().normalize();
-        if (isSeparatingAxis(a.pos, b.pos, aPoints, bPoints, normal, testResult)) {
+        if (isSeparatingAxis(Vector.ZERO, Vector.ZERO, aPoints, bPoints, normal, testResult)) {
             T_VECTORS.push(normal);
             return false;
         }
@@ -276,7 +277,7 @@ export function testPolygonPolygon(a: Polygon, b: Polygon, testResult: TestResul
             throw new Error('memory allocation error');
 
         normal.set(bPoints[(i + 1) % bLen]).sub(bPoints[i]).perp().normalize();
-        if (isSeparatingAxis(a.pos, b.pos, aPoints, bPoints, normal, testResult)) {
+        if (isSeparatingAxis(Vector.ZERO, Vector.ZERO, aPoints, bPoints, normal, testResult)) {
             T_VECTORS.push(normal);
             return false;
         }
@@ -336,11 +337,11 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response: Te
     if (circlePos === undefined)
         throw new Error('memory allocation error');
     // Get the position of the circle relative to the polygon.
-    circlePos.set(circle.c).sub(polygon.pos);
+    circlePos.set(circle.c);
 
     let radius = circle.r;
     let radius2 = radius * radius;
-    let points = polygon.points;
+    let points = polygon.calcPoints;
     let len = points.length;
 
     let edge = T_VECTORS.pop();
@@ -355,7 +356,7 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response: Te
         let overlapN = null;
 
         // Get the edge.
-        edge.set(polygon.points[next]).sub(polygon.points[i]);
+        edge.set(polygon.calcPoints[next]).sub(polygon.calcPoints[i]);
         // Calculate the center of the circle relative to the starting point of the edge.
         point.set(circlePos).sub(points[i]);
 
@@ -371,7 +372,7 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response: Te
         // If it's the left region:
         if (region === VORONOI_REGION.LEFT) {
             // We need to make sure we're in the RIGHT_VORONOI_REGION of the previous edge.
-            edge.set(polygon.points[i]).sub(polygon.points[prev]);
+            edge.set(polygon.calcPoints[i]).sub(polygon.calcPoints[prev]);
             // Calculate the center of the circle relative the starting point of the previous edge
             let point2 = T_VECTORS.pop();
             if (point2 === undefined)
@@ -399,7 +400,7 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response: Te
             // If it's the right region:
         } else if (region === VORONOI_REGION.RIGHT) {
             // We need to make sure we're in the left region on the next edge
-            edge.set(polygon.points[(next + 1) % len]).sub(polygon.points[next]);
+            edge.set(polygon.calcPoints[(next + 1) % len]).sub(polygon.calcPoints[next]);
             // Calculate the center of the circle relative to the starting point of the next edge.
             point.set(circlePos).sub(points[next]);
             region = voronoiRegion(edge, point);
