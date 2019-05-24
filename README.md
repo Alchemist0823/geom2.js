@@ -1,19 +1,42 @@
-# geom2.js
-**geom2.js** is a high-performance javascript **2d geometry** library.
+# Geom2.js
+**Geom2.js** is a high-performance javascript **2d geometry** library written in modern **TypeScript**.
 
-It is written in modern **TypeScript**.
+It was extracted from the server-side code of a multi-player game.
+It is intended to be used in games, ai or any computation heavy task in javascript.
+
+In a game application, it can be used for collision detection, artificial intelligence
+(steering and path finding), server-client viewport optimization.
+
+### Difference from Physics Engines
+
+Most physics engines bundles all the physics related data structure and 
+algorithm together. It makes setup easy but it limits the flexibility of
+the application or games. Because in lots of scenario except physics simulation,
+objects are not intended to move according to physics laws.
+
+This library is much light weight than a physics engine, and gives users a customizable
+environment to setup their own 2d world.
 
 ## Structure:
 * Vector
 * Segment
-* AABB (Axis-Aligned Bounding Box)
-* Circle
-* Polygon
+* Shap
+    * AABB (Axis-Aligned Bounding Box)
+    * Arc
+    * Circle
+    * Polygon
 
 ## Algorithm:
-* Convex Polygon test
-* Random convex polygon generation
-* Collision between shapes. Resolution distance and normal.
+* Common
+    * Collision detection between shapes.
+        * GJK (Gilbert–Johnson–Keerthi)
+        * SAT (Separation Axis Theorem)
+    * Convex Polygon test
+    * Convex Hull
+* Generation
+    * Random convex polygon generation
+* Advance
+    * Field of view scanning (line sweeping)
 
 ## Container:
 * Loose QuadTree

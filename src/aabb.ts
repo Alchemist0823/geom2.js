@@ -7,7 +7,7 @@ export class AABB implements Shape {
     public right: number;
     public top: number;
     public bottom: number;
-    constructor(left: number, bottom: number, right: number, top: number) {
+    constructor(left: number, bottom: number, right: number = left, top: number = bottom) {
         this.left = left;
         this.bottom = bottom;
         this.right = right;
@@ -50,7 +50,7 @@ export class AABB implements Shape {
             this.top >= aabb.top;
     }
 
-    extend(other: AABB): this {
+    merge(other: AABB): this {
         this.left = Math.min(this.left, other.left);
         this.bottom = Math.min(this.bottom, other.bottom);
         this.right = Math.max(this.right, other.right);
@@ -58,7 +58,11 @@ export class AABB implements Shape {
         return this;
     }
 
-    getAABB() {
+    includes(v: Vector): this {
+        this.left = Math.min(this.left, v.x);
+        this.bottom = Math.min(this.bottom, v.y);
+        this.right = Math.max(this.right, v.x);
+        this.top = Math.max(this.top, v.y);
         return this;
     }
 
@@ -68,5 +72,9 @@ export class AABB implements Shape {
 
     toString() {
         return '[' + this.left + ', '+ this.bottom + ', '+ this.right + ', '+ this.top + ']';
+    }
+
+    getAABB() {
+        return this;
     }
 }

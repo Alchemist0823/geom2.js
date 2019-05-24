@@ -1,11 +1,41 @@
 import {Polygon} from "./polygon";
 import {Vector} from "./vector";
-import {AABB} from "./aabb";
 import {TestResult} from "./test-result";
 import {Circle} from "./circle";
 import {Segment} from "./segment";
-import {Transform} from "./transform";
 
+const PI = Math.PI;
+const PI2 = Math.PI * 2;
+
+export const Geom2Const = {
+    PI,
+    PI2
+};
+
+const TL = 0.00001;
+
+function EQ_0(num: number) {
+    return num < TL && num > -TL;
+}
+
+function EQ(a: number, b: number) {
+    return a - b < TL && a - b > -TL;
+}
+
+function LE(a: number, b: number) {
+    return a - b <= TL;
+}
+
+function GE(a: number, b: number) {
+    return a - b >= TL;
+}
+
+export const Comparator = {
+    EQ_0,
+    EQ,
+    LE,
+    GE
+};
 
 // ## Object Pools
 
@@ -22,7 +52,7 @@ for (let i = 0; i < 5; i++) { T_ARRAYS.push([]); }
 // Temporary response used for polygon hit detection.
 let T_TESTRESULT = new TestResult();
 
-
+/*****               Array                        *******/
 /**
  * Randomly shuffle an array
  * https://stackoverflow.com/a/2450976/1293256
@@ -30,8 +60,8 @@ let T_TESTRESULT = new TestResult();
  * @return {String}      The first item in the shuffled array
  */
 export function shuffle(array: Array<any>) {
-    var currentIndex = array.length;
-    var temporaryValue, randomIndex;
+    let currentIndex = array.length;
+    let temporaryValue, randomIndex;
 
     // While there remain elements to shuffle...
     while (0 !== currentIndex) {
@@ -48,12 +78,29 @@ export function shuffle(array: Array<any>) {
     return array;
 }
 
+/******              number                            *****/
+
 // value
 export function sameSign(num1: number, num2: number)
 {
     return num1 >= 0 && num2 >= 0 || num1 < 0 && num2 < 0
 }
 
+export function pMod(a: number, n: number) {
+    return (a % n + n) % n;
+}
+
+export function angleDiff(angle1: number, angle2: number) {
+    let a = angle1 - angle2;
+    return pMod((a + PI), PI2) - PI;
+}
+
+export function angleDiffPI2(angle1: number, angle2: number) {
+    let a = angle1 - angle2;
+    return pMod(a, PI2);
+}
+
+/******              Vector                            *****/
 // Given three colinear points p, q, r, the function checks if
 // point q lies on line segment 'pr'
 export function onSegment(s1: Vector, s2: Vector, v: Vector) : boolean
@@ -110,6 +157,9 @@ export function lineIntersection(p1:Vector, p2:Vector, p3:Vector, p4:Vector):Vec
         / ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
     return new Vector(p1.x + s * (p2.x - p1.x), p1.y + s * (p2.y - p1.y));
 }
+
+
+/******              Polygon                            *****/
 
 /**
  * Flattens the specified array of points onto a unit vector axis,

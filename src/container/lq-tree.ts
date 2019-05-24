@@ -33,7 +33,7 @@ class LQTreeNode<T extends Identifiable> {
 
     public extendLooseBound(result: AABB) {
         if (this.count > 0)
-            result.extend(this.looseBound);
+            result.merge(this.looseBound);
     }
 
     public contains(aabb: AABB): boolean {
@@ -61,7 +61,7 @@ class LQTreeNode<T extends Identifiable> {
         this.elements.push(element);
         if (this.elements.length == 1)
             this.looseBound.set(element.aabb);
-        this.looseBound.extend(element.aabb);
+        this.looseBound.merge(element.aabb);
     }
 
     public recalcBound() {
@@ -70,7 +70,7 @@ class LQTreeNode<T extends Identifiable> {
             if (this.elementCount > 0) {
                 this.looseBound.set(this.elements[0].aabb);
                 for (let i = 1; i < this.elements.length; i++) {
-                    this.looseBound.extend(this.elements[i].aabb);
+                    this.looseBound.merge(this.elements[i].aabb);
                 }
             }
         } else {

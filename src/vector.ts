@@ -1,4 +1,6 @@
 import {Transform} from "./transform";
+import {Comparator} from "./util";
+import {AABB} from "./aabb";
 
 export class Vector {
     public static ZERO: Vector = new Vector();
@@ -46,6 +48,14 @@ export class Vector {
         this.y += v.y;
         return this;
     }
+
+    // Add (x,y) to this one.
+    public translate(x: number, y: number) {
+        this.x += x;
+        this.y += y;
+        return this;
+    }
+
     // Subtract another vector from this one.
     public sub(v: Vector | Transform) {
         this.x -= v.x;
@@ -61,12 +71,11 @@ export class Vector {
         this.y = -x;
         return this;
     }
+
     // Rotate this vector (counter-clockwise) by the specified angle (in radians).
-    public rotate(angle: number) {
-        let x = this.x;
-        let y = this.y;
-        this.x = x * Math.cos(angle) - y * Math.sin(angle);
-        this.y = x * Math.sin(angle) + y * Math.cos(angle);
+    public rotate(angle: number, center: Vector = Vector.ZERO) {
+        this.x = center.x + (this.x - center.x) * Math.cos(angle) - (this.y - center.y) * Math.sin(angle);
+        this.y = center.y + (this.x - center.x) * Math.sin(angle) + (this.y - center.y) * Math.cos(angle);
         return this;
     }
 
@@ -155,8 +164,11 @@ export class Vector {
         return Math.sqrt(this.dist2(v));
     }
 
-    // TODO: add tolerance
     public equalsTo(v: Vector): boolean {
-        return this.x === v.x && this.y === v.y;
+        return Comparator.EQ(this.x, v.x) && Comparator.EQ(this.y, v.y);
+    }
+
+    public getAABB() {
+        return new AABB(this.x, this.y);
     }
 }
