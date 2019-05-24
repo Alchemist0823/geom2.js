@@ -1,7 +1,8 @@
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
-import {angleDiffPI2, Comparator, Geom2Const} from "./util";
+import {angleDiffPI2, Geom2Const} from "./util";
 import {Line} from "./line";
+import {Comparator} from "./comparator";
 
 export class Arc implements Line {
     public c: Vector;

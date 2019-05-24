@@ -1,5 +1,5 @@
 import {Transform} from "./transform";
-import {Comparator} from "./util";
+import {Comparator} from "./comparator";
 import {AABB} from "./aabb";
 
 export class Vector {
