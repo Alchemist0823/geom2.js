@@ -14,6 +14,13 @@ export class AABB implements Shape {
         this.top = top;
     }
 
+    public static fromCenter(center: Vector, width: number, height: number = width) {
+        return new AABB(
+            center.x - width / 2, center.y - height / 2,
+            center.x + width / 2, center.y + height / 2,
+        );
+    }
+
     public set(other: AABB) {
         this.left = other.left;
         this.bottom = other.bottom;
