@@ -1,7 +1,18 @@
 import {expect} from 'chai';
 import * as util from "../src/util";
 import {Polygon, Vector as V} from "../src"
+import {angleNormalize, angleNormalizePI2} from "../src/util";
 
+
+describe('angle', function() {
+    it('angleNormalizePI2', function () {
+        expect(angleNormalizePI2(12)).to.closeTo(12 - Math.PI * 2, 0.00001);
+    });
+
+    it('angleNormalize', function () {
+        expect(angleNormalize(12)).to.closeTo(12 - Math.PI * 4, 0.00001);
+    });
+});
 
 describe('util.testSegmentSegment', function() {
     it('test general case', function () {

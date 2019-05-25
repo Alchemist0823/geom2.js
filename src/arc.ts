@@ -1,6 +1,6 @@
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
-import {angleDiffPI2, Geom2Const} from "./util";
+import {angleDiffPI2, angleNormalizePI2, Geom2Const} from "./util";
 import {Line} from "./line";
 import {Comparator} from "./comparator";
 
@@ -13,8 +13,8 @@ export class Arc implements Line {
     public constructor(center: Vector, r: number, startAngle: number = 0, endAngle: number = Geom2Const.PI2) {
         this.c = center.clone();
         this.r = r;
-        this.startAngle = startAngle;
-        this.endAngle = endAngle;
+        this.startAngle = angleNormalizePI2(startAngle);
+        this.endAngle = angleNormalizePI2(endAngle);
     }
 
     get sweep() {

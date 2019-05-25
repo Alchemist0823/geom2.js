@@ -74,8 +74,10 @@ export class Vector {
 
     // Rotate this vector (counter-clockwise) by the specified angle (in radians).
     public rotate(angle: number, center: Vector = Vector.ZERO) {
-        this.x = center.x + (this.x - center.x) * Math.cos(angle) - (this.y - center.y) * Math.sin(angle);
-        this.y = center.y + (this.x - center.x) * Math.sin(angle) + (this.y - center.y) * Math.cos(angle);
+        let x = this.x;
+        let y = this.y;
+        this.x = center.x + (x - center.x) * Math.cos(angle) - (y - center.y) * Math.sin(angle);
+        this.y = center.y + (x - center.x) * Math.sin(angle) + (y - center.y) * Math.cos(angle);
         return this;
     }
 
@@ -93,9 +95,33 @@ export class Vector {
     public dot(v: Vector) :number {
         return this.x * v.x + this.y * v.y;
     }
+
+    /**
+     * @param v the other vector
+     * @param ref reference vector
+     * @return dot product of (this - ref), (v - ref)
+     * result > 0 the angle between (this - ref), (v - ref) < 90
+     * result < 0 the angle between (this - ref), (v - ref) > 90
+     */
+    public dotRef(v: Vector, ref:Vector) :number {
+        return (this.x - ref.x) * (v.x - ref.x) + (this.y - ref.y) * (v.y - ref.y);
+    }
+
+    /**
+     * @param v
+     * @return cross product
+     */
     public cross(v: Vector) :number {
         return this.x * v.y - this.y * v.x;
     }
+
+    /**
+     * @param v the other vector
+     * @param ref reference vector
+     * @return cross product of (this - ref), (v - ref)
+     * result < 0 if (v - ref) is on the right side of (this - ref)
+     * result > 0 if (v - ref) is on the left side of (this - ref)
+     */
     public crossRef(v: Vector, ref:Vector) :number {
         return (this.x - ref.x) * (v.y - ref.y) - (this.y - ref.y) * (v.x - ref.x);
     }

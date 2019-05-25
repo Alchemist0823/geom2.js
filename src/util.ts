@@ -64,16 +64,23 @@ export function pMod(a: number, n: number) {
     return (a % n + n) % n;
 }
 
+export function angleNormalize(a: number) {
+    return pMod((a + PI), PI2) - PI;
+}
+
+export function angleNormalizePI2(a: number) {
+    return pMod(a, PI2);
+}
+
 export function angleDiff(angle1: number, angle2: number) {
     let a = angle1 - angle2;
-    return pMod((a + PI), PI2) - PI;
+    return angleNormalize(a);
 }
 
 export function angleDiffPI2(angle1: number, angle2: number) {
     let a = angle1 - angle2;
-    return pMod(a, PI2);
+    return angleNormalizePI2(a);
 }
-
 /******              Vector                            *****/
 // Given three colinear points p, q, r, the function checks if
 // point q lies on line segment 'pr'
