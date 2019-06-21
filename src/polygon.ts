@@ -10,7 +10,7 @@ import {Transform} from "./transform";
  * Polygon in this class satisfies:
  * 1. It must be a simple polygon.
  * 2. It contain the point (0, 0).
- * 3. Points are sorted in clockwise order from it's center.
+ * 3. Points are sorted in counter-clockwise order from it's center.
  */
 export class Polygon implements Shape {
     //public pos: Vector;

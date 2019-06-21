@@ -1,8 +1,17 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
+    <meta charset="utf-8">
+    <title>Example</title>
+    <meta name="description" content="">
 </head>
 <body>
 <canvas id="canvas" width="1200" height="1200"></canvas>
-<script src="temp.js"></script>
+<script src="geom2.min.js"></script>
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    LQTree(1000, 1000);
+</script>
 </body>
 </html>

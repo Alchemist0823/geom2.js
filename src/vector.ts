@@ -1,6 +1,5 @@
 import {Transform} from "./transform";
 import {Comparator} from "./comparator";
-import {AABB} from "./aabb";
 
 export class Vector {
     public static ZERO: Vector = new Vector();
@@ -177,6 +176,11 @@ export class Vector {
     public len() {
         return Math.sqrt(this.len2());
     }
+
+    public setLen(len: number) {
+        return this.normalize().scl(len);
+    }
+
     // Create a new vector with the same coordinates as this on.
     public clone() {
         return new Vector(this.x, this.y);
@@ -192,9 +196,5 @@ export class Vector {
 
     public equalsTo(v: Vector): boolean {
         return Comparator.EQ(this.x, v.x) && Comparator.EQ(this.y, v.y);
-    }
-
-    public getAABB() {
-        return new AABB(this.x, this.y);
     }
 }

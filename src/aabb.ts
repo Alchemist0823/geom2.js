@@ -7,6 +7,11 @@ export class AABB implements Shape {
     public right: number;
     public top: number;
     public bottom: number;
+
+    static fromVector(v: Vector) {
+        return new AABB(v.x, v.y);
+    }
+
     constructor(left: number, bottom: number, right: number = left, top: number = bottom) {
         this.left = left;
         this.bottom = bottom;
