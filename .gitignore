@@ -71,3 +71,6 @@ typings/
 
 # Project file
 .idea/
+
+# Doc
+docs/
