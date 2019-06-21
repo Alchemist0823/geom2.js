@@ -13,9 +13,9 @@ class NodeObject implements Identifiable {
     }
 }
 
-describe('Loose QuadTree', function() {
+describe('Loose QuadTree', () => {
 
-    describe('Loose QuadTree with branch maxChildren = 1', function() {
+    describe('Loose QuadTree with branch maxChildren = 1', () => {
 
         let tree = new LQTree(100, 100, 1);
         let node1 = new NodeObject(1);
@@ -23,7 +23,7 @@ describe('Loose QuadTree', function() {
         let node3 = new NodeObject(3);
         let node4 = new NodeObject(4);
 
-        beforeEach(function() {
+        beforeEach(() => {
             tree = new LQTree(100, 100, 1);
             tree.insert(new AABB(1, 1, 10, 10), node1);
             tree.insert(new AABB(20, 20, 30, 30), node2);
@@ -31,11 +31,11 @@ describe('Loose QuadTree', function() {
             tree.insert(new AABB(80, 80, 100, 100), node4);
         });
 
-        afterEach(function() {
+        afterEach(() => {
           // runs after each test in this block
         });
 
-        it('insert', function () {
+        test('insert', () => {
             expect(tree.root.children![0].children![0].children![0].getElements()[0].data.getId()).toBe(1);
             expect(tree.root.children![0].children![0].children![3].getElements()[0].data.getId()).toBe(2);
             expect(tree.root.children![3].children![3].children![0].getElements()[0].data.getId()).toBe(3);
@@ -50,7 +50,7 @@ describe('Loose QuadTree', function() {
             //console.log(tree.toString());
         });
 
-        it('delete branch should claspe to leaf', function () {
+        test('delete branch should claspe to leaf', () => {
             tree.delete(node1);
             tree.delete(node2);
 
@@ -63,7 +63,7 @@ describe('Loose QuadTree', function() {
             expect(tree.root.children![3].count).toBe(2);
         });
 
-        it('search', function () {
+        test('search', () => {
             let result: Array<NodeObject> = [];
             tree.getAll(new AABB(80, 80, 100, 100), result);
             expect(result.length).toBe(2);
@@ -78,8 +78,8 @@ describe('Loose QuadTree', function() {
         });
     });
 
-    describe('Loose QuadTree with point insert', function() {
-        it('insert', function () {
+    describe('Loose QuadTree with point insert', () => {
+        test('insert', () => {
             let tree = new LQTree(1000, 1000, 4, 3);
             let nodes: Array<NodeObject> = [];
             for (let i = 0; i < 100; i ++)
@@ -102,14 +102,14 @@ describe('Loose QuadTree', function() {
     });
 
 
-    describe('Loose QuadTree with layer limitation', function() {
+    describe('Loose QuadTree with layer limitation', () => {
 
         let tree = new LQTree(1000, 1000, 4, 3);
         let nodes: Array<NodeObject> = [];
         for (let i = 0; i < 100; i ++)
             nodes.push(new NodeObject(i));
 
-        it('insert', function () {
+        test('insert', () => {
             for (let i = 0; i < 100; i ++) {
                 tree.insert(new AABB(1, 1, 2, 2), nodes[i]);
             }
@@ -119,18 +119,18 @@ describe('Loose QuadTree', function() {
     });
 
 
-    describe('Loose QuadTree with branch maxChildren = 4', function() {
+    describe('Loose QuadTree with branch maxChildren = 4', () => {
         let tree = new LQTree(1000, 1000, 4);
         let nodes: Array<NodeObject> = [];
         for (let i = 0; i < 100; i ++)
             nodes.push(new NodeObject(i));
 
-        beforeEach(function() {
+        beforeEach(() => {
             tree = new LQTree(1000, 1000, 4);
         });
 
 
-        it('insert', function () {
+        test('insert', () => {
             for (let i = 0; i < 50; i ++) {
                 tree.insert(new AABB(i * 20, 100, i * 20 + 10, 100 + 10), nodes[i * 2]);
                 tree.insert(new AABB(i * 20, 120, i * 20 + 10, 120 + 10), nodes[i * 2 + 1]);
@@ -145,7 +145,7 @@ describe('Loose QuadTree', function() {
         console.log("Successfully Written to File.");
     });*/
 
-    describe('Benchmark QuadTree with branch maxChildren = ?', function() {
+    describe('Benchmark QuadTree with branch maxChildren = ?', () => {
 
         function benchmark(maxChildren: number = 24) {
             const iteration = 3;
@@ -213,9 +213,9 @@ describe('Loose QuadTree', function() {
             //console.log('search: ' + totalSearchTime  / iteration);
         }
 
-        it('maxChildren = 100', ()=>benchmark(100));
-        it('maxChildren = 24', ()=>benchmark(24));
-        it('maxChildren = 10', ()=>benchmark(10));
-        it('maxChildren = 5', ()=>benchmark(4));
+        test('maxChildren = 100', ()=>benchmark(100));
+        test('maxChildren = 24', ()=>benchmark(24));
+        test('maxChildren = 10', ()=>benchmark(10));
+        test('maxChildren = 5', ()=>benchmark(4));
     });
 });

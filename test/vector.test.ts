@@ -1,33 +1,33 @@
 import {Vector} from "../src";
 
-describe("Vector", function() {
-    it(".addMul", function() {
+describe("Vector", () => {
+    test(".addMul", () => {
         let v1 = new Vector(0, 1);
         let v2 = new Vector(1, 0);
         v1.addMul(v2, 2);
         expect(v1).toEqual(new Vector(2, 1));
     });
 
-    it(".subMul", function() {
+    test(".subMul", () => {
         let v1 = new Vector(0, 1);
         let v2 = new Vector(1, 0);
         v1.subMul(v2, 2);
         expect(v1).toEqual(new Vector(-2, 1));
     });
 
-    it(".dist", function() {
+    test(".dist", () => {
         let v1 = new Vector(0, 1);
         let v2 = new Vector(1, 0);
         expect(v1.dist(v2)).toBeCloseTo(Math.sqrt(2), 0.001);
     });
 
-    it(".dist2", function() {
+    test(".dist2", () => {
         let v1 = new Vector(0, 1);
         let v2 = new Vector(1, 0);
         expect(v1.dist2(v2)).toBeCloseTo(2, 0.001);
     });
 
-    it('.scl', function() {
+    test('.scl', () => {
         let v1 = new Vector(5, 5);
         v1.scl(10, 10);
         expect(v1.x).toBe(50);
@@ -42,7 +42,7 @@ describe("Vector", function() {
         expect(v1.y).toBe(0);
     });
 
-    it(".rotate(r)", function() {
+    test(".rotate(r)", () => {
         let v1 = new Vector(0, 1);
         let v2 = new Vector(1, 0);
         v1.rotate(Math.PI / 2);
@@ -54,7 +54,7 @@ describe("Vector", function() {
     });
 
 
-    it(".rotate(r, v)", function() {
+    test(".rotate(r, v)", () => {
         let v1 = new Vector(0, 1);
         let v2 = new Vector(1, 0);
         v1.rotate(Math.PI / 2, v2);
@@ -62,7 +62,7 @@ describe("Vector", function() {
         expect(v1.y).toBeCloseTo(-1, 0.0001);
     });
 
-    it(".dotRef", function() {
+    test(".dotRef", () => {
         let v1 = new Vector(0, 1);
         let v2 = new Vector(1, 0);
         let ref = new Vector(0, 0);
@@ -75,7 +75,7 @@ describe("Vector", function() {
     });
 
 
-    it(".crossRef", function() {
+    test(".crossRef", () => {
         let v1 = new Vector(0, 1);
         let v2 = new Vector(1, 0);
         let ref = new Vector(0, 0);

@@ -3,9 +3,9 @@ import {Polygon} from "../src/polygon";
 import {TestResult} from "../src/test-result";
 import {Circle} from "../src/circle";
 
-describe("Circle", function() {
-    describe(".intersect", function () {
-        it("testCircleCircle", function () {
+describe("Circle", () => {
+    describe(".intersect", () => {
+        test("testCircleCircle", () => {
 
             let circle1 = new Circle(new Vector(0, 0), 20);
             let circle2 = new Circle(new Vector(30, 0), 20);
@@ -17,7 +17,7 @@ describe("Circle", function() {
             expect(testResult.overlapV.x).toBe(10);
             expect(testResult.overlapV.y).toBe(0);
         });
-        it("testCirclePolygon", function () {
+        test("testCirclePolygon", () => {
             let circle = new Circle(new Vector(50, 50), 20);
             // A square
             let polygon = new Polygon(new Vector(), [
@@ -41,8 +41,8 @@ describe("Circle", function() {
         });
     });
 
-    describe(".isPointIn", function () {
-        it("pointInCircle", function () {
+    describe(".isPointIn", () => {
+        test("pointInCircle", () => {
 
             let circle = new Circle(new Vector(100, 100), 20);
 

@@ -2,9 +2,9 @@ import {Circle, Polygon, TestResult, Vector} from "../src";
 
 
 
-describe('Polygon', function() {
-    describe('.getCentroid', function () {
-        it('should calculate the correct value for a square', function () {
+describe('Polygon', () => {
+    describe('.getCentroid', () => {
+        test('should calculate the correct value for a square', () => {
             // A square
             let polygon = new Polygon(new Vector(), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
@@ -14,7 +14,7 @@ describe('Polygon', function() {
             expect(c.y).toBe(20);
         });
 
-        it('should calculate the correct value for a triangle', function () {
+        test('should calculate the correct value for a triangle', () => {
             // A triangle
             let polygon = new Polygon(new Vector(), [
                 new Vector(0, 0), new Vector(100, 0), new Vector(50, 99)
@@ -25,8 +25,8 @@ describe('Polygon', function() {
         });
     });
 
-    describe('.intersect', function () {
-        it('testPolygonCircle NoCollision', function () {
+    describe('.intersect', () => {
+        test('testPolygonCircle NoCollision', () => {
 
             let circle = new Circle(new Vector(50, 50), 20);
             // A square
@@ -42,7 +42,7 @@ describe('Polygon', function() {
             expect(testResult.overlapV.y.toFixed(2)).toBe('4.14');
         });
 
-        it('testPolygonPolygon NoCollision', function () {
+        test('testPolygonPolygon NoCollision', () => {
             // A square
             let polygon1 = new Polygon(new Vector(), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
@@ -60,7 +60,7 @@ describe('Polygon', function() {
             expect(response.overlapV.y).toBeCloseTo(0, 0.001);
         });
 
-        it('testPolygonPolygon Collision', function () {
+        test('testPolygonPolygon Collision', () => {
 
             let box1 = new Polygon(new Vector(0, 0), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
@@ -73,8 +73,8 @@ describe('Polygon', function() {
         });
     });
 
-    describe('.inPointIn', function () {
-        it('Colinear', function () {
+    describe('.inPointIn', () => {
+        test('Colinear', () => {
 
             let triangle = new Polygon(new Vector(10, 0), [
                 new Vector(-10, 0), new Vector(30, 0), new Vector(0, 30)
@@ -85,7 +85,7 @@ describe('Polygon', function() {
             expect(triangle.isPointIn(new Vector(35, 5))).toBe(false); // false
         });
 
-        it('Polygon (small)', function () {
+        test('Polygon (small)', () => {
 
             let v1 = new Vector(1, 1.1);
             let p1 = new Polygon(new Vector(), [new Vector(2, 1), new Vector(2, 2), new Vector(1, 3), new Vector(0, 2), new Vector(0, 1), new Vector(1, 0)]);

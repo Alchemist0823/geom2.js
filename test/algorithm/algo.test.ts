@@ -1,15 +1,15 @@
 import * as algo from "../../src/algorithm";
 import {Polygon, Vector} from "../../src";
 
-describe('algo.generateRandomConvexPolygon', function() {
-    it('should be centered', function () {
+describe('algo.generateRandomConvexPolygon', () => {
+    test('should be centered', () => {
         let polygon = algo.generateRandomConvexPolygon(10, 1);
         let box = polygon.getAABB();
         expect(box.centerX).toBeCloseTo(0, 0.01);
         expect(box.centerY).toBeCloseTo(0, 0.01);
     });
 
-    it('should be convex', function () {
+    test('should be convex', () => {
         for (let i = 0; i < 100; i ++) {
             let polygon = algo.generateRandomConvexPolygon(10, 1);
             let isConvex = algo.isConvex(polygon.calcPoints);
@@ -17,7 +17,7 @@ describe('algo.generateRandomConvexPolygon', function() {
         }
     });
 
-    it('should be sized', function () {
+    test('should be sized', () => {
         for (let i = 0; i < 10; i ++) {
             let polygon = algo.generateRandomConvexPolygon(10, 10);
             expect(polygon.getAABB().left).toBeLessThan(0);
@@ -33,8 +33,8 @@ describe('algo.generateRandomConvexPolygon', function() {
 });
 
 
-describe('algo.isConvex', function() {
-    it('should work', function () {
+describe('algo.isConvex', () => {
+    test('should work', () => {
         let polygon = new Polygon(new Vector(), [
             new Vector(0,0),new Vector(10,0),new Vector(10,10),new Vector(5,5),new Vector(0,10)
         ]);
@@ -44,7 +44,7 @@ describe('algo.isConvex', function() {
     });
 
 
-    it('should work with colinear edge polygon', function () {
+    test('should work with colinear edge polygon', () => {
         let polygon = new Polygon(new Vector(), [
             new Vector(0,0), new Vector(5,0), new Vector(10,0), new Vector(10,5),
             new Vector(10,10),new Vector(5,5),new Vector(0,10),new Vector(0,5)
@@ -54,8 +54,8 @@ describe('algo.isConvex', function() {
     });
 });
 
-describe('algo.makeHull', function () {
-    it('should work', function () {
+describe('algo.makeHull', () => {
+    test('should work', () => {
         let polygon = new Polygon(new Vector(), [
             new Vector(0,0), new Vector(5,0), new Vector(10,0), new Vector(10,5),
             new Vector(10,10),new Vector(5,5),new Vector(0,10),new Vector(0,5)
