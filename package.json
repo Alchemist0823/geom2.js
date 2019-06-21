@@ -17,8 +17,8 @@
     "build": "npm run build:types && npm run build:js",
     "prepublishOnly": "npm run build",
     "doc": "typedoc --out docs --target es6 --theme minimal --mode file src",
-    "test": "jest --coverage",
-    "test:watch": "jest --coverage --watch",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "test:prod": "npm run test -- --no-cache"
   },
   "repository": {

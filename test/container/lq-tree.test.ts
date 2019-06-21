@@ -1,4 +1,3 @@
-import {expect} from 'chai';
 import {LQTree,  Identifiable} from '../../src/container/lq-tree';
 import {AABB} from '../../src/aabb';
 import { performance, PerformanceObserver } from 'perf_hooks';
@@ -15,13 +14,6 @@ class NodeObject implements Identifiable {
 }
 
 describe('Loose QuadTree', function() {
-    before(function() {
-      // runs before all tests in this block
-    });
-
-    after(function() {
-      // runs after all tests in this block
-    });
 
     describe('Loose QuadTree with branch maxChildren = 1', function() {
 
@@ -44,16 +36,16 @@ describe('Loose QuadTree', function() {
         });
 
         it('insert', function () {
-            expect(tree.root.children![0].children![0].children![0].getElements()[0].data.getId()).to.equals(1);
-            expect(tree.root.children![0].children![0].children![3].getElements()[0].data.getId()).to.equals(2);
-            expect(tree.root.children![3].children![3].children![0].getElements()[0].data.getId()).to.equals(3);
-            expect(tree.root.children![3].children![3].children![3].getElements()[0].data.getId()).to.equals(4);
+            expect(tree.root.children![0].children![0].children![0].getElements()[0].data.getId()).toBe(1);
+            expect(tree.root.children![0].children![0].children![3].getElements()[0].data.getId()).toBe(2);
+            expect(tree.root.children![3].children![3].children![0].getElements()[0].data.getId()).toBe(3);
+            expect(tree.root.children![3].children![3].children![3].getElements()[0].data.getId()).toBe(4);
 
-            expect(tree.root.count).to.equals(4);
-            expect(tree.root.children![0].count).to.equals(2);
-            expect(tree.root.children![1].count).to.equals(0);
-            expect(tree.root.children![2].count).to.equals(0);
-            expect(tree.root.children![3].count).to.equals(2);
+            expect(tree.root.count).toBe(4);
+            expect(tree.root.children![0].count).toBe(2);
+            expect(tree.root.children![1].count).toBe(0);
+            expect(tree.root.children![2].count).toBe(0);
+            expect(tree.root.children![3].count).toBe(2);
 
             //console.log(tree.toString());
         });
@@ -63,26 +55,26 @@ describe('Loose QuadTree', function() {
             tree.delete(node2);
 
             //console.log(tree.toString());
-            expect(tree.root.count).to.equals(2);
-            expect(tree.root.children![0].count).to.equals(0);
-            expect(tree.root.children![0].children).to.be.null;
-            expect(tree.root.children![1].count).to.equals(0);
-            expect(tree.root.children![2].count).to.equals(0);
-            expect(tree.root.children![3].count).to.equals(2);
+            expect(tree.root.count).toBe(2);
+            expect(tree.root.children![0].count).toBe(0);
+            expect(tree.root.children![0].children).toBeNull();
+            expect(tree.root.children![1].count).toBe(0);
+            expect(tree.root.children![2].count).toBe(0);
+            expect(tree.root.children![3].count).toBe(2);
         });
 
         it('search', function () {
             let result: Array<NodeObject> = [];
             tree.getAll(new AABB(80, 80, 100, 100), result);
-            expect(result.length).to.equals(2);
+            expect(result.length).toBe(2);
 
             result.length = 0;
             tree.getAll(new AABB(0, 0, 100, 100), result);
-            expect(result.length).to.equals(4);
+            expect(result.length).toBe(4);
 
             result.length = 0;
             tree.getAll(new AABB(20, 20, 90, 90), result);
-            expect(result.length).to.equals(3);
+            expect(result.length).toBe(3);
         });
     });
 
@@ -94,17 +86,17 @@ describe('Loose QuadTree', function() {
                 nodes.push(new NodeObject(i));
             tree.insert(new AABB(1, 1, 1, 1), nodes[0]);
             tree.delete(nodes[0]);
-            expect(tree.root.count).to.equals(0);
-            expect(tree.root.getElements().length).to.equals(0);
+            expect(tree.root.count).toBe(0);
+            expect(tree.root.getElements().length).toBe(0);
             tree.insert(new AABB(1, 1, 1, 1), nodes[0]);
             tree.delete(nodes[0]);
-            expect(tree.root.count).to.equals(0);
-            expect(tree.root.getElements().length).to.equals(0);
+            expect(tree.root.count).toBe(0);
+            expect(tree.root.getElements().length).toBe(0);
 
             for (let i = 0; i < 100; i ++) {
                 tree.insert(new AABB(1, 1, 1, 1), nodes[i]);
             }
-            expect(tree.root.count).to.equals(100);
+            expect(tree.root.count).toBe(100);
 
         });
     });
@@ -121,8 +113,8 @@ describe('Loose QuadTree', function() {
             for (let i = 0; i < 100; i ++) {
                 tree.insert(new AABB(1, 1, 2, 2), nodes[i]);
             }
-            expect(tree.root.count).to.equals(100);
-            expect(tree.root.children![0].children![0].children![0].getElements().length).to.equals(100);
+            expect(tree.root.count).toBe(100);
+            expect(tree.root.children![0].children![0].children![0].getElements().length).toBe(100);
         });
     });
 
@@ -143,7 +135,7 @@ describe('Loose QuadTree', function() {
                 tree.insert(new AABB(i * 20, 100, i * 20 + 10, 100 + 10), nodes[i * 2]);
                 tree.insert(new AABB(i * 20, 120, i * 20 + 10, 120 + 10), nodes[i * 2 + 1]);
             }
-            expect(tree.root.count).to.equals(100);
+            expect(tree.root.count).toBe(100);
         });
     });
 
@@ -180,7 +172,7 @@ describe('Loose QuadTree', function() {
             }
             let t1 = performance.now();
             //console.log('insert: ' + (t1 - t0));
-            expect(tree.root.count).to.equals(num);
+            expect(tree.root.count).toBe(num);
 
             let totalDeleteTime = 0;
             let totalReinsertTime = 0;
@@ -192,7 +184,7 @@ describe('Loose QuadTree', function() {
                 }
                 t1 = performance.now();
                 totalDeleteTime += t1 - t0;
-                expect(tree.root.count).to.equals(0);
+                expect(tree.root.count).toBe(0);
 
                 t0 = performance.now();
                 for (let i = 0; i < num; i ++) {
@@ -204,7 +196,7 @@ describe('Loose QuadTree', function() {
                 }
                 t1 = performance.now();
                 totalReinsertTime += t1 - t0;
-                expect(tree.root.count).to.equals(num);
+                expect(tree.root.count).toBe(num);
 
                 t0 = performance.now();
                 for (let i = 0; i < num; i ++) {

@@ -1,4 +1,3 @@
-import {expect} from 'chai';
 import {Vector} from "../src/vector";
 import {Polygon} from "../src/polygon";
 import {TestResult} from "../src/test-result";
@@ -13,10 +12,10 @@ describe("Circle", function() {
             let testResult = new TestResult();
             let collided = circle1.intersects(circle2, testResult);
 
-            expect(collided).to.be.true;
-            expect(testResult.overlap).to.equal(10);
-            expect(testResult.overlapV.x).to.equal(10);
-            expect(testResult.overlapV.y).to.equal(0);
+            expect(collided).toBe(true);
+            expect(testResult.overlap).toBe(10);
+            expect(testResult.overlapV.x).toBe(10);
+            expect(testResult.overlapV.y).toBe(0);
         });
         it("testCirclePolygon", function () {
             let circle = new Circle(new Vector(50, 50), 20);
@@ -27,10 +26,10 @@ describe("Circle", function() {
             let testResult = new TestResult();
             let collided = circle.intersects(polygon, testResult);
 
-            expect(collided).to.be.true;
-            expect(testResult.overlap.toFixed(2)).to.equal("5.86");
-            expect(testResult.overlapV.x.toFixed(2)).to.equal("-4.14");
-            expect(testResult.overlapV.y.toFixed(2)).to.equal("-4.14");
+            expect(collided).toBe(true);
+            expect(testResult.overlap.toFixed(2)).toBe("5.86");
+            expect(testResult.overlapV.x.toFixed(2)).toBe("-4.14");
+            expect(testResult.overlapV.y.toFixed(2)).toBe("-4.14");
 
             circle = new Circle(new Vector(50, 50), 5);
             // A square
@@ -38,7 +37,7 @@ describe("Circle", function() {
                 new Vector(0, 0), new Vector(0, 10)]);
 
             collided = circle.intersects(polygon, testResult);
-            expect(collided).to.be.true;
+            expect(collided).toBe(true);
         });
     });
 
@@ -47,8 +46,8 @@ describe("Circle", function() {
 
             let circle = new Circle(new Vector(100, 100), 20);
 
-            expect(circle.isPointIn(new Vector(0, 0))).to.be.false; // false
-            expect(circle.isPointIn(new Vector(110, 110))).to.be.true; // true
+            expect(circle.isPointIn(new Vector(0, 0))).toBe(false); // false
+            expect(circle.isPointIn(new Vector(110, 110))).toBe(true); // true
         });
     });
 });
