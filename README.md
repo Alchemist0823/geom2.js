@@ -29,7 +29,10 @@ Copy example/geom2.min.js or build yourself
 ### Examples
 Check [test](test) folder
 
-We provide an QuadTree example here [example](example/lqtree.html).
+We provide a **QuadTree** example [here](example/lqtree.html).
+
+![QuadTree](lqtree.png)
+
 More examples will come up later.
 
 ## Structure:
