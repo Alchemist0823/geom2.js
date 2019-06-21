@@ -9,9 +9,75 @@
 <canvas id="canvas" width="1200" height="1200"></canvas>
 <script src="geom2.min.js"></script>
 <script>
+
+    class NodeObject {
+        constructor(id) {
+            this.id = id;
+        }
+        getId() {
+            return this.id;
+        }
+    }
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    LQTree(1000, 1000);
+
+    const num = 10000;
+    const width = 1000;
+    const height = 1000;
+    const bw = 20;
+    const bh = 20;
+
+    let tree = new Geom2.LQTree(width, height);
+
+    let nodes = [];
+    let aabbs = [];
+
+    for (let i = 0; i < num; i ++) {
+        nodes.push(new NodeObject(i));
+        aabbs.push(new Geom2.AABB(0,0,0,0));
+    }
+
+    for (let i = 0; i < num; i ++) {
+        aabbs[i].left = Math.random() * width - bw;
+        aabbs[i].bottom = Math.random() * height - bh;
+        aabbs[i].right = aabbs[i].left + Math.random() * bw;
+        aabbs[i].top = aabbs[i].bottom + Math.random() * bh;
+        tree.insert(aabbs[i], nodes[i]);
+    }
+
+    function drawAABB(aabb, ctx) {
+        ctx.rect(aabb.left, aabb.bottom, (aabb.right - aabb.left), (aabb.top - aabb.bottom));
+    }
+
+    function toCanvasDraw(node, ctx) {
+        ctx.beginPath();
+        ctx.strokeStyle = "green";
+        drawAABB(node.baseBound, ctx);
+        ctx.stroke();
+        if (node.count > 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            drawAABB(node.looseBound, ctx);
+            ctx.stroke();
+        }
+        if (!node.children) {
+            ctx.beginPath();
+            ctx.strokeStyle = "red";
+            for (let element of node.elements) {
+                drawAABB(element.aabb, ctx);
+            }
+            ctx.stroke();
+        } else {
+            for (let i = 0; i < 4; i++) {
+                toCanvasDraw(node.children[i], ctx);
+            }
+        }
+    }
+
+    console.log(tree.root);
+    toCanvasDraw(tree.root, ctx);
+
 </script>
 </body>
 </html>

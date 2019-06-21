@@ -17,6 +17,21 @@ objects are not intended to move according to physics laws.
 This library is much light weight than a physics engine, and gives users a customizable
 environment to setup their own 2d world.
 
+### Install
+#### npm install
+```bash
+npm install geom2.js
+```
+
+#### browser install
+Copy example/geom2.min.js or build yourself
+
+### Examples
+Check [test](test) folder
+
+We provide an QuadTree example here [example](example/lqtree.html).
+More examples will come up later.
+
 ## Structure:
 * Vector
 * Segment
