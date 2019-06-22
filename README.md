@@ -1,4 +1,8 @@
 # Geom2.js
+![npm](https://img.shields.io/npm/v/geom2.js.svg)
+![test status](https://travis-ci.org/Alchemist0823/geom2.js.svg?branch=master)
+![Github Star](https://img.shields.io/github/stars/Alchemist0823/geom2.js.svg?style=social)
+
 **Geom2.js** is a high-performance javascript **2d geometry** library written in modern **TypeScript**.
 
 It was extracted from the server-side code of a multi-player game.
