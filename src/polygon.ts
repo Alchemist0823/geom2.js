@@ -124,7 +124,14 @@ export class Polygon implements Shape {
     }
 
     public getAABB(): AABB {
-        let points = this.points;
+        return Polygon.getAABBFromPoints(this.points);
+    }
+
+    public getCalcAABB(): AABB {
+        return Polygon.getAABBFromPoints(this.calcPoints);
+    }
+
+    public static getAABBFromPoints(points: Array<Vector>) {
         let len = points.length;
         let xMin = points[0].x;
         let yMin = points[0].y;

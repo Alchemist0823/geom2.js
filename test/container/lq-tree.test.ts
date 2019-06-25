@@ -15,6 +15,22 @@ class NodeObject implements Identifiable {
 
 describe('Loose QuadTree', () => {
 
+    describe('edge test cases', () => {
+        test('insert should adjust parent loose bound', () => {
+            let tree = new LQTree(100, 100, 1);
+            let node1 = new NodeObject(1);
+            let node2 = new NodeObject(2);
+            let node3 = new NodeObject(3);
+            tree.insert(new AABB(1, 1, 10, 10), node1);
+            tree.insert(new AABB(51, 1, 61, 10), node2);
+            tree.insert(new AABB(100, 100, 110, 110), node3);
+            expect(tree.root.looseBound.left).toBe(1);
+            expect(tree.root.looseBound.bottom).toBe(1);
+            expect(tree.root.looseBound.right).toBe(110);
+            expect(tree.root.looseBound.top).toBe(110);
+        });
+    });
+
     describe('Loose QuadTree with branch maxChildren = 1', () => {
 
         let tree = new LQTree(100, 100, 1);
@@ -50,7 +66,7 @@ describe('Loose QuadTree', () => {
             //console.log(tree.toString());
         });
 
-        test('delete branch should claspe to leaf', () => {
+        test('delete branch should collapse to leaf', () => {
             tree.delete(node1);
             tree.delete(node2);
 

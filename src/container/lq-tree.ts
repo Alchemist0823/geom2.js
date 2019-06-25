@@ -20,7 +20,7 @@ class LQTreeNode<T extends Identifiable> {
     public baseBound: AABB;
     public count: number;
     // only if the count > 0, looseBound has meaning.
-    protected looseBound: AABB;
+    public looseBound: AABB;
     protected elements: Array<LQTreeElement<T>>;
 
     public constructor(minX: number, minY: number, maxX: number, maxY: number) {
@@ -186,6 +186,7 @@ export class LQTree<T extends Identifiable> {
         } else {
             let index = node.getRegion(element.aabb);
             this.insertNode(node.children[index], element, layer + 1);
+            node.looseBound.merge(element.aabb);
         }
         node.count ++;
     }
