@@ -89,4 +89,12 @@ export class AABB implements Shape {
     getAABB() {
         return this;
     }
+
+    getArea(): number {
+        return (this.top - this.bottom) * (this.right - this.left);
+    }
+
+    getCentroid(): Vector {
+        return this.getCenter();
+    }
 }

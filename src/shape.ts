@@ -5,5 +5,7 @@ import {Vector} from "./vector";
 export interface Shape {
     intersects(shape: Shape, result: TestResult): boolean;
     isPointIn(vector: Vector): boolean;
+    getArea(): number;
+    getCentroid(): Vector;
     getAABB(): AABB;
 }

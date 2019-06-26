@@ -50,4 +50,22 @@ describe("Circle", () => {
             expect(circle.isPointIn(new Vector(110, 110))).toBe(true); // true
         });
     });
+
+
+    describe('.getCentroid', () => {
+        test('should calculate the correct value for a circle', () => {
+            let circle = new Circle(new Vector(10, 10), 10);
+            const c = circle.getCentroid();
+            expect(c.x).toBeCloseTo(10, 0.001);
+            expect(c.y).toBeCloseTo(10, 0.001);
+        });
+    });
+
+
+    describe('.getArea', () => {
+        test('should calculate the correct value for a circle', () => {
+            let circle = new Circle(new Vector(0, 0), 10);
+            expect(circle.getArea()).toBeCloseTo(100 * Math.PI, 0.001);
+        });
+    });
 });

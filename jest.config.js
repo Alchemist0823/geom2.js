@@ -22,6 +22,6 @@ module.exports = {
         }
     },
     "collectCoverageFrom": [
-        "src/*.{js,ts}"
+        "src/**/*.{js,ts}"
     ]
 };

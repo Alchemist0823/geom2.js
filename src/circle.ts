@@ -35,4 +35,12 @@ export class Circle implements Shape{
     isPointIn(v: Vector): boolean {
         return v.dist(this.c) <= this.r;
     }
+
+    getArea(): number {
+        return this.r * this.r * Math.PI;
+    }
+
+    getCentroid(): Vector {
+        return this.c;
+    }
 }

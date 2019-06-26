@@ -25,6 +25,27 @@ describe('Polygon', () => {
         });
     });
 
+
+    describe('.getArea', () => {
+        test('should calculate the correct value for a square', () => {
+            // A square
+            let polygon = new Polygon(new Vector(), [
+                new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
+            ]);
+            let a = polygon.getArea();
+            expect(a).toBe(1600);
+        });
+
+        test('should calculate the correct value for a triangle', () => {
+            // A triangle
+            let polygon = new Polygon(new Vector(), [
+                new Vector(0, 0), new Vector(100, 0), new Vector(50, 99)
+            ]);
+            let c = polygon.getArea();
+            expect(c).toBe(9900 / 2);
+        });
+    });
+
     describe('.intersect', () => {
         test('testPolygonCircle NoCollision', () => {
 

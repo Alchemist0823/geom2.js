@@ -78,9 +78,9 @@ export class Polygon implements Shape {
         for (let i = 0; i < len; i++) {
             let p1 = points[i];
             let p2 = i === len - 1 ? points[0] : points[i+1]; // Loop around if last point
-            let a = p1["x"] * p2["y"] - p2["x"] * p1["y"];
-            cx += (p1["x"] + p2["x"]) * a;
-            cy += (p1["y"] + p2["y"]) * a;
+            let a = p1.x * p2.y - p2.x * p1.y;
+            cx += (p1.x + p2.x) * a;
+            cy += (p1.y + p2.y) * a;
             ar += a;
         }
         ar = ar * 3; // we want 1 / 6 the area and we currently have 2*area
@@ -99,7 +99,6 @@ export class Polygon implements Shape {
     }
 
     public isPointIn(v: Vector): boolean {
-        //let rv = v.clone().sub(this.pos);
         let points = this.calcPoints;
         let length = points.length;
         let c = false;
@@ -153,6 +152,19 @@ export class Polygon implements Shape {
             }
         }
         return new AABB(xMin, yMin, xMax, yMax);
+    }
+
+    getArea() {
+        let points = this.points;
+        let len = points.length;
+        let ar = 0;
+        for (let i = 0; i < len; i++) {
+            let p1 = points[i];
+            let p2 = i === len - 1 ? points[0] : points[i+1]; // Loop around if last point
+            let a = p1.x * p2.y - p2.x * p1.y;
+            ar += a;
+        }
+        return ar / 2;
     }
 
     public toCanvasDraw(scale: number = 1) {

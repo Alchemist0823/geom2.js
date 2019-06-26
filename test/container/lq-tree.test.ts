@@ -1,7 +1,6 @@
 import {LQTree,  Identifiable} from '../../src/container/lq-tree';
 import {AABB} from '../../src/aabb';
 import { performance, PerformanceObserver } from 'perf_hooks';
-import * as fs from 'fs';
 
 class NodeObject implements Identifiable {
     public id: number;
