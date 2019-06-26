@@ -1,12 +1,124 @@
-//https://github.com/kroitor/gjk.c
+/**
+GJK stands for gilbert-johnson-keerthi
+
+it can be used to find collision and compute minimum distance between shapes.
+
+Reference: https://github.com/kroitor/gjk.c
+           http://www.dyn4j.org/2010/04/gjk-gilbert-johnson-keerthi/
+ **/
 
 import {Vector} from "../vector";
-import {Polygon} from "../polygon";
-import * as util from "../util";
+import {Shape} from "../shape";
 
-/**
- * GJK (collision detection)
- */
+
+const tempSupport = new Vector();
+//-----------------------------------------------------------------------------
+// Minkowski sum support function for GJK
+export function support(shape1: Shape, shape2: Shape, d: Vector): Vector {
+    // d is a vector direction (doesn't have to be normalized)
+    // get points on the edge of the shapes in opposite directions
+    const p1 = shape1.getFarthestPointInDirection(d);
+    const p2 = shape2.getFarthestPointInDirection(tempSupport.set(d).reverse());
+    // perform the Minkowski Difference
+    // p3 is now a point in Minkowski space on the edge of the Minkowski Difference
+    return p1.sub(p2);
+}
+
+export function gjk(A: Shape, B: Shape) {
+    let iter_count = 0;
+    let index = 0; // index of current vertex of simplex
+
+    const simplex: [Vector, Vector, Vector] = [new Vector(), new Vector(), new Vector()];
+    const ao: Vector = new Vector(), ab: Vector = new Vector(), ac: Vector = new Vector();
+    const abperp: Vector = new Vector(), acperp: Vector = new Vector();
+    const d: Vector = new Vector();
+
+    // pointers
+    let a: Vector, b: Vector, c: Vector;
+
+    // choose a search direction
+    // we use the difference of the center of the two shapes
+    d.set(A.getOrigin()).sub(B.getOrigin());
+    // if initial direction is zero – set it to any arbitrary axis (we choose X)
+    if ((d.x == 0) && (d.y == 0))
+        d.x = 1;
+
+    // set the first support as initial point of the new simplex
+    a = simplex[0].set(support(A, B, d));
+
+    if (a.dot(d) <= 0)
+        return false; // no collision
+
+    // The next search direction is always towards the origin, so the next search direction is negate(a)
+    d.set(a).reverse();
+
+    // start looping
+    while (true) {
+        iter_count++;
+        // add a new point to the simplex because we haven't terminated yet
+        a = simplex[++index].set(support(A, B, d));
+        // make sure that the last point we added actually passed the origin
+        if (a.dot(d) <= 0) {
+            // if the point added last was not past the origin in the direction of d
+            // then the Minkowski Sum cannot possibly contain the origin since
+            // the last point added is on the edge of the Minkowski Difference
+            return false;
+        }
+
+        // get direction and test simplex
+
+        ao.set(a).reverse(); // from point A to Origin is just negative A
+
+        // simplex has 2 points (a line segment, not a triangle yet)
+        if (index < 2) {
+
+            b = simplex[0];
+            ab.set(b).sub(a); // from point A to B
+
+            tripleProduct (ab, ao, ab, d); // normal to AB towards Origin
+            if (d.len2() == 0)
+                d.set(ab).perp();
+
+        } else {
+
+            b = simplex[1];
+            c = simplex[0];
+            ab.set(b).sub(a); // from point A to B
+            ac.set(c).sub(a); // from point A to C
+            tripleProduct(ab, ac, ac, acperp);
+
+            if (acperp.dot(ao) >= 0) {
+                d.set(acperp); // new direction is normal to AC towards Origin
+            } else {
+
+                tripleProduct (ac, ab, ab, abperp );
+                if (abperp.dot(ao) < 0)
+                    return true; // collision
+                simplex[0].set(simplex[1]); // swap first element (point C)
+                d.set(abperp); // new direction is normal to AB towards Origin
+            }
+
+            simplex[1].set(simplex[2]); // swap element in the middle (point B)
+            --index;
+
+        }
+    }
+}
+
+
+// http://www.fen.bilkent.edu.tr/~ercelebi/Ax(BxC).pdf
+export function tripleProduct(a:Vector,  b:Vector,  c:Vector,  r: Vector) {
+    let ac = a.x * c.x + a.y * c.y; // perform a.dot(c)
+    let bc = b.x * c.x + b.y * c.y; // perform b.dot(c)
+
+    // perform b * a.dot(c) - a * b.dot(c)
+    r.x = b.x * ac - a.x * bc;
+    r.y = b.y * ac - a.y * bc;
+    return r;
+}
+
+// http://www.fen.bilkent.edu.tr/~ercelebi/Ax(BxC).pdf
+/*
 function tripleProduct(a:Vector,  b:Vector,  c:Vector,  r: Vector) {
     let ac = a.x * c.x + a.y * c.y; // perform a.dot(c)
     let bc = b.x * c.x + b.y * c.y; // perform b.dot(c)
@@ -48,11 +160,11 @@ function indexOfFurthestPoint (vertices: Array<Vector>, d: Vector) {
         }
     }
     return index;
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // Minkowski sum support function for GJK
-
+/*
 function support (vertices1: Array<Vector>, vertices2: Array<Vector>, d: Vector) {
 
     // get furthest point of first body along an arbitrary direction
@@ -63,10 +175,11 @@ function support (vertices1: Array<Vector>, vertices2: Array<Vector>, d: Vector)
 
     // subtract (Minkowski sum) the two points to see if bodies 'overlap'
     return vertices1[i].clone().sub(vertices2[j]);
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // The GJK yes/no test
+/*
 function gjk (vertices1: Array<Vector>, vertices2: Array<Vector>) {
     let iter_count = 0;
     let index = 0; // index of current vertex of simplex
@@ -114,26 +227,20 @@ function gjk (vertices1: Array<Vector>, vertices2: Array<Vector>) {
             continue; // skip to next iteration
         }
 
-        b.set(simplex[1]);
-        c.set(simplex[0]);
-        ab.set(b.sub(a)); // from point A to B
-        ac.set(c.sub(a)); // from point A to C
-
+        b = simplex[1];
+        c = simplex[0];
+        ab.set(b).sub(a); // from point A to B
+        ac.set(c).sub(a); // from point A to C
         tripleProduct(ab, ac, ac, acperp);
 
         if (acperp.dot(ao) >= 0) {
-
             d.set(acperp); // new direction is normal to AC towards Origin
-
         } else {
 
-            tripleProduct (ac, ab, ab, acperp);
-
+            tripleProduct (ac, ab, ab, abperp );
             if (abperp.dot(ao) < 0)
                 return 1; // collision
-
             simplex[0].set(simplex[1]); // swap first element (point C)
-
             d.set(abperp); // new direction is normal to AB towards Origin
         }
 
@@ -141,7 +248,7 @@ function gjk (vertices1: Array<Vector>, vertices2: Array<Vector>) {
         --index;
     }
     return 0;
-}
+}*/
 
 /* test
 function Perturbation()

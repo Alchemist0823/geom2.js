@@ -7,29 +7,26 @@ export class Transform {
     /** the sine of the rotation angle */
     protected sint = 0.0;
 
-    /** The x translation */
-    public x = 0.0;
-
-    /** The y translation */
-    public y = 0.0;
+    /** The x,y translation */
+    public _pos: Vector = new Vector();
 
 
     public constructor(transform?: Transform | Vector) {
         if (transform instanceof Transform) {
             this.cost = transform.cost;
             this.sint = transform.sint;
-            this.x = transform.x;
-            this.y = transform.y;
+            this._pos.x = transform._pos.x;
+            this._pos.y = transform._pos.y;
         } else if (transform instanceof Vector) {
             this.cost = 1;
             this.sint = 0;
-            this.x = transform.x;
-            this.y = transform.y;
+            this._pos.x = transform.x;
+            this._pos.y = transform.y;
         } else {
             this.cost = 1;
             this.sint = 0;
-            this.x = 0;
-            this.y = 0;
+            this._pos.x = 0;
+            this._pos.y = 0;
         }
     }
 
@@ -45,10 +42,10 @@ export class Transform {
         this.cost = cost;
         this.sint = sint;
 
-        let cx = this.x - x;
-        let cy = this.y - y;
-        this.x = cos * cx - sin * cy + x;
-        this.y = sin * cx + cos * cy + y;
+        let cx = this._pos.x - x;
+        let cy = this._pos.y - y;
+        this._pos.x = cos * cx - sin * cy + x;
+        this._pos.y = sin * cx + cos * cy + y;
     }
 
     public set angle(theta: number) {
@@ -57,26 +54,37 @@ export class Transform {
     }
 
     public set position(pos: Vector) {
-        this.x = pos.x;
-        this.y = pos.y;
+        this._pos.set(pos);
+    }
+
+    public get position(): Vector {
+        return this._pos;
+    }
+
+    public get x() {
+        return this._pos.x;
+    }
+
+    public get y() {
+        return this._pos.y;
     }
 
     public translate(x: number, y: number) {
-        this.x += x;
-        this.y += y;
+        this._pos.x += x;
+        this._pos.y += y;
     }
 
     public transform(vector: Vector, tv: Vector) {
         let x = vector.x;
         let y = vector.y;
-        tv.x = this.cost * x - this.sint * y + this.x;
-        tv.y = this.sint * x + this.cost * y + this.y;
+        tv.x = this.cost * x - this.sint * y + this._pos.x;
+        tv.y = this.sint * x + this.cost * y + this._pos.y;
         return tv;
     }
 
     public inverseTransform(vector: Vector, tv: Vector) {
-        let tx = vector.x - this.x;
-        let ty = vector.y - this.y;
+        let tx = vector.x - this._pos.x;
+        let ty = vector.y - this._pos.y;
         tv.x = this.cost * tx + this.sint * ty;
         tv.y = -this.sint * tx + this.cost * ty;
         return tv;

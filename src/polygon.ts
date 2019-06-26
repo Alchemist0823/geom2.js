@@ -69,8 +69,12 @@ export class Polygon implements Shape {
         return this;
     }
 
+    public getOrigin(): Vector {
+        return this.transform.position;
+    }
+
     public getCentroid(): Vector {
-        let points = this.points;
+        let points = this.calcPoints;
         let len = points.length;
         let cx = 0;
         let cy = 0;
@@ -179,5 +183,34 @@ export class Polygon implements Shape {
         str += 'ctx.lineTo(' + (points[0].x + this.transform.x) * scale + ',' + (points[0].y + this.transform.y) * scale + ');\n';
         str += 'ctx.stroke();';
         return str;
+    }
+
+    getFarthestPointInDirection(d: Vector): Vector {
+        const vertices = this.calcPoints;
+        const temp = new Vector();
+
+        temp.set(vertices[0]).sub(this.transform.position);
+        let maxProduct = d.dot(temp);
+        let index = 0;
+        for (let i = 1; i < vertices.length; i++) {
+            temp.set(vertices[i]).sub(this.transform.position);
+            let product = d.dot(temp);
+            if (product > maxProduct) {
+                maxProduct = product;
+                index = i;
+            }
+        }
+
+        temp.set(vertices[index]);
+        return temp;
+    }
+    
+    recenter() {
+        const c = this.getCentroid();
+        for(let p of this.points) {
+            p.sub(c);
+        }
+        this.transform.translate(c.x, c.y);
+        this.recalc();
     }
 }

@@ -1,6 +1,7 @@
 import {Shape} from "./shape";
 import {TestResult} from "./test-result";
 import {Vector} from "./vector";
+import {Polygon} from "./polygon";
 
 export class AABB implements Shape {
     public left: number;
@@ -43,6 +44,14 @@ export class AABB implements Shape {
 
     public get centerY() {
         return (this.bottom + this.top) / 2;
+    }
+
+    public get width() {
+        return this.right - this.left;
+    }
+
+    public get height() {
+        return this.top - this.bottom;
     }
 
     intersects(shape: Shape, result?: TestResult): boolean {
@@ -94,7 +103,26 @@ export class AABB implements Shape {
         return (this.top - this.bottom) * (this.right - this.left);
     }
 
+    getOrigin(): Vector {
+        return this.getCenter();
+    }
+
     getCentroid(): Vector {
         return this.getCenter();
+    }
+
+    toPolygon() {
+        return new Polygon(this.getCenter(), [
+            new Vector(-this.width / 2, -this.height /2),
+            new Vector(this.width / 2, -this.height /2),
+            new Vector(this.width / 2, this.height /2),
+            new Vector(-this.width / 2, this.height /2),
+        ]);
+    }
+
+    // not efficient
+    getFarthestPointInDirection(d: Vector): Vector {
+        const poly = this.toPolygon();
+        return poly.getFarthestPointInDirection(d);
     }
 }

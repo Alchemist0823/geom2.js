@@ -1,4 +1,5 @@
 import {Circle, Polygon, TestResult, Vector} from "../src";
+import {transform} from "@babel/core";
 
 
 
@@ -112,6 +113,57 @@ describe('Polygon', () => {
             let p1 = new Polygon(new Vector(), [new Vector(2, 1), new Vector(2, 2), new Vector(1, 3), new Vector(0, 2), new Vector(0, 1), new Vector(1, 0)]);
 
             expect(p1.isPointIn(v1)).toBe(true);
+        });
+    });
+
+
+
+    describe('.getFarthestPointInDirection', () => {
+
+        test('square', () => {
+            let square = new Polygon(new Vector(10, 10), [
+                new Vector(-10, -10), new Vector(10, -10),
+                new Vector(10, 10), new Vector(-10, 10),
+            ]);
+            let v = square.getFarthestPointInDirection(new Vector(1, 1));
+            expect(v.x).toBe(20);
+            expect(v.y).toBe(20);
+            v = square.getFarthestPointInDirection(new Vector(1, .5));
+            expect(v.x).toBe(20);
+            expect(v.y).toBe(20);
+            v = square.getFarthestPointInDirection(new Vector(1, 0));
+            expect(v.x).toBe(20);
+            expect(v.y).toBe(0);
+        });
+
+        test('triangle', () => {
+            let triangle = new Polygon(new Vector(10, 10), [
+                new Vector(-10, -1), new Vector(30, -1), new Vector(0, 30)
+            ]);
+            let v = triangle.getFarthestPointInDirection(new Vector(1, 0));
+            expect(v.x).toBe(40);
+            expect(v.y).toBe(9);
+            v = triangle.getFarthestPointInDirection(new Vector(0, 1));
+            expect(v.x).toBe(10);
+            expect(v.y).toBe(40);
+        });
+    });
+
+    describe('.recenter', () => {
+        test('triangle', () => {
+            let triangle = new Polygon(new Vector(0, 0), [
+                new Vector(-10, -1), new Vector(30, -1), new Vector(0, 30)
+            ]);
+            triangle.recenter();
+            const c = triangle.getCentroid();
+            expect(triangle.getOrigin().x).toBeCloseTo(c.x);
+            expect(triangle.getOrigin().y).toBeCloseTo(c.y);
+            expect(triangle.calcPoints[0].x).toBe(-10);
+            expect(triangle.calcPoints[0].y).toBe(-1);
+            expect(triangle.calcPoints[1].x).toBe(30);
+            expect(triangle.calcPoints[1].y).toBe(-1);
+            expect(triangle.calcPoints[2].x).toBe(0);
+            expect(triangle.calcPoints[2].y).toBe(30);
         });
     });
 });

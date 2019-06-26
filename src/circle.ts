@@ -40,7 +40,15 @@ export class Circle implements Shape{
         return this.r * this.r * Math.PI;
     }
 
+    public getOrigin(): Vector {
+        return this.c;
+    }
+
     getCentroid(): Vector {
         return this.c;
+    }
+
+    getFarthestPointInDirection(d: Vector): Vector {
+        return d.clone().setLen(this.r).add(this.c);
     }
 }
