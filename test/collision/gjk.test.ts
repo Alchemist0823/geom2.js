@@ -1,6 +1,7 @@
-import {Polygon, Vector, gjk, Circle} from "../../src";
+import {Polygon, Vector, gjk, Circle, epa} from "../../src";
 
 
+describe('gjk', () => {
 describe('gjk', () => {
     describe('Square - Square', () => {
         test('no collision', () => {
@@ -79,4 +80,30 @@ describe('gjk', () => {
         });
 
     });
+});
+
+
+describe('epa', () => {
+    describe('Square - Square', () => {
+        test('collision', () => {
+            let square1 = new Polygon(new Vector(10, 10), [
+                new Vector(-10, -10), new Vector(10, -10),
+                new Vector(10, 10), new Vector(-10, 10),
+            ]);
+
+            let square2 = new Polygon(new Vector(0, 0), [
+                new Vector(-10, -10), new Vector(10, -10),
+                new Vector(10, 10), new Vector(-10, 10),
+            ]);
+
+            const simplex: [Vector,Vector,Vector] = [new Vector(), new Vector(), new Vector()];
+            expect(gjk(square1, square2, simplex)).toBe(true);
+            console.log(simplex);
+
+            const [normal, dist] = epa(square1, square2, simplex);
+            expect(normal).toEqual({x: 0, y: -1});
+            expect(dist).toEqual(10);
+        });
+    });
+});
 });

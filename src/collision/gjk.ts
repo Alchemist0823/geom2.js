@@ -9,6 +9,8 @@ Reference: https://github.com/kroitor/gjk.c
 
 import {Vector} from "../vector";
 import {Shape} from "../shape";
+import {PriorityQueue, Comparable} from "../container/priority-queue";
+import {LinkedListNode, CircularLinkedList} from "../container/linked-list";
 
 
 const tempSupport = new Vector();
@@ -24,11 +26,10 @@ export function support(shape1: Shape, shape2: Shape, d: Vector): Vector {
     return p1.sub(p2);
 }
 
-export function gjk(A: Shape, B: Shape) {
+export function gjk(A: Shape, B: Shape, simplex = [new Vector(), new Vector(), new Vector()]) {
     let iter_count = 0;
     let index = 0; // index of current vertex of simplex
 
-    const simplex: [Vector, Vector, Vector] = [new Vector(), new Vector(), new Vector()];
     const ao: Vector = new Vector(), ab: Vector = new Vector(), ac: Vector = new Vector();
     const abperp: Vector = new Vector(), acperp: Vector = new Vector();
     const d: Vector = new Vector();
@@ -115,6 +116,58 @@ export function tripleProduct(a:Vector,  b:Vector,  c:Vector,  r: Vector) {
     r.x = b.x * ac - a.x * bc;
     r.y = b.y * ac - a.y * bc;
     return r;
+}
+
+class Edge implements Comparable<Edge> {
+    constructor(public startVertex: LinkedListNode<Vector>, public distance: number) {}
+    compare(other: Edge): boolean {
+        return this.distance < other.distance;
+    }
+}
+
+export function originDistance(a: Vector, b: Vector) {
+    return -a.cross(a.clone().sub(b)) / Math.sqrt(a.dist2(b));
+}
+
+export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): [Vector, number] {
+    const polytope = new CircularLinkedList<Vector>();
+    const edges = new PriorityQueue<Edge>(); // queue
+    const d = new Vector();
+
+    for (let i = 0; i < simplex.length; i ++) {
+        const node = polytope.push(simplex[i]);
+        const dist = originDistance(simplex[i], simplex[(i+1) % 3]);
+        edges.enqueue(new Edge(node, dist));
+    }
+
+    while(true) {
+        for(let item of edges.items) {
+            console.log(item.distance);
+            console.log(item.startVertex.data);
+        }
+        console.log(Array.from(polytope.values()));
+        let {startVertex, distance} = edges.dequeue();
+
+        const a = startVertex.data;
+        const b = startVertex.next!.data;
+        let ab = b.clone().sub(a);
+        let ap = startVertex.prev!.data.clone().sub(a);
+
+        tripleProduct(ap, ab, ab, d);
+        console.log(d);
+        let p = support(A, B, d);
+
+        if (p.cross(ab) / ab.len() - distance > 0.001) {
+            // add p to polytope;
+            // update distance
+            const node = polytope.insertAfter(startVertex, p);
+            edges.enqueue(new Edge(node.prev!, originDistance(node.prev!.data, node.data)));
+            edges.enqueue(new Edge(node, originDistance(node.data, node.next!.data)));
+        } else {
+            // ab is the on the boundary
+            return [d.normalize(), distance];
+        };
+    }
 }
 
 // http://www.fen.bilkent.edu.tr/~ercelebi/Ax(BxC).pdf
@@ -307,4 +360,3 @@ int main(int argc, const char * argv[]) {
 
     return 0;
 }*/
-
