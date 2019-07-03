@@ -197,4 +197,8 @@ export class Vector {
     public equalsTo(v: Vector): boolean {
         return Comparator.EQ(this.x, v.x) && Comparator.EQ(this.y, v.y);
     }
+
+    public static lerp(start: Vector, end: Vector, t: number): Vector {
+        return new Vector(t * (end.x - start.x) + start.x,  t * (end.y - start.y) + start.y);
+    }
 }

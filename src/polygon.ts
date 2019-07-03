@@ -5,6 +5,7 @@ import {AABB} from "./aabb";
 import {lineHasPoint, testPolygonCircle, testPolygonPolygon} from "./util";
 import {Circle} from "./circle";
 import {Transform} from "./transform";
+import { Segment } from "./segment";
 
 /**
  * Polygon in this class satisfies:
@@ -204,7 +205,36 @@ export class Polygon implements Shape {
         temp.set(vertices[index]);
         return temp;
     }
-    
+
+    getFarthestEdgeInDirection(d: Vector): Segment {
+        const vertices = this.calcPoints;
+        const temp = new Vector();
+
+        temp.set(vertices[0]).sub(this.transform.position);
+        let maxProduct = d.dot(temp);
+        let index = 0;
+        for (let i = 1; i < vertices.length; i++) {
+            temp.set(vertices[i]).sub(this.transform.position);
+            let product = d.dot(temp);
+            if (product > maxProduct) {
+                maxProduct = product;
+                index = i;
+            }
+        }
+
+        const p0 = vertices[(index - 1 + vertices.length) % vertices.length];
+        const p1 = vertices[index];
+        const p2 = vertices[(index + 1) % vertices.length];
+
+        let l = p1.clone().sub(p0).normalize();
+        let r = p1.clone().sub(p2).normalize();
+        if (r.dot(d) < l.dot(d)) {
+            return new Segment(p1, p2);
+        } else {
+            return new Segment(p0, p1);
+        }
+    }
+
     recenter() {
         const c = this.getCentroid();
         for(let p of this.points) {

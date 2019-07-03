@@ -1,5 +1,5 @@
 import {PhysMaterial, PhysProperty} from "./material";
-import {Manifold} from "./manifold";
+import {CollisionResult} from "./collision-result";
 import {Vector} from "../vector";
 import {Comparator} from "../comparator";
 
@@ -9,7 +9,7 @@ export function applyImpulse(A: PhysMaterial & PhysProperty, impulse: Vector, co
     A.angularVelocity += A.invInertia * contactVector.cross(impulse);
 }
 
-export function resolveContact(A: PhysMaterial & PhysProperty, B: PhysMaterial & PhysProperty, manifold: Manifold) {
+export function resolveContact(A: PhysMaterial & PhysProperty, B: PhysMaterial & PhysProperty, result: CollisionResult) {
     const rv = new Vector();
     const impulse = new Vector();
 
@@ -18,60 +18,62 @@ export function resolveContact(A: PhysMaterial & PhysProperty, B: PhysMaterial &
     const sf = Math.sqrt( A.staticFriction * B.staticFriction );
     const df = Math.sqrt( A.dynamicFriction * B.dynamicFriction );
 
-    // Calculate radii from COM to contact
-    let ra = manifold.contact.clone().sub(A.position);
-    let rb = manifold.contact.clone().sub(B.position);
+    for (let contact of result.contacts) {
+        // Calculate radii from COM to contact
+        let ra = contact.clone().sub(A.position);
+        let rb = contact.clone().sub(B.position);
 
-    // Relative velocity
-    rv.set(B.velocity).addMul(rb, B.angularVelocity)
-        .sub(A.velocity).subMul(ra, A.angularVelocity);
+        // Relative velocity
+        rv.set(B.velocity).addMul(rb, B.angularVelocity)
+            .sub(A.velocity).subMul(ra, A.angularVelocity);
 
-    // Relative velocity along the normal
-    const contactVel = rv.dot(manifold.normal);
+        // Relative velocity along the normal
+        const contactVel = rv.dot(result.normal);
 
-    // Do not resolve if velocities are separating
-    if(contactVel > 0)
-        return;
+        // Do not resolve if velocities are separating
+        if(contactVel > 0)
+            return;
 
-    let raCrossN = ra.cross(manifold.normal);
-    let rbCrossN = rb.cross(manifold.normal);
-    let invMassSum = A.invMass + B.invMass + Math.sqrt( raCrossN ) * A.invInertia + Math.sqrt( rbCrossN ) * B.invInertia;
+        let raCrossN = ra.cross(result.normal);
+        let rbCrossN = rb.cross(result.normal);
+        let invMassSum = A.invMass + B.invMass + Math.sqrt( raCrossN ) * A.invInertia + Math.sqrt( rbCrossN ) * B.invInertia;
 
-    // Calculate impulse scalar
-    let j = -(1.0 + e) * contactVel;
-    j /= invMassSum;
-    //j /= (real)contact_count;
+        // Calculate impulse scalar
+        let j = -(1.0 + e) * contactVel;
+        j /= invMassSum;
+        j /= result.contacts.length;
 
-    // Apply impulse
-    impulse.set(manifold.normal).scl(j);
-    applyImpulse(B,  impulse, rb );
-    applyImpulse(A, impulse.reverse(), ra );
+        // Apply impulse
+        impulse.set(result.normal).scl(j);
+        applyImpulse(B,  impulse, rb );
+        applyImpulse(A, impulse.reverse(), ra );
 
-    // Friction impulse
-    rv.set(B.velocity).addMul(rb, B.angularVelocity)
-        .sub(A.velocity).subMul(ra, A.angularVelocity);
+        // Friction impulse
+        rv.set(B.velocity).addMul(rb, B.angularVelocity)
+            .sub(A.velocity).subMul(ra, A.angularVelocity);
 
-    const t = rv.clone().subMul(manifold.normal, rv.dot(manifold.normal));
-    t.normalize();
+        const t = rv.clone().subMul(result.normal, rv.dot(result.normal));
+        t.normalize();
 
-    // j tangent magnitude
-    let jt = -rv.dot(t);
-    jt /= invMassSum;
-    //jt /= contact_count;
+        // j tangent magnitude
+        let jt = -rv.dot(t);
+        jt /= invMassSum;
+        jt /= result.contacts.length;
 
-    // Don't apply tiny friction impulses
-    if(Comparator.EQ( jt, 0.0 ))
-        return;
+        // Don't apply tiny friction impulses
+        if(Comparator.EQ( jt, 0.0 ))
+            return;
 
-    // Coulumb's law tangent impulse
-    if(Math.abs( jt ) < j * sf)
-        impulse.set(t).scl(jt);
-    else
-        impulse.set(t).scl(-j * df);
+        // Coulumb's law tangent impulse
+        if(Math.abs( jt ) < j * sf)
+            impulse.set(t).scl(jt);
+        else
+            impulse.set(t).scl(-j * df);
 
-    // Apply friction impulse
-    applyImpulse(B,  impulse, rb );
-    applyImpulse(A, impulse.reverse(), ra );
+        // Apply friction impulse
+        applyImpulse(B,  impulse, rb );
+        applyImpulse(A, impulse.reverse(), ra );
+    }
 }
 
 // https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331

@@ -1,6 +1,6 @@
 import {Comparable, PriorityQueue} from "../../src/container/priority-queue";
 
-class NumberItem implements Comparable {
+class NumberItem implements Comparable<NumberItem> {
     constructor(public value: number) {
     }
     compare(other: NumberItem): boolean {

@@ -1,7 +1,7 @@
 import {Vector} from "../vector";
 
-export interface Manifold {
+export interface CollisionResult {
     normal: Vector;
-    contact: Vector;
+    contacts: Array<Vector>;
     depth: number;
 }

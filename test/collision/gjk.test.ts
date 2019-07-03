@@ -83,9 +83,8 @@ describe('gjk', () => {
 });
 
 
-describe('epa', () => {
-    describe('Square - Square', () => {
-        test('collision', () => {
+    describe('epa', () => {
+        test('Square - Square', () => {
             let square1 = new Polygon(new Vector(10, 10), [
                 new Vector(-10, -10), new Vector(10, -10),
                 new Vector(10, 10), new Vector(-10, 10),
@@ -104,6 +103,29 @@ describe('epa', () => {
             expect(normal).toEqual({x: 0, y: -1});
             expect(dist).toEqual(10);
         });
+
+        test('Triangle Square', () => {
+            let triangle = new Polygon(new Vector(0, 0), [
+                new Vector(4, 11), new Vector(9, 9),
+                new Vector(4, 5),
+            ]);
+            triangle.recenter();
+
+            let square = new Polygon(new Vector(0, 0), [
+                new Vector(5, 7), new Vector(12, 7),
+                new Vector(7, 3), new Vector(10, 2),
+            ]);
+            square.recenter();
+
+            const simplex: [Vector,Vector,Vector] = [new Vector(), new Vector(), new Vector()];
+            expect(gjk(triangle, square, simplex)).toBe(true);
+            console.log(simplex);
+
+            const [normal, dist] = epa(triangle, square, simplex);
+            const res = new Vector(5, 4).perp().normalize();
+            expect(normal.x).toBeCloseTo(res.x, 0.00001);
+            expect(normal.y).toBeCloseTo(res.y, 0.00001);
+            expect(dist).toBeCloseTo(0.9370425713316364, 0.00001);
+        });
     });
-});
 });
