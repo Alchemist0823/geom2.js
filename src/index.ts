@@ -11,5 +11,6 @@ export * from './container/lq-tree';
 
 export * from './algorithm/';
 export * from './collision/';
+export * from './physics/';
 export * from './util';
 export * from './comparator';
