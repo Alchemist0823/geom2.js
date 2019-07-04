@@ -30,7 +30,11 @@ export default [
             commonjs(),
 
             // Compile TypeScript/JavaScript files
-            babel({ extensions, include: ['src/**/*'] }),
+            babel({
+                extensions,
+                include: ['src/**/*'],
+                runtimeHelpers: true,
+            }),
         ],
     },
     {
@@ -49,7 +53,11 @@ export default [
         plugins: [
             resolve({ extensions }),
             commonjs(),
-            babel({ extensions, include: ['src/**/*']}),
+            babel({
+                extensions,
+                include: ['src/**/*'],
+                runtimeHelpers: true,
+            }),
             uglify(),
         ],
     }
