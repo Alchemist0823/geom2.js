@@ -2,8 +2,14 @@ import {Vector} from '../vector';
 import { Shape } from '../shape';
 import { Polygon } from '../polygon';
 import { Segment } from '../segment';
+import {CollisionResult} from "./collision-result";
 
-export function resolvePointsOfContact(A: Shape, B: Shape, normal: Vector, depth: number): Array<Vector> {
+const MAX_POC_COUNT = 5;
+
+export function resolvePointsOfContact(A: Shape, B: Shape, result: CollisionResult): void {
+    const normal = result.normal;
+    const depth = result.depth;
+
     let segmentA, segmentB;
     if (A instanceof Polygon) {
         segmentA = A.getFarthestEdgeInDirection(normal);
@@ -26,20 +32,26 @@ export function resolvePointsOfContact(A: Shape, B: Shape, normal: Vector, depth
         segmentRef = segmentB;
     }
 
-    let d1 = segmentInc.v1.dotRef(segmentRef.v1, segmentRef.v2);
-    let d2 = segmentInc.v2.dotRef(segmentRef.v1, segmentRef.v2);
+    let d1 = segmentInc.v1.dotRef(segmentRef.v2, segmentRef.v1);
+    let d2 = segmentInc.v2.dotRef(segmentRef.v2, segmentRef.v1);
 
     if (d1 > d2) {
         let swap = d1;
         d1 = d2;
         d2 = swap;
-        let swapP = segmentInc.v1
+        let swapP = segmentInc.v1;
         segmentInc.v1 = segmentInc.v2;
         segmentInc.v2 = swapP;
     }
 
     let u1 = - d1 / (d2 - d1);
-    let u2 = segmentRef.len2() - d1 / (d2 - d1);
+    let u2 = (segmentRef.len2() - d1) / (d2 - d1);
+    console.log(segmentInc);
+    console.log(segmentRef);
+    console.log(d1);
+    console.log(d2);
+    console.log(u1);
+    console.log(u2);
 
     let v1, v2;
     if (u1 > 0 && u1 < 1) {
@@ -53,11 +65,14 @@ export function resolvePointsOfContact(A: Shape, B: Shape, normal: Vector, depth
         v2 = segmentInc.v2.clone();
     }
 
-    let v1c = v1.crossRef(segmentRef.v1, segmentRef.v2);
-    let v2c = v2.crossRef(segmentRef.v1, segmentRef.v2);
+    console.log(v1);
+    console.log(v2);
+
+    let v1c = v1.crossRef(segmentRef.v2, segmentRef.v1);
+    let v2c = v2.crossRef(segmentRef.v2, segmentRef.v1);
     let startV, endV;
-    if (v1c >= 0) {
-        if (v2c >= 0) {
+    if (v1c <= 0) {
+        if (v2c <= 0) {
             startV = v1;
             endV = v2;
         } else {
@@ -65,22 +80,23 @@ export function resolvePointsOfContact(A: Shape, B: Shape, normal: Vector, depth
             endV = v1;
         }
     } else {
-        if (v2c >= 0) {
+        if (v2c <= 0) {
             startV = v2;
             endV = v2;
         } else {
             console.log("error: impossible situation");
-            return [];
+            return;
         }
     }
 
+    console.log(startV);
+    console.log(endV);
     if (startV === endV) {
-        return [startV];
+        result.contacts.push(startV);
     } else {
-        let res = [];
-        for (let i = 0; i <= 1; i += 1/5) {
-            res.push(Vector.lerp(startV, endV, i));
+        for (let i = 0; i < 1 - 0.001; i += 1 / (MAX_POC_COUNT - 1)) {
+            result.contacts.push(Vector.lerp(startV, endV, i));
         }
-        return res;
+        result.contacts.push(endV);
     }
 }

@@ -11,6 +11,7 @@ import {Vector} from "../vector";
 import {Shape} from "../shape";
 import {PriorityQueue, Comparable} from "../container/priority-queue";
 import {LinkedListNode, CircularLinkedList} from "../container/linked-list";
+import {CollisionResult} from "./collision-result";
 
 
 const tempSupport = new Vector();
@@ -129,7 +130,7 @@ export function originDistance(a: Vector, b: Vector) {
     return -a.cross(a.clone().sub(b)) / Math.sqrt(a.dist2(b));
 }
 
-export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): [Vector, number] {
+export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): CollisionResult {
     const polytope = new CircularLinkedList<Vector>();
     const edges = new PriorityQueue<Edge>(); // queue
     const d = new Vector();
@@ -142,10 +143,10 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): [Vec
 
     while(true) {
         for(let item of edges.items) {
-            console.log(item.distance);
-            console.log(item.startVertex.data);
+            //console.log(item.distance);
+            //console.log(item.startVertex.data);
         }
-        console.log(Array.from(polytope.values()));
+        //console.log(Array.from(polytope.values()));
         let {startVertex, distance} = edges.dequeue();
 
         const a = startVertex.data;
@@ -154,7 +155,7 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): [Vec
         let ap = startVertex.prev!.data.clone().sub(a);
 
         tripleProduct(ap, ab, ab, d);
-        console.log(d);
+        //console.log(d);
         let p = support(A, B, d);
 
         if (p.cross(ab) / ab.len() - distance > 0.001) {
@@ -165,7 +166,7 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): [Vec
             edges.enqueue(new Edge(node, originDistance(node.data, node.next!.data)));
         } else {
             // ab is the on the boundary
-            return [d.normalize(), distance];
+            return new CollisionResult(d.normalize(), distance);
         };
     }
 }
