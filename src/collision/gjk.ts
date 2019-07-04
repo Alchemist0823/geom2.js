@@ -94,8 +94,10 @@ export function gjk(A: Shape, B: Shape, simplex = [new Vector(), new Vector(), n
             } else {
 
                 tripleProduct (ac, ab, ab, abperp );
-                if (abperp.dot(ao) < 0)
+                if (abperp.dot(ao) < 0) {
+                    console.log("iteration: " + iter_count);
                     return true; // collision
+                }
                 simplex[0].set(simplex[1]); // swap first element (point C)
                 d.set(abperp); // new direction is normal to AB towards Origin
             }
@@ -130,10 +132,11 @@ export function originDistance(a: Vector, b: Vector) {
     return -a.cross(a.clone().sub(b)) / Math.sqrt(a.dist2(b));
 }
 
-export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): CollisionResult {
+export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector], result: CollisionResult) {
     const polytope = new CircularLinkedList<Vector>();
     const edges = new PriorityQueue<Edge>(); // queue
     const d = new Vector();
+    let iter_count = 0;
 
     for (let i = 0; i < simplex.length; i ++) {
         const node = polytope.push(simplex[i]);
@@ -142,6 +145,7 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): Coll
     }
 
     while(true) {
+        iter_count++;
         for(let item of edges.items) {
             //console.log(item.distance);
             //console.log(item.startVertex.data);
@@ -158,7 +162,7 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): Coll
         //console.log(d);
         let p = support(A, B, d);
 
-        if (p.cross(ab) / ab.len() - distance > 0.001) {
+        if (p.cross(ab) / ab.len() - distance > 0.0001) {
             // add p to polytope;
             // update distance
             const node = polytope.insertAfter(startVertex, p);
@@ -166,8 +170,11 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector]): Coll
             edges.enqueue(new Edge(node, originDistance(node.data, node.next!.data)));
         } else {
             // ab is the on the boundary
-            return new CollisionResult(d.normalize(), distance);
-        };
+            result.normal = d.normalize();
+            result.depth = distance;
+            console.log("iteration: " + iter_count);
+            return;
+        }
     }
 }
 

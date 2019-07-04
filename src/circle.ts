@@ -1,9 +1,11 @@
 import {Vector} from './vector';
 import {Shape} from './shape';
-import {TestResult} from './test-result';
 import {AABB} from "./aabb";
-import {Polygon} from "./polygon";
-import {testCircleCircle, testPolygonCircle} from "./util";
+import {CollisionResult} from "./collision/collision-result";
+import {epa, gjk, resolvePointsOfContact} from "./collision";
+import {Segment} from "./segment";
+
+const TEMP = new Vector();
 
 export class Circle implements Shape{
     public c: Vector;
@@ -13,19 +15,17 @@ export class Circle implements Shape{
         this.r = r;
     }
 
-    intersects(shape: Shape, result: TestResult): boolean {
-        if (shape instanceof Polygon) {
-            let ret = testPolygonCircle(shape, this, result);
-            let swap = result.aInB;
-            result.aInB = result.bInA;
-            result.bInA = swap;
-            result.overlapN.reverse();
-            result.overlapV.reverse();
-            return ret;
-        } else if (shape instanceof Circle) {
-            return testCircleCircle(this, shape, result);
+    intersects(shape: Shape, result: CollisionResult): boolean {
+        const simplex: [Vector, Vector, Vector] = [new Vector(), new Vector(), new Vector()];
+        const collided = gjk(this, shape, simplex);
+
+        if (result && collided) {
+            epa(this, shape, simplex, result);
+            resolvePointsOfContact(this, shape, result);
+            //throw new Error("shape intersects unavailable");
+            return true;
         }
-        return false;
+        return collided;
     }
 
     getAABB() {
@@ -50,5 +50,13 @@ export class Circle implements Shape{
 
     getFarthestPointInDirection(d: Vector): Vector {
         return d.clone().setLen(this.r).add(this.c);
+    }
+
+    getFarthestEdgeInDirection(d: Vector): Segment {
+        TEMP.set(d).normalize();
+        return new Segment(
+            TEMP.clone().perp().scl(this.r * 0.01).addMul(TEMP, this.r).add(this.c),
+            TEMP.clone().perp().scl(-this.r * 0.01).addMul(TEMP, this.r).add(this.c)
+        );
     }
 }

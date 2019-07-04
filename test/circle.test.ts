@@ -1,7 +1,7 @@
 import {Vector} from "../src/vector";
 import {Polygon} from "../src/polygon";
-import {TestResult} from "../src/test-result";
 import {Circle} from "../src/circle";
+import {CollisionResult} from "../src/collision/collision-result";
 
 describe("Circle", () => {
     describe(".intersect", () => {
@@ -9,13 +9,16 @@ describe("Circle", () => {
 
             let circle1 = new Circle(new Vector(0, 0), 20);
             let circle2 = new Circle(new Vector(30, 0), 20);
-            let testResult = new TestResult();
+            let testResult = new CollisionResult();
             let collided = circle1.intersects(circle2, testResult);
 
             expect(collided).toBe(true);
-            expect(testResult.overlap).toBe(10);
-            expect(testResult.overlapV.x).toBe(10);
-            expect(testResult.overlapV.y).toBe(0);
+            expect(testResult.depth).toBeCloseTo(10, 0.001);
+            expect(testResult.normal.x).toBeCloseTo(1, 0.001);
+            expect(testResult.normal.y).toBeCloseTo(0, 0.001);
+            expect(testResult.contacts.length).toBe(5);
+            expect(testResult.contacts[0].x).toBeCloseTo(10, 0.01);
+            expect(testResult.contacts[0].y).toBeCloseTo(0, 0.01);
         });
         test("testCirclePolygon", () => {
             let circle = new Circle(new Vector(50, 50), 20);
@@ -23,13 +26,14 @@ describe("Circle", () => {
             let polygon = new Polygon(new Vector(), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
-            let testResult = new TestResult();
+            polygon.recenter();
+            let testResult = new CollisionResult();
             let collided = circle.intersects(polygon, testResult);
 
             expect(collided).toBe(true);
-            expect(testResult.overlap.toFixed(2)).toBe("5.86");
-            expect(testResult.overlapV.x.toFixed(2)).toBe("-4.14");
-            expect(testResult.overlapV.y.toFixed(2)).toBe("-4.14");
+            expect(testResult.depth).toBeCloseTo(5.86,0.01);
+            expect(testResult.normal.x).toBeCloseTo(-Math.sqrt(1/2), 0.01);
+            expect(testResult.normal.y).toBeCloseTo(-Math.sqrt(1/2), 0.01);
 
             circle = new Circle(new Vector(50, 50), 5);
             // A square

@@ -7,7 +7,6 @@ export * from './polygon';
 export * from './transform';
 export * from './shape';
 export * from './line';
-export * from './test-result';
 export * from './container/lq-tree';
 
 export * from './algorithm/';

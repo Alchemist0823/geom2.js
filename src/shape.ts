@@ -1,15 +1,16 @@
-import {TestResult} from "./test-result";
 import {AABB} from "./aabb";
 import {Vector} from "./vector";
+import {CollisionResult} from "./collision/collision-result";
+import {Segment} from "./segment";
 
 export interface Shape {
     /**
      * whether the shape intersects with another shape
      * @param shape another shape
-     * @param result manifold that includes contact normal, penetration depth
-     *               and the point of contact. It can be used in rigid body physics
+     * @param result collision information that includes contact normal, penetration depth
+     *               and the points of contact. It can be used in rigid body physics
      */
-    intersects(shape: Shape, result: TestResult): boolean;
+    intersects(shape: Shape, result?: CollisionResult): boolean;
 
     /**
      * test whether a point is in the shape (including the edge)
@@ -48,4 +49,7 @@ export interface Shape {
      * @param d direction
      */
     getFarthestPointInDirection(d: Vector): Vector;
+
+
+    getFarthestEdgeInDirection(d: Vector): Segment;
 }

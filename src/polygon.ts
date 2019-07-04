@@ -1,12 +1,15 @@
 import {Shape} from "./shape";
 import {Vector} from "./vector";
-import {TestResult} from "./test-result";
 import {AABB} from "./aabb";
-import {lineHasPoint, testPolygonCircle, testPolygonPolygon} from "./util";
-import {Circle} from "./circle";
+import {lineHasPoint} from "./util";
 import {Transform} from "./transform";
 import { Segment } from "./segment";
+import {CollisionResult} from "./collision/collision-result";
+import {epa, gjk, resolvePointsOfContact} from "./collision";
 
+
+
+const TEMP = new Vector();
 /**
  * Polygon in this class satisfies:
  * 1. It must be a simple polygon.
@@ -94,13 +97,17 @@ export class Polygon implements Shape {
         return new Vector(cx, cy);
     }
 
-    public intersects(shape: Shape, result: TestResult): boolean {
-        if (shape instanceof Polygon) {
-            return testPolygonPolygon(this, shape, result);
-        } else if (shape instanceof Circle) {
-            return testPolygonCircle(this, shape, result);
+    public intersects(shape: Shape, result?: CollisionResult): boolean {
+        const simplex: [Vector, Vector, Vector] = [new Vector(), new Vector(), new Vector()];
+        const collided = gjk(this, shape, simplex);
+
+        if (result && collided) {
+            epa(this, shape, simplex, result);
+            resolvePointsOfContact(this, shape, result);
+            //throw new Error("shape intersects unavailable");
+            return true;
         }
-        throw new Error("shape intersects unavailable")
+        return collided;
     }
 
     public isPointIn(v: Vector): boolean {
@@ -186,41 +193,31 @@ export class Polygon implements Shape {
         return str;
     }
 
-    getFarthestPointInDirection(d: Vector): Vector {
+    private getFarthestIndexInDirection(d: Vector): number {
         const vertices = this.calcPoints;
-        const temp = new Vector();
 
-        temp.set(vertices[0]).sub(this.transform.position);
-        let maxProduct = d.dot(temp);
+        TEMP.set(vertices[0]).sub(this.transform.position);
+        let maxProduct = d.dot(TEMP);
         let index = 0;
         for (let i = 1; i < vertices.length; i++) {
-            temp.set(vertices[i]).sub(this.transform.position);
-            let product = d.dot(temp);
+            TEMP.set(vertices[i]).sub(this.transform.position);
+            let product = d.dot(TEMP);
             if (product > maxProduct) {
                 maxProduct = product;
                 index = i;
             }
         }
+        return index;
+    }
 
-        temp.set(vertices[index]);
-        return temp;
+    getFarthestPointInDirection(d: Vector): Vector {
+        return this.calcPoints[this.getFarthestIndexInDirection(d)].clone();
     }
 
     getFarthestEdgeInDirection(d: Vector): Segment {
         const vertices = this.calcPoints;
-        const temp = new Vector();
 
-        temp.set(vertices[0]).sub(this.transform.position);
-        let maxProduct = d.dot(temp);
-        let index = 0;
-        for (let i = 1; i < vertices.length; i++) {
-            temp.set(vertices[i]).sub(this.transform.position);
-            let product = d.dot(temp);
-            if (product > maxProduct) {
-                maxProduct = product;
-                index = i;
-            }
-        }
+        const index = this.getFarthestIndexInDirection(d);
 
         const p0 = vertices[(index - 1 + vertices.length) % vertices.length];
         const p1 = vertices[index];

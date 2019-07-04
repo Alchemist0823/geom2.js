@@ -1,5 +1,5 @@
-import {Circle, Polygon, TestResult, Vector} from "../src";
-import {transform} from "@babel/core";
+import {Circle, Polygon, Vector} from "../src";
+import {CollisionResult} from "../src/collision/collision-result";
 
 
 
@@ -48,49 +48,62 @@ describe('Polygon', () => {
     });
 
     describe('.intersect', () => {
-        test('testPolygonCircle NoCollision', () => {
+        test('testPolygonCircle Collision', () => {
 
             let circle = new Circle(new Vector(50, 50), 20);
             // A square
             let polygon = new Polygon(new Vector(), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
-            let testResult = new TestResult();
+            polygon.recenter();
+            let testResult = new CollisionResult();
             let collided = polygon.intersects(circle, testResult);
 
             expect(collided).toBe(true);
-            expect(testResult.overlap.toFixed(2)).toBe('5.86');
-            expect(testResult.overlapV.x.toFixed(2)).toBe('4.14');
-            expect(testResult.overlapV.y.toFixed(2)).toBe('4.14');
+            expect(testResult.depth).toBeCloseTo(5.86,0.01);
+            expect(testResult.normal.x).toBeCloseTo(Math.sqrt(1/2), 0.01);
+            expect(testResult.normal.y).toBeCloseTo(Math.sqrt(1/2), 0.01);
+            expect(testResult.contacts.length).toBe(5);
+            expect(testResult.contacts[4].x).toBeCloseTo(40, 0.001);
+            expect(testResult.contacts[4].y).toBeCloseTo(40, 0.001);
         });
 
-        test('testPolygonPolygon NoCollision', () => {
+        test('testPolygonPolygon Collision', () => {
             // A square
             let polygon1 = new Polygon(new Vector(), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
+            polygon1.recenter();
             // A triangle
             let polygon2 = new Polygon(new Vector(), [
                 new Vector(30, 0), new Vector(60, 0), new Vector(30, 30)
             ]);
-            let response = new TestResult();
+            polygon2.recenter();
+            let response = new CollisionResult();
             let collided = polygon1.intersects(polygon2, response);
 
             expect(collided).toBe(true);
-            expect(response.overlap).toBeCloseTo(10, 0.001);
-            expect(response.overlapV.x).toBeCloseTo(10, 0.001);
-            expect(response.overlapV.y).toBeCloseTo(0, 0.001);
+            expect(response.depth).toBeCloseTo(10, 0.001);
+            expect(response.normal.x).toBeCloseTo(1, 0.001);
+            expect(response.normal.y).toBeCloseTo(0, 0.001);
+            expect(response.contacts.length).toBe(5);
+            expect(response.contacts[0].x).toBeCloseTo(30, 0.001);
+            expect(response.contacts[0].y).toBeCloseTo(0, 0.001);
+            expect(response.contacts[4].x).toBeCloseTo(30, 0.001);
+            expect(response.contacts[4].y).toBeCloseTo(30, 0.001);
         });
 
-        test('testPolygonPolygon Collision', () => {
+        test('testPolygonPolygon No Collision', () => {
 
             let box1 = new Polygon(new Vector(0, 0), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
+            box1.recenter();
             let box2 = new Polygon(new Vector(50, 0), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
-            let collided = box1.intersects(box2, new TestResult());
+            box2.recenter();
+            let collided = box1.intersects(box2);
             expect(collided).toBe(false);
         });
     });

@@ -1,7 +1,5 @@
 import {Vector} from '../vector';
 import { Shape } from '../shape';
-import { Polygon } from '../polygon';
-import { Segment } from '../segment';
 import {CollisionResult} from "./collision-result";
 
 const MAX_POC_COUNT = 5;
@@ -11,18 +9,9 @@ export function resolvePointsOfContact(A: Shape, B: Shape, result: CollisionResu
     const depth = result.depth;
 
     let segmentA, segmentB;
-    if (A instanceof Polygon) {
-        segmentA = A.getFarthestEdgeInDirection(normal);
-    } else {
-        let p = A.getFarthestPointInDirection(normal);
-        segmentA = new Segment(p, p.clone());
-    }
-    if (B instanceof Polygon) {
-        segmentB = B.getFarthestEdgeInDirection(normal.clone().reverse());
-    } else {
-        let p = B.getFarthestPointInDirection(normal);
-        segmentB = new Segment(p, p.clone());
-    }
+    segmentA = A.getFarthestEdgeInDirection(normal);
+    segmentB = B.getFarthestEdgeInDirection(normal.clone().reverse());
+
     let segmentRef, segmentInc;
     if (Math.abs(segmentA.dot(normal)) <= Math.abs(segmentB.dot(normal))) {
         segmentRef = segmentA;
@@ -46,12 +35,12 @@ export function resolvePointsOfContact(A: Shape, B: Shape, result: CollisionResu
 
     let u1 = - d1 / (d2 - d1);
     let u2 = (segmentRef.len2() - d1) / (d2 - d1);
-    console.log(segmentInc);
-    console.log(segmentRef);
-    console.log(d1);
-    console.log(d2);
-    console.log(u1);
-    console.log(u2);
+    //console.log(segmentInc);
+    //console.log(segmentRef);
+    //console.log(d1);
+    //console.log(d2);
+    //console.log(u1);
+    //console.log(u2);
 
     let v1, v2;
     if (u1 > 0 && u1 < 1) {
@@ -65,14 +54,14 @@ export function resolvePointsOfContact(A: Shape, B: Shape, result: CollisionResu
         v2 = segmentInc.v2.clone();
     }
 
-    console.log(v1);
-    console.log(v2);
+    //console.log(v1);
+    //console.log(v2);
 
     let v1c = v1.crossRef(segmentRef.v2, segmentRef.v1);
     let v2c = v2.crossRef(segmentRef.v2, segmentRef.v1);
     let startV, endV;
-    if (v1c <= 0) {
-        if (v2c <= 0) {
+    if (v1c <= 0.01) {
+        if (v2c <= 0.01) {
             startV = v1;
             endV = v2;
         } else {
@@ -80,17 +69,17 @@ export function resolvePointsOfContact(A: Shape, B: Shape, result: CollisionResu
             endV = v1;
         }
     } else {
-        if (v2c <= 0) {
+        if (v2c <= 0.01) {
             startV = v2;
             endV = v2;
         } else {
-            console.log("error: impossible situation");
+            throw new Error("error: impossible poc situation");
             return;
         }
     }
 
-    console.log(startV);
-    console.log(endV);
+    //console.log(startV);
+    //console.log(endV);
     if (startV === endV) {
         result.contacts.push(startV);
     } else {

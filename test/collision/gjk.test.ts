@@ -1,4 +1,5 @@
 import {Polygon, Vector, gjk, Circle, epa} from "../../src";
+import {CollisionResult} from "../../src/collision/collision-result";
 
 
 describe('gjk', () => {
@@ -96,9 +97,9 @@ describe('epa', () => {
 
         const simplex: [Vector,Vector,Vector] = [new Vector(), new Vector(), new Vector()];
         expect(gjk(square1, square2, simplex)).toBe(true);
-        console.log(simplex);
 
-        const result = epa(square1, square2, simplex);
+        const result = new CollisionResult();
+        epa(square1, square2, simplex, result);
         expect(result.normal).toEqual({x: 0, y: -1});
         expect(result.depth).toEqual(10);
     });
@@ -118,9 +119,9 @@ describe('epa', () => {
 
         const simplex: [Vector,Vector,Vector] = [new Vector(), new Vector(), new Vector()];
         expect(gjk(triangle, square, simplex)).toBe(true);
-        console.log(simplex);
 
-        const result = epa(triangle, square, simplex);
+        const result = new CollisionResult();
+        epa(triangle, square, simplex, result);
         const res = new Vector(5, 4).perp().normalize();
         expect(result.normal.x).toBeCloseTo(res.x, 0.00001);
         expect(result.normal.y).toBeCloseTo(res.y, 0.00001);
