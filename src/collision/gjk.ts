@@ -95,7 +95,7 @@ export function gjk(A: Shape, B: Shape, simplex = [new Vector(), new Vector(), n
 
                 tripleProduct (ac, ab, ab, abperp );
                 if (abperp.dot(ao) < 0) {
-                    console.log("iteration: " + iter_count);
+                    //console.log("iteration: " + iter_count);
                     return true; // collision
                 }
                 simplex[0].set(simplex[1]); // swap first element (point C)
@@ -172,7 +172,7 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector], resul
             // ab is the on the boundary
             result.normal = d.normalize();
             result.depth = distance;
-            console.log("iteration: " + iter_count);
+            //console.log("iteration: " + iter_count);
             return;
         }
     }
