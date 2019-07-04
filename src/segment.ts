@@ -1,5 +1,4 @@
 import {Vector} from "./vector";
-import {Shape} from "./shape";
 import {AABB} from "./aabb";
 import {lineHasPoint} from "./util";
 import {Line} from "./line";

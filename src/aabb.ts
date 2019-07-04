@@ -1,9 +1,6 @@
-import {Shape} from "./shape";
-import {TestResult} from "./test-result";
 import {Vector} from "./vector";
-import {Polygon} from "./polygon";
 
-export class AABB implements Shape {
+export class AABB {
     public left: number;
     public right: number;
     public top: number;
@@ -54,14 +51,11 @@ export class AABB implements Shape {
         return this.top - this.bottom;
     }
 
-    intersects(shape: Shape, result?: TestResult): boolean {
-        if (shape instanceof AABB) {
-            return this.left <= shape.right &&
-                this.right >= shape.left &&
-                this.bottom <= shape.top &&
-                this.top >= shape.bottom;
-        }
-        throw new Error("shape intersects unavailable")
+    intersects(aabb: AABB): boolean {
+        return this.left <= aabb.right &&
+            this.right >= aabb.left &&
+            this.bottom <= aabb.top &&
+            this.top >= aabb.bottom;
     }
 
     contains(aabb: AABB): boolean {
@@ -109,20 +103,5 @@ export class AABB implements Shape {
 
     getCentroid(): Vector {
         return this.getCenter();
-    }
-
-    toPolygon() {
-        return new Polygon(this.getCenter(), [
-            new Vector(-this.width / 2, -this.height /2),
-            new Vector(this.width / 2, -this.height /2),
-            new Vector(this.width / 2, this.height /2),
-            new Vector(-this.width / 2, this.height /2),
-        ]);
-    }
-
-    // not efficient
-    getFarthestPointInDirection(d: Vector): Vector {
-        const poly = this.toPolygon();
-        return poly.getFarthestPointInDirection(d);
     }
 }

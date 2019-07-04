@@ -29,6 +29,15 @@ export class Polygon implements Shape {
         this.recalc();
     }
 
+    public static fromAABB(aabb: AABB) {
+        return new Polygon(aabb.getCenter(), [
+            new Vector(-aabb.width / 2, -aabb.height /2),
+            new Vector(aabb.width / 2, -aabb.height /2),
+            new Vector(aabb.width / 2, aabb.height /2),
+            new Vector(-aabb.width / 2, aabb.height /2),
+        ]);
+    }
+
     public get originPoints() {
         return this.points;
     }
