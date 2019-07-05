@@ -127,4 +127,25 @@ describe('epa', () => {
         expect(result.normal.y).toBeCloseTo(res.y, 0.00001);
         expect(result.depth).toBeCloseTo(0.9370425713316364, 0.00001);
     });
+
+
+    test('Large Rect - Small Rect', () => {
+        let square1 = new Polygon(new Vector(100, 0), [
+            new Vector(-10, 100), new Vector(-10, -100),
+            new Vector(10, -100), new Vector(10, 100),
+        ]);
+
+        let square2 = new Polygon(new Vector(85, 0), [
+            new Vector(9, 10), new Vector(-10, -9),
+            new Vector(-9, -10), new Vector(10, 9),
+        ]);
+
+        const simplex: [Vector,Vector,Vector] = [new Vector(), new Vector(), new Vector()];
+        expect(gjk(square1, square2, simplex)).toBe(true);
+
+        const result = new CollisionResult();
+        epa(square1, square2, simplex, result);
+        expect(result.normal).toEqual({x: -1, y: 0});
+        expect(result.depth).toEqual(5);
+    });
 });

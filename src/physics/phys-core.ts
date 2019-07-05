@@ -9,6 +9,7 @@ export function applyImpulse(material: PhysMaterial, state: PhysProperty, impuls
     state.angularVelocity += material.invInertia * contactVector.cross(impulse);
 }
 
+// https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
 export function resolveContact(aMat: PhysMaterial, aState: PhysProperty, bMat: PhysMaterial, bState: PhysProperty, result: CollisionResult) {
     const rv = new Vector();
     const impulse = new Vector();

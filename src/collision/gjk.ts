@@ -138,6 +138,13 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector], resul
     const d = new Vector();
     let iter_count = 0;
 
+    // sort edge counter-clockwise
+    if (simplex[1].crossRef(simplex[2], simplex[0]) < 0) {
+        const swap = simplex[1];
+        simplex[1] = simplex[2];
+        simplex[2] = swap;
+    }
+
     for (let i = 0; i < simplex.length; i ++) {
         const node = polytope.push(simplex[i]);
         const dist = originDistance(simplex[i], simplex[(i+1) % 3]);

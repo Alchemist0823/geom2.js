@@ -73,6 +73,9 @@ export function resolvePointsOfContact(A: Shape, B: Shape, result: CollisionResu
             startV = v2;
             endV = v2;
         } else {
+            //console.log(A);
+            //console.log(B);
+            //console.log(result);
             throw new Error("error: impossible poc situation");
             return;
         }
