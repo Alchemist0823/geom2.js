@@ -19,21 +19,26 @@ export function resolveContact(aMat: PhysMaterial, aState: PhysProperty, bMat: P
     const sf = Math.sqrt( aMat.staticFriction * bMat.staticFriction );
     const df = Math.sqrt( aMat.dynamicFriction * bMat.dynamicFriction );
 
+    const aStateVelocity = aState.velocity.clone();
+    const bStateVelocity = bState.velocity.clone();
+    const aStateAngularVelocity = aState.angularVelocity;
+    const bStateAngularVelocity = bState.angularVelocity;
+
     for (let contact of result.contacts) {
         // Calculate radii from COM to contact
         let ra = contact.clone().sub(aState.position);
         let rb = contact.clone().sub(bState.position);
 
         // Relative velocity
-        rv.set(bState.velocity).addMul(rb, bState.angularVelocity)
-            .sub(aState.velocity).subMul(ra, aState.angularVelocity);
+        rv.set(bStateVelocity).addMul(rb, bStateAngularVelocity)
+            .sub(aStateVelocity).subMul(ra, aStateAngularVelocity);
 
         // Relative velocity along the normal
         const contactVel = rv.dot(result.normal);
 
         // Do not resolve if velocities are separating
         if(contactVel > 0)
-            return;
+            continue;
 
         let raCrossN = ra.cross(result.normal);
         let rbCrossN = rb.cross(result.normal);
@@ -50,8 +55,8 @@ export function resolveContact(aMat: PhysMaterial, aState: PhysProperty, bMat: P
         applyImpulse(aMat, aState, impulse.reverse(), ra );
 
         // Friction impulse
-        rv.set(bState.velocity).addMul(rb, bState.angularVelocity)
-            .sub(aState.velocity).subMul(ra, aState.angularVelocity);
+        rv.set(bStateVelocity).addMul(rb, bStateAngularVelocity)
+            .sub(aStateVelocity).subMul(ra, aStateAngularVelocity);
 
         const t = rv.clone().subMul(result.normal, rv.dot(result.normal));
         t.normalize();
@@ -63,7 +68,7 @@ export function resolveContact(aMat: PhysMaterial, aState: PhysProperty, bMat: P
 
         // Don't apply tiny friction impulses
         if(Comparator.EQ( jt, 0.0 ))
-            return;
+            continue;
 
         // Coulumb's law tangent impulse
         if(Math.abs( jt ) < j * sf)

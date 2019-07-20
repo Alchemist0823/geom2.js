@@ -71,6 +71,7 @@ typings/
 
 # Project file
 .idea/
+/example/geom2.min.js
 
 # Doc
 docs/

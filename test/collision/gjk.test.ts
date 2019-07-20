@@ -1,4 +1,4 @@
-import {Polygon, Vector, gjk, Circle, epa} from "../../src";
+import {Polygon, Vector, gjk, Circle, epa, resolvePointsOfContact} from "../../src";
 import {CollisionResult} from "../../src/collision/collision-result";
 
 
@@ -147,5 +147,26 @@ describe('epa', () => {
         epa(square1, square2, simplex, result);
         expect(result.normal).toEqual({x: -1, y: 0});
         expect(result.depth).toEqual(5);
+    });
+
+    test("real game - case 1", () => {
+        let square1 = new Polygon(new Vector(1000, 2000), [
+            new Vector(-1000, -25), new Vector(1000, -25),
+            new Vector(1000, 25), new Vector(-1000, 25),
+        ]);
+
+        let square2 = new Polygon(new Vector(1493.375491567283, 1976.3265662622332), [
+            new Vector(1.5155526763598095, -4.008018362768531), new Vector(3.16954014403402, -2.8835960858740117),
+            new Vector(-1.5155526763598095, 4.008018362768531), new Vector(-3.16954014403402, 2.8835960858740117),
+        ]);
+
+        const simplex: [Vector,Vector,Vector] = [new Vector(), new Vector(), new Vector()];
+        expect(gjk(square1, square2, simplex)).toBe(true);
+
+        const result = new CollisionResult();
+        epa(square1, square2, simplex, result);
+        resolvePointsOfContact(square1, square2, result);
+
+        expect(result.normal).toEqual({x: 0, y: -1});
     });
 });
