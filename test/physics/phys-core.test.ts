@@ -44,6 +44,47 @@ describe('phys-core', () => {
             expect(bState.velocity.y).toBeCloseTo(0, delta);
         });
 
+
+        test('no Inertia - infinite mass', ()=> {
+            const aMat: PhysMaterial = {
+                dynamicFriction: 0,
+                staticFriction: 0,
+                invInertia: 0,
+                invMass: 0,
+                restitution: 1,
+            };
+            const aState: PhysProperty = {
+                position: new Vector(),
+                angularVelocity: 0,
+                velocity: new Vector(0, 0)
+            };
+
+            const bMat = {
+                dynamicFriction: 0,
+                staticFriction: 0,
+                invInertia: 0,
+                invMass: 1,
+                restitution: 1,
+            };
+            const bState: PhysProperty = {
+                position: new Vector(),
+                angularVelocity: 0,
+                velocity: new Vector(-1, 1),
+            };
+
+            const result = new CollisionResult();
+            result.normal = new Vector(1, 0);
+            result.depth = 1;
+            result.contacts.push(new Vector());
+
+            resolveContact(aMat, aState, bMat, bState, result);
+
+            expect(aState.velocity.x).toBeCloseTo(0, delta);
+            expect(aState.velocity.y).toBeCloseTo(0, delta);
+            expect(bState.velocity.x).toBeCloseTo(1, delta);
+            expect(bState.velocity.y).toBeCloseTo(1, delta);
+        });
+
         test('no Inertia - reverse normal', ()=> {
             const aMat: PhysMaterial = {
                 dynamicFriction: 0,
