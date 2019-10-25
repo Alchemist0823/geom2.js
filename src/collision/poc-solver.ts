@@ -1,10 +1,10 @@
 import {Vector} from '../vector';
-import { Shape } from '../shape';
+import { ConvexShape } from '../convex-shape';
 import {CollisionResult} from "./collision-result";
 
 const MAX_POC_COUNT = 5;
 
-export function resolvePointsOfContact(A: Shape, B: Shape, result: CollisionResult): void {
+export function resolvePointsOfContact(A: ConvexShape, B: ConvexShape, result: CollisionResult): void {
     const normal = result.normal;
     const depth = result.depth;
 

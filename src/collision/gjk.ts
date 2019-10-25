@@ -8,7 +8,7 @@ Reference: https://github.com/kroitor/gjk.c
  **/
 
 import {Vector} from "../vector";
-import {Shape} from "../shape";
+import {ConvexShape} from "../convex-shape";
 import {PriorityQueue, Comparable} from "../container/priority-queue";
 import {LinkedListNode, CircularLinkedList} from "../container/linked-list";
 import {CollisionResult} from "./collision-result";
@@ -17,7 +17,7 @@ import {CollisionResult} from "./collision-result";
 const tempSupport = new Vector();
 //-----------------------------------------------------------------------------
 // Minkowski sum support function for GJK
-export function support(shape1: Shape, shape2: Shape, d: Vector): Vector {
+export function support(shape1: ConvexShape, shape2: ConvexShape, d: Vector): Vector {
     // d is a vector direction (doesn't have to be normalized)
     // get points on the edge of the shapes in opposite directions
     const p1 = shape1.getFarthestPointInDirection(d);
@@ -27,7 +27,7 @@ export function support(shape1: Shape, shape2: Shape, d: Vector): Vector {
     return p1.sub(p2);
 }
 
-export function gjk(A: Shape, B: Shape, simplex = [new Vector(), new Vector(), new Vector()]) {
+export function gjk(A: ConvexShape, B: ConvexShape, simplex = [new Vector(), new Vector(), new Vector()]) {
     let iter_count = 0;
     let index = 0; // index of current vertex of simplex
 
@@ -132,7 +132,7 @@ export function originDistance(a: Vector, b: Vector) {
     return -a.cross(a.clone().sub(b)) / Math.sqrt(a.dist2(b));
 }
 
-export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector], result: CollisionResult) {
+export function epa(A: ConvexShape, B: ConvexShape, simplex: [Vector, Vector, Vector], result: CollisionResult) {
     const polytope = new CircularLinkedList<Vector>();
     const edges = new PriorityQueue<Edge>(); // queue
     const d = new Vector();
@@ -153,10 +153,10 @@ export function epa(A: Shape, B: Shape, simplex: [Vector, Vector, Vector], resul
 
     while(true) {
         iter_count++;
-        for(let item of edges.items) {
+        //for(let item of edges.items) {
             //console.log(item.distance);
             //console.log(item.startVertex.data);
-        }
+        //}
         //console.log(Array.from(polytope.values()));
         let {startVertex, distance} = edges.dequeue();
 

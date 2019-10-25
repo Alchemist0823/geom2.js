@@ -156,7 +156,7 @@ export function testCircleCircle(a: Circle, b: Circle, testResult?: CollisionRes
     let differenceV = T_VECTORS.pop();
     if (differenceV === undefined)
         throw new Error('memory allocation error');
-    differenceV.set(b.c).sub(a.c);
+    differenceV.set(b.transform.position).sub(a.transform.position);
     let totalRadius = a.r + b.r;
     let totalRadiusSq = totalRadius * totalRadius;
     let distanceSq = differenceV.len2();
@@ -172,9 +172,9 @@ export function testCircleCircle(a: Circle, b: Circle, testResult?: CollisionRes
         testResult.normal.set(differenceV.normalize());
 
         if (a.r <= b.r) {
-            testResult.contacts.push(testResult.normal.clone().scl(a.r).add(a.c));
+            testResult.contacts.push(testResult.normal.clone().scl(a.r).add(a.transform.position));
         } else {
-            testResult.contacts.push(testResult.normal.clone().scl(-b.r).add(b.c));
+            testResult.contacts.push(testResult.normal.clone().scl(-b.r).add(b.transform.position));
         }
     }
     T_VECTORS.push(differenceV);
@@ -226,7 +226,7 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response: Co
     if (circlePos === undefined)
         throw new Error('memory allocation error');
     // Get the position of the circle relative to the polygon.
-    circlePos.set(circle.c);
+    circlePos.set(circle.transform.position);
 
     let radius = circle.r;
     let radius2 = radius * radius;

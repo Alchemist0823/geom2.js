@@ -53,6 +53,10 @@ export class Transform {
         this.sint = Math.sin(theta);
     }
 
+    public get angle(): number {
+        return Math.acos(this.cost);
+    }
+
     public set position(pos: Vector) {
         this._pos.set(pos);
     }

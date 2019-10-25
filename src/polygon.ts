@@ -1,4 +1,4 @@
-import {Shape} from "./shape";
+import {ConvexShape} from "./convex-shape";
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
 import {lineHasPoint} from "./util";
@@ -16,7 +16,7 @@ const TEMP = new Vector();
  * 2. It contain the point (0, 0).
  * 3. Points are sorted in counter-clockwise order from it's center.
  */
-export class Polygon implements Shape {
+export class Polygon implements ConvexShape {
     //public pos: Vector;
     public transform: Transform;
     protected points: Array<Vector>;
@@ -43,13 +43,25 @@ export class Polygon implements Shape {
     }
 
     // Rotates this polygon counter-clockwise around the origin of *its local coordinate system* (i.e. `pos`).
-    public rotate(angle: number) {
+    public rotate(angle: number, center: Vector = Vector.ZERO): this {
+        this.transform.rotate(angle, center.x, center.y);
+        return this;
+    }
+
+    // Translates the points of this polygon by a specified amount relative to the origin of *its own coordinate
+    public translate(x: number, y: number): this {
+        this.transform.translate(x, y);
+        return this;
+    };
+
+    // Rotates this polygon counter-clockwise around the origin of *its local coordinate system* (i.e. `pos`).
+    public rotateLocal(angle: number, center: Vector = Vector.ZERO) {
         for (let i = 0; i < this.points.length; i++) {
-            this.points[i].rotate(angle);
+            this.points[i].rotate(angle, center);
         }
     }
     // Translates the points of this polygon by a specified amount relative to the origin of *its own coordinate
-    public translate(x: number, y: number) {
+    public translateLocal(x: number, y: number) {
         let points = this.points;
         let len = points.length;
         for (let i = 0; i < len; i++) {
@@ -106,7 +118,7 @@ export class Polygon implements Shape {
         return new Vector(cx, cy);
     }
 
-    public intersects(shape: Shape, result?: CollisionResult): boolean {
+    public intersects(shape: ConvexShape, result?: CollisionResult): boolean {
         const simplex: [Vector, Vector, Vector] = [new Vector(), new Vector(), new Vector()];
         const collided = gjk(this, shape, simplex);
 
