@@ -1,6 +1,6 @@
 {
   "name": "geom2.js",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "high performance 2d geometry library",
   "types": "./dist/types/index.d.ts",
   "main": "./dist/index.cjs.js",
