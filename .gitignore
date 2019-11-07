@@ -1,5 +1,6 @@
 # Builds
 dist/
+example/geom2.min.js
 
 # Logs
 logs

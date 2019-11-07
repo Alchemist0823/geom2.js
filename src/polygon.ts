@@ -156,10 +156,10 @@ export class Polygon implements ConvexShape {
     }
 
     public getAABB(): AABB {
-        return Polygon.getAABBFromPoints(this.points);
+        return Polygon.getAABBFromPoints(this.calcPoints);
     }
 
-    public getCalcAABB(): AABB {
+    public getOriginAABB(): AABB {
         return Polygon.getAABBFromPoints(this.calcPoints);
     }
 
