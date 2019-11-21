@@ -113,7 +113,7 @@ export class LinkedList<T> {
 
 
     /**
-     * FIFO removal in O(1)
+     * remove at head in O(1)
      */
     dequeue(): T | undefined {
         if (this.head) {
@@ -131,7 +131,7 @@ export class LinkedList<T> {
     }
 
     /**
-     * LIFO removal in O(1)
+     * remove at tail in O(1)
      */
     pop(): T | undefined {
         if (this.tail) {
@@ -149,7 +149,7 @@ export class LinkedList<T> {
     }
 
     /**
-     * FIFO add in O(1)
+     * add at head in O(1)
      */
     queue(data: T): void {
         const node = new LinkedListNode(data);
@@ -165,7 +165,7 @@ export class LinkedList<T> {
     }
 
     /**
-     * LIFO add in O(1)
+     * add at tail in O(1)
      */
     push(data: T): void {
         const node = new LinkedListNode(data);
