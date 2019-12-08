@@ -1,12 +1,39 @@
-import {ComposedShape, Polygon, Vector} from "../src";
+import {ComposedShape, Polygon, Transform, Vector} from "../src";
 
 describe('ComposedShape', () => {
+
+    describe('constructor', () => {
+        test('without transform', () => {
+            // A square
+            let composedShape = new ComposedShape([new Polygon(new Vector(30, 30), [
+                new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
+            ])]);
+            let c = composedShape.transform.position;
+            expect(c.x).toBe(50);
+            expect(c.y).toBe(50);
+        });
+
+        test('with transform', () => {
+            let p1 = new Polygon(new Vector(0, 0), [
+                new Vector(-20, -20), new Vector(20, -20), new Vector(20, 20), new Vector(-20, 20)
+            ]);
+            let p2 = new Polygon(new Vector(30, 30), [
+                new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
+            ]);
+            let transform = new Transform(new Vector(25, 20));
+            let composedShape = new ComposedShape([p1, p2], transform);
+            let c = composedShape.transform.position;
+            expect(c.x).toBe(25);
+            expect(c.y).toBe(20);
+        });
+    });
+
     describe('.getCentroid', () => {
         test('should calculate the correct value for a single square', () => {
             // A square
             let composedShape = new ComposedShape([new Polygon(new Vector(30, 30), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
-            ])], true);
+            ])]);
             let c = composedShape.getCentroid();
             expect(c.x).toBe(50);
             expect(c.y).toBe(50);
@@ -19,7 +46,7 @@ describe('ComposedShape', () => {
             let p2 = new Polygon(new Vector(30, 30), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
-            let composedShape = new ComposedShape([p1, p2], true);
+            let composedShape = new ComposedShape([p1, p2]);
             let c = composedShape.getCentroid();
             expect(c.x).toBe(25);
             expect(c.y).toBe(25);
@@ -32,7 +59,7 @@ describe('ComposedShape', () => {
             // A square
             let composedShape = new ComposedShape([new Polygon(new Vector(30, 30), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
-            ])], true);
+            ])]);
             let a = composedShape.getArea();
             expect(a).toBe(1600);
         });
@@ -44,7 +71,7 @@ describe('ComposedShape', () => {
             let p2 = new Polygon(new Vector(30, 30), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
-            let composedShape = new ComposedShape([p1, p2], true);
+            let composedShape = new ComposedShape([p1, p2]);
             let c = composedShape.getArea();
             expect(c).toBe(3200);
         });
@@ -54,7 +81,7 @@ describe('ComposedShape', () => {
         test('Colinear', () => {
             let triangle = new ComposedShape([new Polygon(new Vector(10, 0), [
                 new Vector(-10, 0), new Vector(30, 0), new Vector(0, 30)
-            ])], true);
+            ])]);
             expect(triangle.isPointIn(new Vector(0, 0))).toBe(true); // true
             expect(triangle.isPointIn(new Vector(10, 10))).toBe(true); // true
             expect(triangle.isPointIn(new Vector(0, -10))).toBe(false); // false
@@ -76,14 +103,14 @@ describe('ComposedShape', () => {
             let p2 = new Polygon(new Vector(30, 30), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
-            let composedShape = new ComposedShape([p1, p2], true);
+            let composedShape = new ComposedShape([p1, p2]);
             composedShape.rotate(-Math.PI / 4);
             composedShape.recalc();
 
             expect(composedShape.transform.position.x).toBe(25);
             expect(composedShape.transform.position.y).toBe(25);
             // because reverse cos must be in [0, Math.PI]
-            expect(composedShape.transform.angle).toBeCloseTo(Math.PI/4, 0.0001);
+            expect(composedShape.transform.angle).toBeCloseTo(-Math.PI/4, 0.0001);
             expect((composedShape.shapes[0] as Polygon).calcPoints[0].x).toBeCloseTo(25 - 63.6396103068, 0.0001);
             expect((composedShape.shapes[0] as Polygon).calcPoints[0].y).toBeCloseTo(25, 0.0001);
         });
@@ -97,8 +124,11 @@ describe('ComposedShape', () => {
             let p2 = new Polygon(new Vector(30, 30), [
                 new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
             ]);
-            let composedShape = new ComposedShape([p1, p2], true);
+            let composedShape = new ComposedShape([p1, p2]);
             composedShape.translate(10, 10);
+            composedShape.recalc();
+            expect((composedShape.shapes[0] as Polygon).calcPoints[0].x).toBeCloseTo(-10, 0.0001);
+            expect((composedShape.shapes[0] as Polygon).calcPoints[0].y).toBeCloseTo(-10, 0.0001);
             composedShape.rotate(-Math.PI / 4);
             composedShape.recalc();
             expect((composedShape.shapes[0] as Polygon).calcPoints[0].x).toBeCloseTo(35 - 63.6396103068, 0.0001);

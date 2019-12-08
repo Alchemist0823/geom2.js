@@ -8,19 +8,17 @@ import { Transform } from "./transform";
 export class ComposedShape implements Shape {
 
   public transform: Transform;
-  //private localTransforms: Array<Transform> = [];
+  private localTransforms: Array<Transform> = [];
 
-  constructor(public shapes: Array<Polygon | Circle>, subshapeWorldTransform: boolean) {
-      if (subshapeWorldTransform) {
+  constructor(public shapes: Array<Polygon | Circle>, transform?: Transform) {
+      if (transform == null) {
           let centroid = this.getCentroid();
           this.transform = new Transform(centroid);
       } else {
-          this.transform = new Transform(new Vector());
+          this.transform = transform;
       }
       for(var i = 0; i < shapes.length; i ++) {
-          if (subshapeWorldTransform) {
-              //this.localTransforms.push(new Transform(shapes.transform));
-          }
+          this.localTransforms.push(shapes[i].transform.clone().mulInverseTransform(this.transform));
       }
   };
 
@@ -34,19 +32,19 @@ export class ComposedShape implements Shape {
 
   // Rotates this polygon counter-clockwise around the center
   public rotate(angle: number, center: Vector = this.transform.position): this {
+      this.transform.rotate(angle, center.x, center.y);
       for (let k = 0; k < this.shapes.length; k++) {
-          this.shapes[k].rotate(angle, center);
+          this.shapes[k].transform.set(this.localTransforms[k]).mulTransform(this.transform)//.rotate(angle, center);
       }
-      this.transform.rotate(angle, this.transform.position.x, this.transform.position.y);
       return this;
   }
 
   // Translates this shape by a specified amount
   public translate(x: number, y: number): this {
-      for (let k = 0; k < this.shapes.length; k++) {
-          this.shapes[k].translate(x, y);
-      }
       this.transform.translate(x, y);
+      for (let k = 0; k < this.shapes.length; k++) {
+          this.shapes[k].transform.set(this.localTransforms[k]).mulTransform(this.transform);
+      }
       return this;
   };
 
