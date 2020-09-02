@@ -24,6 +24,7 @@ export class ComposedShape implements Shape {
 
   public recalc() {
       for (let k = 0; k < this.shapes.length; k++) {
+          this.shapes[k].transform.set(this.localTransforms[k]).mulTransform(this.transform);
           if (this.shapes[k] instanceof Polygon) {
               (this.shapes[k] as Polygon).recalc();
           }

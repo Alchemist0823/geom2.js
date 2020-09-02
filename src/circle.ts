@@ -77,4 +77,8 @@ export class Circle implements ConvexShape {
             TEMP.clone().perp().scl(-this.r * 0.01).addMul(TEMP, this.r).add(this.center)
         );
     }
+
+    public toString(): string {
+        return `{p:${this.transform.position}, rot:${this.transform.angle}, rad:${this.r}}`;
+    }
 }

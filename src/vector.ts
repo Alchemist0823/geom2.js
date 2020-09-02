@@ -201,4 +201,8 @@ export class Vector {
     public static lerp(start: Vector, end: Vector, t: number): Vector {
         return new Vector(t * (end.x - start.x) + start.x,  t * (end.y - start.y) + start.y);
     }
+
+    public toString(): string {
+        return `[${this.x}, ${this.y}]`;
+    }
 }

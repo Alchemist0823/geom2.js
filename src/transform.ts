@@ -216,4 +216,8 @@ export class Transform {
         result.position.x   = x;
         result.position.y   = y;
     }
+
+    toString() {
+        return `[x:${this.position.x}, y:${this.position.y}, a:${this.angle / Math.PI * 180}]`;
+    }
 }

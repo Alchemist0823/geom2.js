@@ -85,10 +85,6 @@ export class AABB {
         return false;
     }
 
-    toString() {
-        return '[' + this.left + ', '+ this.bottom + ', '+ this.right + ', '+ this.top + ']';
-    }
-
     getAABB() {
         return this;
     }
@@ -103,5 +99,9 @@ export class AABB {
 
     getCentroid(): Vector {
         return this.getCenter();
+    }
+
+    toString() {
+        return `[l:${this.left}, b:${this.bottom}, r:${this.right}, t:${this.top}]`;
     }
 }
