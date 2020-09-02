@@ -33,7 +33,7 @@ export class Circle implements ConvexShape {
         return this;
     };
 
-    intersects(shape: ConvexShape, result: CollisionResult): boolean {
+    intersects(shape: ConvexShape, result?: CollisionResult): boolean {
         const simplex: [Vector, Vector, Vector] = [new Vector(), new Vector(), new Vector()];
         const collided = gjk(this, shape, simplex);
 

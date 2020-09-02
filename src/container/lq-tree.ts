@@ -1,11 +1,6 @@
 import {AABB} from '../aabb';
 
-
-export interface Identifiable {
-    getId(): number;
-}
-
-class LQTreeElement<T extends Identifiable> {
+class LQTreeElement<T> {
     public aabb: AABB;
     public data: T;
 
@@ -15,7 +10,7 @@ class LQTreeElement<T extends Identifiable> {
     }
 }
 
-class LQTreeNode<T extends Identifiable> {
+class LQTreeNode<T> {
     public children: [LQTreeNode<T>, LQTreeNode<T>, LQTreeNode<T>, LQTreeNode<T>] | null;
     public baseBound: AABB;
     public count: number;
@@ -115,7 +110,7 @@ class LQTreeNode<T extends Identifiable> {
         if (this.children === null) {
             str += indent + 'element: \n';
             for (let element of this.elements) {
-                str += indent + '  ' + element.aabb + ' id: ' + element.data.getId() + '\n';
+                str += indent + '  ' + element.aabb + ' data: ' + element.data + '\n';
             }
         } else {
             for (let i = 0; i < 4; i ++) {
@@ -159,10 +154,11 @@ class LQTreeNode<T extends Identifiable> {
 /**
  * Loose QuadTree
  */
-export class LQTree<T extends Identifiable> {
+export class LQTree<T> {
     public readonly maxChildren: number;
     public readonly maxLayer: number;
     public root: LQTreeNode<T>; // public for testing
+    public idGenerator: number;
     protected elementMap: Map<number, LQTreeElement<T>>;
 
     public constructor(width: number, height: number, maxChildren: number = 4, maxLayer: number = 10) {
@@ -170,12 +166,15 @@ export class LQTree<T extends Identifiable> {
         this.elementMap = new Map();
         this.maxChildren = maxChildren;
         this.maxLayer = maxLayer;
+        this.idGenerator = 1;
     }
 
     public insert(aabb: AABB, data:T) {
         let element = new LQTreeElement(aabb, data);
         this.insertNode(this.root, element, 0);
-        this.elementMap.set(data.getId(), element);
+        this.elementMap.set(this.idGenerator, element);
+        this.idGenerator ++;
+        return this.idGenerator - 1;
     }
 
     protected insertNode(node: LQTreeNode<T>, element: LQTreeElement<T>, layer: number) {
@@ -210,11 +209,11 @@ export class LQTree<T extends Identifiable> {
         node.clearElements();
     }
 
-    public delete(data: T) {
-        let element = this.elementMap.get(data.getId());
+    public delete(id: number) {
+        let element = this.elementMap.get(id);
         if (element !== undefined) {
             if (this.deleteInNode(this.root, element)) {
-                this.elementMap.delete(data.getId());
+                this.elementMap.delete(id);
                 return true;
             }
             return false;

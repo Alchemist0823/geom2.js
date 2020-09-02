@@ -20,6 +20,7 @@ describe('algo.generateRandomConvexPolygon', () => {
     test('should be sized', () => {
         for (let i = 0; i < 10; i ++) {
             let polygon = algo.generateRandomConvexPolygon(10, 10);
+            console.log(polygon.calcPoints);
             expect(polygon.getAABB().left).toBeLessThan(0);
             expect(polygon.getAABB().left).toBeGreaterThan(-5);
             expect(polygon.getAABB().right).toBeLessThan(5);

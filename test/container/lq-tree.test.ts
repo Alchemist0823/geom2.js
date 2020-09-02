@@ -1,10 +1,13 @@
-import {LQTree,  Identifiable} from '../../src/container/lq-tree';
+import {LQTree} from '../../src/container/lq-tree';
 import {AABB} from '../../src/aabb';
 import { performance, PerformanceObserver } from 'perf_hooks';
 
-class NodeObject implements Identifiable {
+class NodeObject {
     public id: number;
-    constructor(id: number) {
+    constructor() {
+        this.id = -1;
+    }
+    setId(id: number) {
         this.id = id;
     }
     getId() {
@@ -17,12 +20,12 @@ describe('Loose QuadTree', () => {
     describe('edge test cases', () => {
         test('insert should adjust parent loose bound', () => {
             let tree = new LQTree(100, 100, 1);
-            let node1 = new NodeObject(1);
-            let node2 = new NodeObject(2);
-            let node3 = new NodeObject(3);
-            tree.insert(new AABB(1, 1, 10, 10), node1);
-            tree.insert(new AABB(51, 1, 61, 10), node2);
-            tree.insert(new AABB(100, 100, 110, 110), node3);
+            let node1 = new NodeObject();
+            let node2 = new NodeObject();
+            let node3 = new NodeObject();
+            node1.setId(tree.insert(new AABB(1, 1, 10, 10), node1));
+            node2.setId(tree.insert(new AABB(51, 1, 61, 10), node2));
+            node3.setId(tree.insert(new AABB(100, 100, 110, 110), node3));
             expect(tree.root.looseBound.left).toBe(1);
             expect(tree.root.looseBound.bottom).toBe(1);
             expect(tree.root.looseBound.right).toBe(110);
@@ -33,17 +36,17 @@ describe('Loose QuadTree', () => {
     describe('Loose QuadTree with branch maxChildren = 1', () => {
 
         let tree = new LQTree(100, 100, 1);
-        let node1 = new NodeObject(1);
-        let node2 = new NodeObject(2);
-        let node3 = new NodeObject(3);
-        let node4 = new NodeObject(4);
+        let node1 = new NodeObject();
+        let node2 = new NodeObject();
+        let node3 = new NodeObject();
+        let node4 = new NodeObject();
 
         beforeEach(() => {
             tree = new LQTree(100, 100, 1);
-            tree.insert(new AABB(1, 1, 10, 10), node1);
-            tree.insert(new AABB(20, 20, 30, 30), node2);
-            tree.insert(new AABB(60, 60, 100, 100), node3);
-            tree.insert(new AABB(80, 80, 100, 100), node4);
+            node1.setId(tree.insert(new AABB(1, 1, 10, 10), node1));
+            node2.setId(tree.insert(new AABB(20, 20, 30, 30), node2));
+            node3.setId(tree.insert(new AABB(60, 60, 100, 100), node3));
+            node4.setId(tree.insert(new AABB(80, 80, 100, 100), node4));
         });
 
         afterEach(() => {
@@ -51,10 +54,10 @@ describe('Loose QuadTree', () => {
         });
 
         test('insert', () => {
-            expect(tree.root.children![0].children![0].children![0].getElements()[0].data.getId()).toBe(1);
-            expect(tree.root.children![0].children![0].children![3].getElements()[0].data.getId()).toBe(2);
-            expect(tree.root.children![3].children![3].children![0].getElements()[0].data.getId()).toBe(3);
-            expect(tree.root.children![3].children![3].children![3].getElements()[0].data.getId()).toBe(4);
+            expect((tree.root.children![0].children![0].children![0].getElements()[0].data as NodeObject).getId()).toBe(1);
+            expect((tree.root.children![0].children![0].children![3].getElements()[0].data as NodeObject).getId()).toBe(2);
+            expect((tree.root.children![3].children![3].children![0].getElements()[0].data as NodeObject).getId()).toBe(3);
+            expect((tree.root.children![3].children![3].children![3].getElements()[0].data as NodeObject).getId()).toBe(4);
 
             expect(tree.root.count).toBe(4);
             expect(tree.root.children![0].count).toBe(2);
@@ -66,8 +69,8 @@ describe('Loose QuadTree', () => {
         });
 
         test('delete branch should collapse to leaf', () => {
-            tree.delete(node1);
-            tree.delete(node2);
+            tree.delete(node1.getId());
+            tree.delete(node2.getId());
 
             //console.log(tree.toString());
             expect(tree.root.count).toBe(2);
@@ -98,18 +101,18 @@ describe('Loose QuadTree', () => {
             let tree = new LQTree(1000, 1000, 4, 3);
             let nodes: Array<NodeObject> = [];
             for (let i = 0; i < 100; i ++)
-                nodes.push(new NodeObject(i));
-            tree.insert(new AABB(1, 1, 1, 1), nodes[0]);
-            tree.delete(nodes[0]);
+                nodes.push(new NodeObject());
+            nodes[0].setId(tree.insert(new AABB(1, 1, 1, 1), nodes[0]));
+            tree.delete(nodes[0].getId());
             expect(tree.root.count).toBe(0);
             expect(tree.root.getElements().length).toBe(0);
-            tree.insert(new AABB(1, 1, 1, 1), nodes[0]);
-            tree.delete(nodes[0]);
+            nodes[0].setId(tree.insert(new AABB(1, 1, 1, 1), nodes[0]));
+            tree.delete(nodes[0].getId());
             expect(tree.root.count).toBe(0);
             expect(tree.root.getElements().length).toBe(0);
 
             for (let i = 0; i < 100; i ++) {
-                tree.insert(new AABB(1, 1, 1, 1), nodes[i]);
+                nodes[i].setId(tree.insert(new AABB(1, 1, 1, 1), nodes[i]));
             }
             expect(tree.root.count).toBe(100);
 
@@ -122,11 +125,11 @@ describe('Loose QuadTree', () => {
         let tree = new LQTree(1000, 1000, 4, 3);
         let nodes: Array<NodeObject> = [];
         for (let i = 0; i < 100; i ++)
-            nodes.push(new NodeObject(i));
+            nodes.push(new NodeObject());
 
         test('insert', () => {
             for (let i = 0; i < 100; i ++) {
-                tree.insert(new AABB(1, 1, 2, 2), nodes[i]);
+                nodes[i].setId(tree.insert(new AABB(1, 1, 2, 2), nodes[i]));
             }
             expect(tree.root.count).toBe(100);
             expect(tree.root.children![0].children![0].children![0].getElements().length).toBe(100);
@@ -138,7 +141,7 @@ describe('Loose QuadTree', () => {
         let tree = new LQTree(1000, 1000, 4);
         let nodes: Array<NodeObject> = [];
         for (let i = 0; i < 100; i ++)
-            nodes.push(new NodeObject(i));
+            nodes.push(new NodeObject());
 
         beforeEach(() => {
             tree = new LQTree(1000, 1000, 4);
@@ -147,8 +150,8 @@ describe('Loose QuadTree', () => {
 
         test('insert', () => {
             for (let i = 0; i < 50; i ++) {
-                tree.insert(new AABB(i * 20, 100, i * 20 + 10, 100 + 10), nodes[i * 2]);
-                tree.insert(new AABB(i * 20, 120, i * 20 + 10, 120 + 10), nodes[i * 2 + 1]);
+                nodes[i * 2].setId(tree.insert(new AABB(i * 20, 100, i * 20 + 10, 100 + 10), nodes[i * 2]));
+                nodes[i * 2 + 1].setId(tree.insert(new AABB(i * 20, 120, i * 20 + 10, 120 + 10), nodes[i * 2 + 1]));
             }
             expect(tree.root.count).toBe(100);
         });
@@ -173,7 +176,7 @@ describe('Loose QuadTree', () => {
             let nodes: Array<NodeObject> = [];
             let aabbs: Array<AABB> = [];
             for (let i = 0; i < num; i ++) {
-                nodes.push(new NodeObject(i));
+                nodes.push(new NodeObject());
                 aabbs.push(new AABB(0,0,0,0));
             }
 
@@ -183,7 +186,7 @@ describe('Loose QuadTree', () => {
                 aabbs[i].bottom = Math.random() * height - bh;
                 aabbs[i].right = aabbs[i].left + Math.random() * bw;
                 aabbs[i].top = aabbs[i].bottom + Math.random() * bh;
-                tree.insert(aabbs[i], nodes[i]);
+                nodes[i].setId(tree.insert(aabbs[i], nodes[i]));
             }
             let t1 = performance.now();
             //console.log('insert: ' + (t1 - t0));
@@ -195,7 +198,7 @@ describe('Loose QuadTree', () => {
             for (let k = 0; k < iteration; k ++) {
                 t0 = performance.now();
                 for (let i = 0; i < num; i++) {
-                    tree.delete(nodes[i]);
+                    tree.delete(nodes[i].getId());
                 }
                 t1 = performance.now();
                 totalDeleteTime += t1 - t0;
@@ -207,7 +210,7 @@ describe('Loose QuadTree', () => {
                     aabbs[i].bottom = Math.random() * height - bh;
                     aabbs[i].right = aabbs[i].left + Math.random() * bw;
                     aabbs[i].top = aabbs[i].bottom + Math.random() * bh;
-                    tree.insert(aabbs[i], nodes[i]);
+                    nodes[i].setId(tree.insert(aabbs[i], nodes[i]));
                 }
                 t1 = performance.now();
                 totalReinsertTime += t1 - t0;
