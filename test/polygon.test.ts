@@ -63,9 +63,9 @@ describe('Polygon', () => {
             expect(testResult.depth).toBeCloseTo(5.86,0.01);
             expect(testResult.normal.x).toBeCloseTo(Math.sqrt(1/2), 0.01);
             expect(testResult.normal.y).toBeCloseTo(Math.sqrt(1/2), 0.01);
-            expect(testResult.contacts.length).toBe(5);
-            expect(testResult.contacts[4].x).toBeCloseTo(40, 0.001);
-            expect(testResult.contacts[4].y).toBeCloseTo(40, 0.001);
+            expect(testResult.contacts.length).toBe(2);
+            expect(testResult.contacts[0].x).toBeCloseTo(40, 1);
+            expect(testResult.contacts[0].y).toBeCloseTo(40, 1);
         });
 
         test('testPolygonPolygon Collision', () => {
@@ -86,11 +86,11 @@ describe('Polygon', () => {
             expect(response.depth).toBeCloseTo(10, 0.001);
             expect(response.normal.x).toBeCloseTo(1, 0.001);
             expect(response.normal.y).toBeCloseTo(0, 0.001);
-            expect(response.contacts.length).toBe(5);
+            expect(response.contacts.length).toBe(2);
             expect(response.contacts[0].x).toBeCloseTo(30, 0.001);
-            expect(response.contacts[0].y).toBeCloseTo(0, 0.001);
-            expect(response.contacts[4].x).toBeCloseTo(30, 0.001);
-            expect(response.contacts[4].y).toBeCloseTo(30, 0.001);
+            expect(response.contacts[0].y).toBeCloseTo(30, 0.001);
+            expect(response.contacts[1].x).toBeCloseTo(30, 0.001);
+            expect(response.contacts[1].y).toBeCloseTo(0, 0.001);
         });
 
         test('testPolygonPolygon No Collision', () => {

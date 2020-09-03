@@ -169,4 +169,69 @@ describe('epa', () => {
 
         expect(result.normal).toEqual({x: 0, y: -1});
     });
+
+
+    test("real game - case 2", () => {
+        let square1 = new Polygon(new Vector(500, 1000), [
+            new Vector(-500, -50), new Vector(500, -50),
+            new Vector(500, 50), new Vector(-500, 50),
+        ]);
+
+        let square2 = new Polygon(new Vector(338.2566265047601, 952.6661404366357), [
+            new Vector(-0.09537967299469441, -4.283925049424947 ),
+            new Vector(-2.02928311985077, -3.774005979142035 ),
+            new Vector(0.09537967299469441, 4.283925049424947 ),
+            new Vector(2.02928311985077, 3.774005979142035)
+        ]);
+
+        const simplex: [Vector,Vector,Vector] = [new Vector(), new Vector(), new Vector()];
+        expect(gjk(square1, square2, simplex)).toBe(true);
+
+        const result = new CollisionResult();
+        epa(square1, square2, simplex, result);
+        resolvePointsOfContact(square1, square2, result);
+
+        expect(result.normal).toEqual({x: 0, y: -1});
+        expect(result.contacts.length).toEqual(2);
+    });
+
+    /*Polygon {
+  transform: Transform { cost: 1, sint: 0, _pos: Vector { x: 500, y: 1000 } },
+  points: [
+    Vector { x: 500, y: 50 },
+    Vector { x: 500, y: -50 },
+    Vector { x: -500, y: -50 },
+    Vector { x: -500, y: 50 }
+  ],
+  calcPoints: [
+    Vector { x: 1000, y: 1050 },
+    Vector { x: 1000, y: 950 },
+    Vector { x: 0, y: 950 },
+    Vector { x: 0, y: 1050 }
+  ]
+}
+Polygon {
+  transform: Transform {
+    cost: 1,
+    sint: 0,
+    _pos: Vector { x: 338.2566265047601, y: 952.6661404366357 }
+  },
+  points: [
+    Vector { x: -0.09537967299469441, y: -4.283925049424947 },
+    Vector { x: -2.02928311985077, y: -3.774005979142035 },
+    Vector { x: 0.09537967299469441, y: 4.283925049424947 },
+    Vector { x: 2.02928311985077, y: 3.774005979142035 }
+  ],
+  calcPoints: [
+    Vector { x: 338.1612468317654, y: 948.3822153872107 },
+    Vector { x: 336.2273433849093, y: 948.8921344574936 },
+    Vector { x: 338.3520061777548, y: 956.9500654860607 },
+    Vector { x: 340.2859096246109, y: 956.4401464157778 }
+  ]
+}
+CollisionResult {
+  normal: Vector { x: 0, y: -1 },
+  depth: 6.95006548606068,
+  contacts: []
+}*/
 });

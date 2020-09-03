@@ -23,9 +23,9 @@ describe('poc-solver', () => {
         expect(result.depth).toEqual(10);
 
         resolvePointsOfContact(square1, square2, result);
-        expect(result.contacts.length).toBe(5);
-        expect(result.contacts[0]).toEqual({x: 0, y: 10});
-        expect(result.contacts[4]).toEqual({x: 10, y: 10});
+        expect(result.contacts.length).toBe(2);
+        expect(result.contacts[0]).toEqual({x: 10, y: 10});
+        expect(result.contacts[1]).toEqual({x: 0, y: 10});
 
     });
 

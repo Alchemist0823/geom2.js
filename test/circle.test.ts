@@ -16,7 +16,7 @@ describe("Circle", () => {
             expect(testResult.depth).toBeCloseTo(10, 0.001);
             expect(testResult.normal.x).toBeCloseTo(1, 0.001);
             expect(testResult.normal.y).toBeCloseTo(0, 0.001);
-            expect(testResult.contacts.length).toBe(5);
+            expect(testResult.contacts.length).toBe(2);
             expect(testResult.contacts[0].x).toBeCloseTo(10, 0.01);
             expect(testResult.contacts[0].y).toBeCloseTo(0, 0.01);
         });

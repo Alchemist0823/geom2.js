@@ -67,6 +67,10 @@ export class Segment implements Line {
         return this.v2.dist2(this.v1);
     }
 
+    len(): number {
+        return this.v2.dist(this.v1);
+    }
+
     lerp(t: number) {
         return Vector.lerp(this.v1, this.v2, t);
     }
