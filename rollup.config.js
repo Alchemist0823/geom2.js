@@ -18,7 +18,7 @@ export default [
             },
             {
                 file: pkg.module,
-                format: 'es',
+                format: 'esm',
             },
         ],
         external: [],
@@ -38,27 +38,14 @@ export default [
         ],
     },
     {
-        input: 'src/index.ts',
-        output: [
-            {
-                file: pkg.browser,
-                format: 'iife',
-                name: 'Geom2',
-                // the global which can be used in a browser
-                // https://rollupjs.org/guide/en#output-globals-g-globals
-                globals: {}
-            }
-        ],
+        input: pkg.main,
         external: [],
         plugins: [
-            resolve({ extensions }),
-            commonjs(),
-            babel({
-                extensions,
-                include: ['src/**/*'],
-                babelHelpers: 'runtime',
-            }),
             uglify(),
         ],
+        output: {
+            file: pkg.main.replace('.js', '.min.js'),
+            format: 'cjs',
+        }
     }
 ]
