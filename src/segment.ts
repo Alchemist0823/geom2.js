@@ -1,7 +1,7 @@
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
-import {lineHasPoint} from "./util";
-import {Line} from "./line";
+import {segmentHasPoint} from "./util";
+import {Curve} from "./curve";
 
 
 export enum VORONOI_REGION {
@@ -11,7 +11,7 @@ export enum VORONOI_REGION {
     RIGHT = 3,
 }
 
-export class Segment implements Line {
+export class Segment implements Curve {
     public v1: Vector;
     public v2: Vector;
     constructor(v1: Vector, v2: Vector) {
@@ -24,7 +24,15 @@ export class Segment implements Line {
     }
 
     contains(v: Vector): boolean {
-        return lineHasPoint(this.v1, this.v2, v, 1);
+        return segmentHasPoint(this.v1, this.v2, v);
+    }
+
+    isPointOnLine(p: Vector, tolerance:number = 0.01): boolean {
+        return Math.abs(this.cross(p)) < tolerance;
+    }
+
+    cross(p:Vector): number {
+        return (p.x - this.v1.x) * (this.v2.y - this.v1.y) - (this.v2.x - this.v1.x) * (p.y - this.v1.y);
     }
 
     dot(dir: Vector): number {

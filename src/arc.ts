@@ -1,10 +1,10 @@
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
 import {angleDiffPI2, angleNormalizePI2, Geom2Const} from "./util";
-import {Line} from "./line";
+import {Curve} from "./curve";
 import {Comparator} from "./comparator";
 
-export class Arc implements Line {
+export class Arc implements Curve {
     public c: Vector;
     public r: number;
     public startAngle: number;

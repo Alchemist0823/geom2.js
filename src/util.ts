@@ -95,6 +95,13 @@ export function crossProduct3(v1: Vector, v2: Vector, v3: Vector) {
     return (v2.x - v1.x) * (v3.y - v2.y) - (v2.y - v1.y) * (v3.x - v2.x);
 }
 
+export function triarea2(a: Vector, b: Vector, c: Vector) {
+    const ax = b.x - a.x;
+    const ay = b.y - a.y;
+    const bx = c.x - a.x;
+    const by = c.y - a.y;
+    return bx * ay - ax * by;
+}
 
 // To find orientation of ordered triplet (v1, ref, v2).
 export function orientation(s: Segment, v: Vector) {
@@ -355,8 +362,8 @@ export function testPolygonCircle(polygon: Polygon, circle: Circle, response: Co
     return true;
 }
 
-export function lineHasPoint(v1:Vector, v2:Vector, p:Vector, tolerance:number = 0.1) {
-    return Math.abs(v1.dist2(v2) - (v1.dist2(p) + v2.dist2(p))) <= tolerance;
+export function segmentHasPoint(v1:Vector, v2:Vector, p:Vector, tolerance:number = 0.01) {
+    return Math.abs(v1.dist(v2) - (v1.dist(p) + v2.dist(p))) <= tolerance;
 }
 
 /**
@@ -429,4 +436,10 @@ export function point2polygon(pt:Vector, points:Array<Vector>, cp?: Vector): num
     }
     T_VECTORS.push(local_cp);
     return min_dist;
+}
+
+export function clamp(value: number, min: number, max: number) {
+    if (value < min) value = min;
+    if (value > max) value = max;
+    return value;
 }

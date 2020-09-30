@@ -1,7 +1,7 @@
 import {ConvexShape} from "./convex-shape";
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
-import {lineHasPoint} from "./util";
+import {segmentHasPoint} from "./util";
 import {Transform} from "./transform";
 import { Segment } from "./segment";
 import {CollisionResult} from "./collision/collision-result";
@@ -135,8 +135,7 @@ export class Polygon implements ConvexShape {
         let points = this.calcPoints;
         let length = points.length;
         let c = false;
-        let i;
-        for (i = 0; i < length; i ++) {
+        for (let i = 0; i < length; i ++) {
             if (((points[i].y > v.y) !== (points[(i + 1) % length].y > v.y)) &&
                 (v.x < (points[(i + 1) % length].x - points[i].x) * (v.y - points[i].y) / (points[(i + 1) % length].y - points[i].y) + points[i].x)) {
                 c = !c;
@@ -145,10 +144,16 @@ export class Polygon implements ConvexShape {
         if (c) {
             return true;
         }
-        for (i = 0; i < length; i ++) {
+        return this.isPointOn(v);
+    }
+
+    public isPointOn(v: Vector): boolean {
+        let points = this.calcPoints;
+        let length = points.length;
+        for (let i = 0; i < length; i ++) {
             let p1 = points[i];
             let p2 = points[(i + 1) % length];
-            if (lineHasPoint(p1, p2, v, 1)) {
+            if (segmentHasPoint(p1, p2, v)) {
                 return true;
             }
         }

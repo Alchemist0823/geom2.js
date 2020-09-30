@@ -8,7 +8,7 @@ export * from './transform';
 export * from './shape';
 export * from './convex-shape';
 export * from './composed-shape';
-export * from './line';
+export * from './curve';
 export * from './container/lq-tree';
 
 export * from './algorithm/';

@@ -85,7 +85,7 @@ describe('ComposedShape', () => {
             expect(triangle.isPointIn(new Vector(0, 0))).toBe(true); // true
             expect(triangle.isPointIn(new Vector(10, 10))).toBe(true); // true
             expect(triangle.isPointIn(new Vector(0, -10))).toBe(false); // false
-            expect(triangle.isPointIn(new Vector(35, 5))).toBe(false); // false
+            expect(triangle.isPointIn(new Vector(35, 5))).toBe(true);
         });
 /*
         test('Polygon (small)', () => {

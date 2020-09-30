@@ -114,10 +114,10 @@ describe('Polygon', () => {
             let triangle = new Polygon(new Vector(10, 0), [
                 new Vector(-10, 0), new Vector(30, 0), new Vector(0, 30)
             ]);
-            expect(triangle.isPointIn(new Vector(0, 0))).toBe(true); // true
-            expect(triangle.isPointIn(new Vector(10, 10))).toBe(true); // true
-            expect(triangle.isPointIn(new Vector(0, -10))).toBe(false); // false
-            expect(triangle.isPointIn(new Vector(35, 5))).toBe(false); // false
+            expect(triangle.isPointIn(new Vector(0, 0))).toBe(true);
+            expect(triangle.isPointIn(new Vector(10, 10))).toBe(true);
+            expect(triangle.isPointIn(new Vector(0, -10))).toBe(false);
+            expect(triangle.isPointIn(new Vector(35, 5))).toBe(true);
         });
 
         test('Polygon (small)', () => {
