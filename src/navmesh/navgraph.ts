@@ -1,6 +1,6 @@
 // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 
-import BinaryHeap from "../structure/binary-heap";
+import {BinaryHeap} from "../structure/binary-heap";
 
 export interface GraphNode {
     astar: AStarNode;

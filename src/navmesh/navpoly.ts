@@ -11,7 +11,7 @@ import {Vector} from "../vector";
 import {AStarNode, GraphNode} from "./navgraph";
 import {Segment} from "../segment";
 
-export default class NavPoly implements GraphNode {
+export class NavPoly implements GraphNode {
     id: number;
     private polygon: Polygon;
     boundingRadius: number;

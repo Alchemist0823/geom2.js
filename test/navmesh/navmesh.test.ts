@@ -1,4 +1,4 @@
-import NavMesh from "../../src/navmesh/navmesh";
+import {NavMesh} from "../../src/navmesh";
 import {Vector} from "../../src";
 
 const v2 = (...args: number[]) => new Vector(...args);

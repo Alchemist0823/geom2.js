@@ -10,14 +10,14 @@
  * @class NavMesh
  */
 import {Vector} from "../vector";
-import NavPoly from "./navpoly";
+import {NavPoly} from "./navpoly";
 import {NavGraph} from "./navgraph";
 import {Segment} from "../segment";
 import {angleDiff, clamp} from "../util";
 import {Polygon} from "../polygon";
 import {Channel} from "./channel";
 
-export default class NavMesh {
+export class NavMesh {
     private _meshShrinkAmount: number;
     private _navPolygons: NavPoly[];
     private _graph: NavGraph;

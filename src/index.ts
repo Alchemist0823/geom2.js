@@ -11,8 +11,10 @@ export * from './composed-shape';
 export * from './curve';
 export * from './container/lq-tree';
 
+export * from './util';
+export * from './comparator';
 export * from './algorithm/';
 export * from './collision/';
 export * from './physics/';
-export * from './util';
-export * from './comparator';
+export * from './structure/';
+export * from './navmesh/';
