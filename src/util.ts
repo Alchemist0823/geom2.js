@@ -105,7 +105,14 @@ export function triarea2(a: Vector, b: Vector, c: Vector) {
 
 // To find orientation of ordered triplet (v1, ref, v2).
 export function orientation(s: Segment, v: Vector) {
-    return crossProduct3(s.v1, s.v2, v);
+    let cross = crossProduct3(s.v1, s.v2, v);
+    if (cross > 0) {
+        return 1;
+    } else if (cross < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 export function testSegmentSegment(s1p1: Vector, s1p2: Vector, s2p1: Vector, s2p2: Vector) : boolean

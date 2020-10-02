@@ -1,7 +1,7 @@
 import {ConvexShape} from "./convex-shape";
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
-import {segmentHasPoint} from "./util";
+import {orientation, segmentHasPoint} from "./util";
 import {Transform} from "./transform";
 import { Segment } from "./segment";
 import {CollisionResult} from "./collision/collision-result";
@@ -116,6 +116,18 @@ export class Polygon implements ConvexShape {
         cx = cx / ar;
         cy = cy / ar;
         return new Vector(cx, cy);
+    }
+
+    public intersectsSegment(line: Segment) {
+        let points = this.calcPoints;
+        let segment = new Segment(new Vector(), new Vector());
+        for (let i = 0; i < points.length; i ++) {
+            segment.v1 = points[i];
+            segment.v2 = points[(i + 1) % points.length];
+            if (line.intersects(segment))
+                return true;
+        }
+        return false;
     }
 
     public intersects(shape: ConvexShape, result?: CollisionResult): boolean {

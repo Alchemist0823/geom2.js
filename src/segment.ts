@@ -1,6 +1,6 @@
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
-import {segmentHasPoint} from "./util";
+import {orientation, segmentHasPoint} from "./util";
 import {Curve} from "./curve";
 
 
@@ -81,5 +81,17 @@ export class Segment implements Curve {
 
     lerp(t: number) {
         return Vector.lerp(this.v1, this.v2, t);
+    }
+
+    intersects(segment: Segment) {
+        let o1 = orientation(this, segment.v1);
+        let o2 = orientation(this, segment.v2);
+        let o3 = orientation(segment, this.v1);
+        let o4 = orientation(segment, this.v2);
+
+        if (o1 != o2 && o3 != o4)
+            return true;
+
+        return false;
     }
 }
