@@ -93,6 +93,57 @@ describe('Polygon', () => {
             expect(response.contacts[1].y).toBeCloseTo(0, 0.001);
         });
 
+        test('testPolygonPolygon Collision 1 ', () => {
+            // A square
+            let polygon1 = new Polygon(new Vector(), [
+                new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
+            ]);
+            polygon1.recenter();
+            // A triangle
+            let polygon2 = new Polygon(new Vector(), [
+                new Vector(20, -20), new Vector(60, -20), new Vector(60, 60), new Vector(20, 60)
+            ]);
+            polygon2.recenter();
+            let response = new CollisionResult();
+            let collided = polygon1.intersects(polygon2, response);
+
+            expect(collided).toBe(true);
+            expect(response.depth).toBeCloseTo(20, 0.001);
+            expect(response.normal.x).toBeCloseTo(1, 0.001);
+            expect(response.normal.y).toBeCloseTo(0, 0.001);
+            expect(response.contacts.length).toBe(2);
+            expect(response.contacts[0].x).toBeCloseTo(20, 0.001);
+            expect(response.contacts[0].y).toBeCloseTo(0, 0.001);
+            expect(response.contacts[1].x).toBeCloseTo(20, 0.001);
+            expect(response.contacts[1].y).toBeCloseTo(40, 0.001);
+        });
+
+        test('testPolygonPolygon Collision 2 ', () => {
+            // A square
+            let polygon1 = new Polygon(new Vector(), [
+                new Vector(-40, -40), new Vector(40, -40), new Vector(40, 40), new Vector(-40, 40)
+            ]);
+            polygon1.recenter();
+            // A triangle
+            let polygon2 = new Polygon(new Vector(), [
+                new Vector(0, 20), new Vector(0, -20), new Vector(60, -80), new Vector(60, 80)
+            ]);
+            polygon2.recenter();
+            let response = new CollisionResult();
+            let collided = polygon1.intersects(polygon2, response);
+
+            expect(collided).toBe(true);
+            expect(response.depth).toBeCloseTo(40, 0.001);
+            expect(response.normal.x).toBeCloseTo(1, 0.001);
+            expect(response.normal.y).toBeCloseTo(0, 0.001);
+            expect(response.contacts.length).toBe(2);
+            expect(response.contacts[0].x).toBeCloseTo(0, 0.001);
+            expect(response.contacts[0].y).toBeCloseTo(20, 0.001);
+            expect(response.contacts[1].x).toBeCloseTo(0, 0.001);
+            expect(response.contacts[1].y).toBeCloseTo(-20, 0.001);
+        });
+
+
         test('testPolygonPolygon No Collision', () => {
 
             let box1 = new Polygon(new Vector(0, 0), [

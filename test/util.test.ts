@@ -37,6 +37,49 @@ describe('util.testSegmentSegment', () => {
 
 });
 
+describe('util.intersectingVertex', () => {
+    test('test general cases', () => {
+        expect(util.intersectingVertex(new V(0, 0), new V(10, 0),
+            new V(20, 0), new V(20, 10))).toBe(null);
+        expect(util.intersectingVertex(new V(0, 0), new V(1, 1),
+            new V(1, 0), new V(0, 1))).toStrictEqual(new V(0.5, 0.5));
+        let int = util.intersectingVertex(new V(0, 0), new V(30, 40),
+            new V(-100, 4), new V(100, 4))
+        expect(int!.x).toBeCloseTo(3);
+        expect(int!.y).toBeCloseTo(4);
+        expect(util.intersectingVertex(new V(0, 1), new V(1, 1),
+            new V(0, 0), new V(-3, -2))).toBe(null);
+    });
+
+    test('test colinear', () => {
+        expect(util.intersectingVertex(new V(0, 0), new V(1, 1),
+            new V(0.5, 0.5), new V(2, 2))).toStrictEqual(new V(0.5, 0.5));
+        expect(util.intersectingVertex(new V(0, 0), new V(1, 1),
+            new V(0.5, 0.5), new V(.8, .8))).toStrictEqual(new V(0.5, 0.5));
+        expect(util.intersectingVertex(new V(0, 0), new V(1, 1),
+            new V(-0.5, -0.5), new V(.8, .8))).toStrictEqual(new V(-0.5, -0.5));
+        expect(util.intersectingVertex(new V(0, 0), new V(0.5, 0.5),
+            new V(0.5, 0.5), new V(.8, .8))).toStrictEqual(new V(0.5, 0.5));
+        expect(util.intersectingVertex(new V(0, 0), new V(0.4, 0.4),
+            new V(0.5, 0.5), new V(.8, .8))).toBe(null);
+    });
+
+    test('test 1 endpoint touch', () => {
+        expect(util.intersectingVertex(new V(0, 0), new V(1, 1),
+            new V(0.5, 0.5), new V(0, 1))).toStrictEqual(new V(0.5, 0.5));
+        expect(util.intersectingVertex(new V(0.5, 0.5), new V(-20, 1),
+            new V(0, 0), new V(1, 1))).toStrictEqual(new V(0.5, 0.5));
+
+        expect(util.intersectingVertex(new V(0, 0), new V(10, 0),
+            new V(10, 10), new V(10, 0))).toStrictEqual(new V(10, 0));
+        expect(util.intersectingVertex(new V(10, 0), new V(20, 0),
+            new V(0, 0), new V(10, 0))).toStrictEqual(new V(0, 0));
+        expect(util.intersectingVertex(new V(10, 0), new V(20, 0),
+            new V(10, 0), new V(10, 10))).toStrictEqual(new V(10, 0));
+    });
+
+});
+
 describe('util.point2segment', () => {
     test('test closest point on segment', () => {
         let cp = new V();

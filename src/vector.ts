@@ -205,4 +205,9 @@ export class Vector {
     public toString(): string {
         return `[${this.x}, ${this.y}]`;
     }
+
+    public angleTo(v: Vector) {
+        let res = Math.acos(this.dot(v)/v.len()/this.len());
+        return (this.cross(v) < 0 ? -1 : 1)*res;
+    }
 }

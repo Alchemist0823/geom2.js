@@ -7,9 +7,11 @@ import * as util from "../util";
  * @param base start index of the polygon on points
  * @param n end index of the polygon on points
  * @param tolerance tolerance
+ * @param checkCounterClockwise whether to consider order of vertices.
  */
-export function isConvex(points: Array<Vector>, base: number = 0, n: number = points.length - base, tolerance: number = 0.00001) {
-    if (n < 4)
+export function isConvex(points: Array<Vector>, base: number = 0, n: number = points.length - base,
+                         tolerance: number = 0.00001, checkCounterClockwise: boolean = false) {
+    if (n < 4 && !checkCounterClockwise)
         return true;
     let sign = undefined;
     if (points[base].x === points[n - 1].x && points[base].y === points[n - 1].y) // if its a closed polygon, ignore last vertex
@@ -18,9 +20,9 @@ export function isConvex(points: Array<Vector>, base: number = 0, n: number = po
         let i1 = base + (i + 1) % n;
         let i2 = base + (i + 2) % n;
         let crossproduct = util.crossProduct3(points[i], points[i1], points[i2]);
-        if (Math.abs(crossproduct) > tolerance) {
+        if (Math.abs(crossproduct) >= tolerance) {
             if (sign === undefined)
-                sign = crossproduct > 0;
+                sign = checkCounterClockwise ? true : (crossproduct > 0);
             else if (sign != (crossproduct > 0)) {
                 return false;
             }
