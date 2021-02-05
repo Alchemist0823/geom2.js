@@ -16,11 +16,14 @@ import {Segment} from "../segment";
 import {angleDiff, clamp} from "../util";
 import {Polygon} from "../polygon";
 import {Channel} from "./channel";
+import {LQTree} from "../container";
+import {AABB} from "../aabb";
 
 export class NavMesh {
     private _meshShrinkAmount: number;
     private _navPolygons: NavPoly[];
     private _graph: NavGraph;
+    private _qtree: LQTree<Polygon>;
     /**
      * Creates an instance of NavMesh.
      * @param {object[][]} meshPolygonPoints Array where each element is an array of point-like
@@ -32,11 +35,17 @@ export class NavMesh {
     constructor(meshPolygonPoints: Array<Array<Vector>>, meshShrinkAmount = 0) {
         this._meshShrinkAmount = meshShrinkAmount;
 
+        let width = 0, height = 0;
         const newPolys = meshPolygonPoints.map(polyPoints => {
-            const vectors = polyPoints.map(p => new Vector(p.x, p.y));
+            const vectors = polyPoints.map(p => {
+                width = Math.max(width, p.x);
+                height = Math.max(height, p.y);
+                return new Vector(p.x, p.y)
+            });
             return new Polygon(new Vector(), vectors);
         });
-
+        this._qtree = new LQTree(width, height);
+        newPolys.forEach(p => this._qtree.insert(p.getAABB(), p));
         this._navPolygons = newPolys.map((polygon, i) => new NavPoly(i, polygon));
 
         this._calculateNeighbors();
@@ -316,5 +325,19 @@ export class NavMesh {
         // Project onto the segment
         const p = new Vector(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y));
         return p;
+    }
+
+    getReachableNearTarget(target: Vector, width: number, height: number = width): Vector|null {
+        let res: Vector|null = null;
+        let min = 9999999;
+        this._qtree.search(AABB.fromCenter(target, width, height),  poly => {
+            const dist = target.dist(poly.centroid);
+            if (dist < min) {
+                min = dist
+                res = poly.centroid;
+            }
+            return false;
+        });
+        return res;
     }
 }

@@ -20,7 +20,7 @@ export function isConvex(points: Array<Vector>, base: number = 0, n: number = po
         let i1 = base + (i + 1) % n;
         let i2 = base + (i + 2) % n;
         let crossproduct = util.crossProduct3(points[i], points[i1], points[i2]);
-        if (Math.abs(crossproduct) > tolerance) {
+        if (Math.abs(crossproduct) >= tolerance) {
             if (sign === undefined)
                 sign = checkCounterClockwise ? true : (crossproduct > 0);
             else if (sign != (crossproduct > 0)) {

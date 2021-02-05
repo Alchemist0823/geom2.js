@@ -86,4 +86,30 @@ describe("Vector", () => {
         ref = new Vector(0, 0);
         expect(v1.crossRef(v2, ref)).toBeCloseTo(0, 0.00001);
     });
+
+    test(".angleTo", () => {
+        let v1 = new Vector(0, 4);
+        let v2 = new Vector(1, 0);
+        expect(v1.angleTo(v2)).toBeCloseTo(-Math.PI/2);
+
+        v1 = new Vector(0, 1);
+        v2 = new Vector(-5, 0);
+        expect(v1.angleTo(v2)).toBeCloseTo(Math.PI/2);
+
+        v1 = new Vector(0, 1);
+        v2 = new Vector(5, 5);
+        expect(v1.angleTo(v2)).toBeCloseTo(-Math.PI/4);
+
+        v1 = new Vector(0, 1);
+        v2 = new Vector(1, 999999);
+        expect(v1.angleTo(v2)).toBeCloseTo(0);
+
+        v1 = new Vector(0, 1);
+        v2 = new Vector(0, 5);
+        expect(v1.angleTo(v2)).toBeCloseTo(0);
+
+        v1 = new Vector(0, 1);
+        v2 = new Vector(0, -1);
+        expect(v1.angleTo(v2)).toBeCloseTo(Math.PI);
+    });
 });

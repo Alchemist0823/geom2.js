@@ -1,6 +1,6 @@
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
-import {orientation, segmentHasPoint} from "./util";
+import {crossProduct3, orientation, segmentHasPoint} from "./util";
 import {Curve} from "./curve";
 
 

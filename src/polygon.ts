@@ -21,11 +21,13 @@ export class Polygon implements ConvexShape {
     public transform: Transform;
     protected points: Array<Vector>;
     public calcPoints: Array<Vector>;
+    public centroid: Vector;
 
     constructor(pos: Vector, points: Array<Vector>) {
         this.transform = new Transform(pos);
         this.points = points;
         this.calcPoints = new Array<Vector>();
+        this.centroid = new Vector();
         this.recalc();
     }
 
@@ -91,6 +93,7 @@ export class Polygon implements ConvexShape {
         for (i = 0; i < len; i++) {
             this.transform.transform(points[i], this.calcPoints[i]);
         }
+        this.centroid.set(this.getCentroid());
         return this;
     }
 

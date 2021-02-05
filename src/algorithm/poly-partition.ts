@@ -1,11 +1,22 @@
 import {Polygon} from "../polygon";
 import {Vector} from "../vector";
 import {isConvex} from "./convex";
+import {intersectingVertex, lineIntersection} from "../util";
+import {Transform} from "../transform";
 
 export enum Orientation {
     CCW = 1,
     CW = -1,
     UNORDERED = 0,
+}
+
+export enum UnionStatus {
+    // Already unioned.
+    isDead = 1,
+    // Being unioned.
+    isActive = -1,
+    // Intact.
+    isAlive = 0,
 }
 
 /**
@@ -50,6 +61,151 @@ export class PartitionPolygon extends Polygon {
     isValid() {
         return this.calcPoints.length >= 3;
     }
+}
+
+export class UnionPolygon extends Polygon {
+    // used in partition union algorithm.
+    public unionStatus: UnionStatus ;
+    // top left vertex
+    public startingVertex: PolyVertex|null = null;
+    public vertices: Array<PolyVertex>;
+
+    constructor(pos: Vector, points: Array<Vector>) {
+        super(pos, points);
+        let minx: number, miny: number;
+        this.vertices = [];
+        this.calcPoints.forEach((p, i) => {
+            let newV = new PolyVertex(p.x, p.y);
+            newV.parent = this;
+            newV.indexInPolygon = i;
+            this.vertices.push(newV);
+            if (this.startingVertex === null || newV.x < minx || newV.x === minx && newV.y < miny) {
+                this.startingVertex =  newV;
+                minx = newV.x;
+                miny = newV.y;
+            }
+        })
+        this.vertices.forEach((v,i) => {
+            v.next = this.vertices[(i+1)%this.vertices.length];
+            v.normal = v.next.clone().sub(v).normalize();
+            v.segmentLength = v.next.dist(v);
+        });
+        this.unionStatus = UnionStatus.isAlive;
+    }
+}
+
+// Vertex in PartitionPolygon for Polygon Union. Since we don't consider holes, order is fixed as counter clockwise.
+// So it also represents the segment starting from this Vertex.
+export class PolyVertex extends Vector{
+    // The length of segment this vertex formed with next vertex.
+    public segmentLength: number = 0.0;
+    // Segments this segment intersects with.
+    public intersectingVertex: Array<PolyVertex> = [];
+    public intersections: Array<Vector> = [];
+    public parent: UnionPolygon | null = null;
+    public next: PolyVertex | null = null;
+    public normal: Vector | null = null;
+    public indexInPolygon: number = 0;
+
+    constructor (x: number = 0, y: number= 0) {
+        super(x, y);
+    }
+}
+
+export function preprocessIntersection(polys: Array<UnionPolygon>) {
+    for (let p1 = 0; p1 < polys.length; p1++) {
+        for (let p2 = 0; p2 < polys.length; p2++) {
+            if (p1===p2) continue;
+            polys[p1].vertices.forEach(p1v => {
+                polys[p2].vertices.forEach(p2v => {
+                    let intersection = intersectingVertex(p1v, p1v.next!, p2v, p2v.next!);
+                    if (intersection !== null) {
+                        p1v.intersectingVertex.push(p2v);
+                        //p2v.intersectingVertex.push(p1v);
+                        p1v.intersections.push(intersection);
+                        //p2v.intersections.push(intersectingVertex(p2v, p2v.next!, p1v, p1v.next!)!);
+                    }
+                })
+            })
+            if (polys[p1].startingVertex !== null && polys[p2].startingVertex !== null && polys[p2].isPointIn(polys[p1].startingVertex!)) {
+                polys[p1].startingVertex = null;
+            }
+        }
+    }
+}
+
+export function unionPolygons(polys: Array<UnionPolygon>): Array<Array<Vector>> {
+    preprocessIntersection(polys);
+    //console.log("preprocess ok");
+    let polysLeft = polys.length;
+    let res = [];
+    while(polysLeft > 0) {
+        let start: PolyVertex|null = null;
+        for (let i = polysLeft - 1; i >= 0; i--) {
+            if(polys[i].unionStatus !== UnionStatus.isAlive) {
+                polys[i].unionStatus = UnionStatus.isDead;
+                polys.splice(i, 1);
+                polysLeft--;
+                continue;
+            }
+            if (polys[i].startingVertex === null) continue;
+            let polyStart = polys[i].startingVertex!;
+            if (start === null ||
+                polyStart.x < start!.x ||
+                polyStart.x === start!.x && polyStart.y < start!.y ||
+                polyStart.x === start!.x && polyStart.y === start!.y && polyStart.segmentLength > start!.segmentLength) {
+                start = polyStart;
+            }
+        }
+        if(start === null) return res;
+        // Start
+        let curr:Vector = start, onSeg = start, points = [new Vector(curr.x, curr.y)];
+        while(!curr.equalsTo(start) || points.length===1) {
+            let next:Vector = onSeg.next!, nextSeg = onSeg.next!;
+            for (let i = 0; i<onSeg.intersections.length; i++) {
+                // Cases we should filter out
+                const iSeg = onSeg.intersectingVertex[i];
+                const iInt = onSeg.intersections[i];
+                if(
+                    iSeg.parent!.unionStatus === UnionStatus.isDead ||
+                    // Intersection before curr
+                    iInt.dist(onSeg) < curr.dist(onSeg) ||
+                    // Go inward and not end.
+                    !iInt.equalsTo(onSeg.next!) && onSeg.normal!.angleTo(iSeg.normal!) > 0 ||
+                    // End on intersection
+                    iInt.equalsTo(iSeg.next!) ||
+                    // Same direction but shorter
+                    iSeg.normal!.equalsTo(onSeg.normal!) && iSeg.next!.dist(onSeg) <= onSeg.segmentLength ||
+                    // Reverse direction
+                    iSeg.normal!.equalsTo(onSeg.normal!.clone().reverse())
+                )  {
+                    // console.log("from seg ", onSeg.toString(), " norm ", onSeg.normal!.toString(),
+                    //     " skipped seg ", iSeg.toString(), " norm ", iSeg.normal!.toString(), " on ", iInt);
+                    continue;
+                }
+                if (
+                    iInt.dist(curr) < next.dist(curr) ||
+                    iInt.dist(curr) === next.dist(curr) && onSeg.normal!.angleTo(iSeg.normal!) < onSeg.normal!.angleTo(nextSeg.normal!) ||
+                    iInt.dist(curr) === next.dist(curr) && onSeg.normal!.angleTo(iSeg.normal!) === onSeg.normal!.angleTo(nextSeg.normal!) && iSeg.segmentLength > nextSeg.segmentLength
+                ) {
+                    next = iInt;
+                    nextSeg = iSeg;
+                }
+            }
+            if (!nextSeg.normal!.equalsTo(onSeg.normal!) && !next.equalsTo(start)) {
+                points.push(new Vector(next.x, next.y));
+                // console.log("from seg ", onSeg.toString(), " norm ", onSeg.normal!.toString(),
+                //     " to seg ", nextSeg.toString(), " norm ", nextSeg.normal!.toString(), " adding ", points[points.length-1]);
+            }
+            curr = next;
+            onSeg = nextSeg;
+            // console.log("length ", points.length, " point: ", points[points.length-1]);
+            //console.log("curr ", curr.toString(), " onSeg: ", onSeg.toString());
+            onSeg.parent!.unionStatus = UnionStatus.isActive;
+        }
+        res.push(points);
+    }
+    return res;
 }
 
 export class PartitionVertex {
@@ -182,17 +338,32 @@ export function removeHoles(polys: Array<PartitionPolygon>): boolean {
             // If candidate point in cone of previous, this, next.
             for (let pointIndex = 0; pointIndex < poly.calcPoints.length; pointIndex++) {
                 const point = poly.calcPoints[pointIndex];
+                //if (index === 2 && (pointIndex ===7 || pointIndex ===8)) console.log(point);
                 if (point.x <= holePoint.x) continue;
+                //if (index === 2 && (pointIndex ===7 || pointIndex ===8)) console.log(holePoint.x);
+                // if (index === 2 && (pointIndex ===7 || pointIndex ===8)) {
+                //     console.log(poly.calcPoints[(pointIndex + poly.calcPoints.length - 1) % poly.calcPoints.length]);
+                //     console.log(point);
+                //     console.log(poly.calcPoints[(pointIndex + 1) % poly.calcPoints.length]);
+                //     console.log(holePoint);
+                // }
                 if (!inCone(poly.calcPoints[(pointIndex + poly.calcPoints.length - 1) % poly.calcPoints.length],
                     point,
                     poly.calcPoints[(pointIndex + 1) % poly.calcPoints.length],
                     holePoint)) continue;
+                //if (index === 2 && (pointIndex ===7 || pointIndex ===8)) console.log(pointIndex, "incone");
                 polyPoint = point;
                 if (pointFound) {
+                    // if (index === 2 && (pointIndex ===7 || pointIndex ===8)) {
+                    //     console.log("polypoint", polyPoint);
+                    //     console.log("bestPolyPoint", bestPolyPoint);
+                    //     console.log("holePoint", holePoint);
+                    // }
                     let v1 = polyPoint.clone().sub(holePoint).normalize();
                     let v2 = bestPolyPoint.clone().sub(holePoint).normalize();
                     if (v2.x > v1.x) continue;
                 }
+                //if (index === 2 && (pointIndex ===7 || pointIndex ===8)) console.log("found");
                 pointVisible = true;
                 for (let poly2 of polys) {
                     if (poly2.isHole) continue;
@@ -219,6 +390,8 @@ export function removeHoles(polys: Array<PartitionPolygon>): boolean {
 
         // Number of points = points of hole + points of poly + 2
         let points = [];
+        // console.log(polyIndex, polyPointIndex);
+        // console.log(holeIndex, holePointIndex);
         for (let i = 0; i <= polyPointIndex; i++) {
             points.push(polys[polyIndex].calcPoints[i]);
         }
@@ -232,6 +405,7 @@ export function removeHoles(polys: Array<PartitionPolygon>): boolean {
         polys.splice(Math.min(polyIndex, holeIndex), 1);
 
         polys.push(new PartitionPolygon(new Vector(), points));
+        //console.log("pushed ", polys.push(new PartitionPolygon(new Vector(), points)), " length of ", polys[polys.length-1].calcPoints.length);
     }
     return true;
 }
@@ -302,7 +476,6 @@ export function triangulateEC(poly: PartitionPolygon): Array<PartitionPolygon> {
     }
     for (let i = 0; i < poly.calcPoints.length; i++) updateVertex(vertices, vertices[i]);
 
-
     let earIndex = 0;
     for (let i = 0; i < poly.calcPoints.length - 3; i++) {
         let earFound = false;
@@ -346,7 +519,7 @@ export function triangulateEC(poly: PartitionPolygon): Array<PartitionPolygon> {
 }
 
 function isConvexAndNotHole(points: Array<Vector>) {
-    return isConvex(points, 0, points.length, 0.00001, true);
+    return isConvex(points, 0, points.length, 0, true);
 }
 /**
  * Partitions a polygon into convex polygons by using Hertel-Mehlhorn algorithm
@@ -477,3 +650,131 @@ export function convexPartitionHMList(inpolys: Array<PartitionPolygon>): Array<P
     }
     return outPolys;
 }
+
+
+/**
+ * Triangulates a list of polygons that may contain holes by ear clipping algorithm
+ * first calls RemoveHoles to get rid of the holes, and then Triangulate_EC for each resulting polygon
+ * Time complexity: O(h*(n^2)), h is the number of holes, n is the number of vertices
+ * Space complexity: O(n)
+ * @param {PartitionPolygon} inpolys a list of polygons to be partitioned
+ *  vertices of all non-hole polys have to be in counter-clockwise order
+ *  vertices of all hole polys have to be in clockwise order
+ * @return {Array} an array triangles or empty array when failed
+ */
+export function triangulateECList(inpolys: Array<PartitionPolygon>): Array<PartitionPolygon> {
+    let outPolys = [];
+
+    if(!removeHoles(inpolys)) return [];
+    for(let poly of inpolys) {
+        const polyResult = triangulateEC(poly);
+        if (polyResult.length === 0) return [];
+        outPolys.push(...polyResult);
+    }
+    return outPolys;
+}
+
+/**
+ * Offset Polygon by offsetting edges without rounding. Assuming old_points is counter-clockwise. Shrink by 'offset' if otherwise.
+ * @param {Array} old_points a list of points
+ * @param {number} offset distance to edges
+ * @return {Array} an array of points of resulting Polygon.
+ */
+export function getEnlargedPolygon(old_points: Array<Vector>, offset: number) : Array<Vector>{
+
+    let enlarged_points = [];
+    const num_points = old_points.length;
+    for (let j = 0; j < num_points; j++) {
+        // Find the new location for point j.
+        // Find the points before and after j.
+        let i = (j - 1);
+        if (i < 0) i += num_points;
+        let k = (j + 1) % num_points;
+
+        // Move the points by the offset.
+        let v1 = new Vector(
+        old_points[j].x - old_points[i].x,
+        old_points[j].y - old_points[i].y);
+        v1.normalize();
+        v1.scl(-offset);
+        let n1 = new Vector(-v1.y, v1.x);
+
+        let pij1 = new Vector(
+        old_points[i].x + n1.x,
+        old_points[i].y + n1.y);
+        let pij2 = new Vector(
+        old_points[j].x + n1.x,
+        old_points[j].y + n1.y);
+
+        let v2 = new Vector(
+        old_points[k].x - old_points[j].x,
+        old_points[k].y - old_points[j].y);
+        v2.normalize();
+        v2.scl(-offset);
+        let n2 = new Vector(-v2.y, v2.x);
+
+        let pjk1 = new Vector(
+        old_points[j].x + n2.x,
+        old_points[j].y + n2.y);
+        let pjk2 = new Vector(
+        old_points[k].x + n2.x,
+        old_points[k].y + n2.y);
+
+        let mid = old_points[i].clone().sub(old_points[j]).normalize().add(old_points[k].clone().sub(old_points[j]).normalize()).normalize();
+        let rev_mid = mid.clone().scl(-offset).add(old_points[j]);
+        let p = mid.clone().perp().add(rev_mid);
+
+        enlarged_points.push(lineIntersection(pij1, pij2, rev_mid, p));
+        enlarged_points.push(lineIntersection(rev_mid, p, pjk1, pjk2));
+    }
+
+    return enlarged_points;
+}
+
+// export function getEnlargedPolygon2(old_points: Array<Vector>, offset: number) : Array<Vector>{
+//
+//     let enlarged_points = [];
+//     const num_points = old_points.length;
+//     for (let j = 0; j < num_points; j++) {
+//         // Find the new location for point j.
+//         // Find the points before and after j.
+//         let i = (j - 1);
+//         if (i < 0) i += num_points;
+//         let k = (j + 1) % num_points;
+//
+//         // Move the points by the offset.
+//         let v1 = new Vector(
+//             old_points[j].x - old_points[i].x,
+//             old_points[j].y - old_points[i].y);
+//         v1.normalize();
+//         v1.scl(-offset);
+//         let n1 = new Vector(-v1.y, v1.x);
+//
+//         let pij1 = new Vector(
+//             old_points[i].x + n1.x,
+//             old_points[i].y + n1.y);
+//         let pij2 = new Vector(
+//             old_points[j].x + n1.x,
+//             old_points[j].y + n1.y);
+//
+//         let v2 = new Vector(
+//             old_points[k].x - old_points[j].x,
+//             old_points[k].y - old_points[j].y);
+//         v2.normalize();
+//         v2.scl(-offset);
+//         let n2 = new Vector(-v2.y, v2.x);
+//
+//         let pjk1 = new Vector(
+//             old_points[j].x + n2.x,
+//             old_points[j].y + n2.y);
+//         let pjk2 = new Vector(
+//             old_points[k].x + n2.x,
+//             old_points[k].y + n2.y);
+//
+//         enlarged_points.push(lineIntersection(pij1, pij2, pjk1, pjk2));
+//     }
+//
+//     return enlarged_points;
+// }
+
+

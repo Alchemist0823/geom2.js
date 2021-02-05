@@ -103,16 +103,35 @@ export function triarea2(a: Vector, b: Vector, c: Vector) {
     return bx * ay - ax * by;
 }
 
+export function sgn(x: number): number {
+    return x<-0.0001 ? -1 : (x>0.0001 ? 1 : 0);
+}
+
 // To find orientation of ordered triplet (v1, ref, v2).
 export function orientation(s: Segment, v: Vector) {
-    let cross = crossProduct3(s.v1, s.v2, v);
-    if (cross > 0) {
-        return 1;
-    } else if (cross < 0) {
-        return -1;
-    } else {
-        return 0;
+    return sgn(crossProduct3(s.v1, s.v2, v));
+}
+
+export function intersectingVertex(v1: Vector, v2: Vector, v3: Vector, v4: Vector): Vector | null {
+    let s213 = triarea2(v2, v1, v3);
+    let s214 = triarea2(v2, v1, v4);
+    let s431 = triarea2(v4, v3, v1);
+    let s432 = triarea2(v4, v3, v2);
+
+    // two segments have no intersecting vertex.
+    if (sgn(s213) === sgn(s214) && sgn(s213) !== 0 || sgn(s431) === sgn(s432) && sgn(s431) !== 0)
+        return null;
+    // colinear
+    if (sgn(s213) === sgn(s214) && sgn(s213) === 0) {
+        if (!segmentHasPoint(v1, v2, v3) && !segmentHasPoint(v1, v2, v4)) return null;
+        // for coincident case, use starting vertex.
+        return v3.clone();
     }
+    s213 = Math.abs(s213);
+    s214 = Math.abs(s214);
+    let s =  s213+s214;
+    return new Vector((v3.x*s214 + v4.x*s213)/s, (v3.y*s214+v4.y*s213)/s);
+
 }
 
 export function testSegmentSegment(s1p1: Vector, s1p2: Vector, s2p1: Vector, s2p2: Vector) : boolean
