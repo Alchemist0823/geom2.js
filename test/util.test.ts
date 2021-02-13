@@ -90,6 +90,15 @@ describe('util.point2segment', () => {
         expect(cp.y).toBeCloseTo(2, 0.01);
     });
 
+    test('test closest point on segment', () => {
+        let cp = new V();
+        let dist = util.point2segment(new V(0, 1), new V(0, 2), new V(2, 2), cp);
+
+        expect(dist).toBeCloseTo(1, 0.01);
+        expect(cp.x).toBeCloseTo(0, 0.01);
+        expect(cp.y).toBeCloseTo(2, 0.01);
+    });
+
     test('test closest point on start', () => {
         let cp = new V();
         let dist = util.point2segment(new V(1, 1), new V(2, 2), new V(3, 2), cp);

@@ -425,8 +425,13 @@ export function point2segment(pt: Vector, seg1: Vector, seg2: Vector, cp?: Vecto
     if (start_sp >= 0 && end_sp >= 0) {    /* point inside segment scope */
         // get unit vector
         vSeg.normalize();
-        if (cp !== undefined)
-            cp.set(seg1).addMul(vSeg, vSeg.dot(vSeg2));
+        if (cp !== undefined) {
+            /*console.log(seg1);
+            console.log(vSeg);
+            console.log(vSeg2);
+            vSeg2.projectN()*/
+            cp.set(seg2).addMul(vSeg, vSeg.dot(vSeg2.reverse()));
+        }
         dist = Math.abs(vSeg.cross(vSeg2));
     } else if (start_sp < 0) {                             /* point is out of scope closer to ps */
         if (cp !== undefined)
@@ -452,7 +457,11 @@ export function point2polygon(pt:Vector, points:Array<Vector>, cp?: Vector): num
     }
     for (let i = 0; i < n; i++) {
         let next = (i + 1) % n;
+        //console.log(points[i]);
+        //console.log(points[next]);
         let dist = point2segment(pt, points[i], points[next], local_cp);
+        //console.log(local_cp);
+        //console.log(dist);
         if (min_dist > dist) {
             min_dist = dist;
             if (cp !== undefined) {

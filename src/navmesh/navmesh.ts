@@ -13,7 +13,7 @@ import {Vector} from "../vector";
 import {NavPoly} from "./navpoly";
 import {NavGraph} from "./navgraph";
 import {Segment} from "../segment";
-import {angleDiff, clamp} from "../util";
+import {angleDiff, clamp, point2polygon} from "../util";
 import {Polygon} from "../polygon";
 import {Channel} from "./channel";
 import {LQTree} from "../container";
@@ -327,14 +327,30 @@ export class NavMesh {
         return p;
     }
 
+    private vecTemp: Vector = new Vector();
+
     getReachableNearTarget(target: Vector, width: number, height: number = width): Vector|null {
         let res: Vector|null = null;
         let min = 9999999;
         this._qtree.search(AABB.fromCenter(target, width, height),  poly => {
-            const dist = target.dist(poly.centroid);
-            if (dist < min) {
-                min = dist
-                res = poly.centroid;
+            //console.log(poly);
+            if (poly.isPointIn(target)) {
+                if (res === null) {
+                    res = new Vector();
+                }
+                res.set(target);
+                return true;
+            } else {
+                let d = point2polygon(target, poly.calcPoints, this.vecTemp);
+                //console.log(this.vecTemp);
+                //console.log(d);
+                if (d < min) {
+                    if (res === null) {
+                        res = new Vector();
+                    }
+                    res.set(this.vecTemp);
+                    min = d;
+                }
             }
             return false;
         });

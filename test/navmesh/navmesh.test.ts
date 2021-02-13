@@ -125,4 +125,37 @@ describe("NavMesh", () => {
         });
     });
 
+    describe("#getReachableNearTarget", () => {
+
+        let navMesh: NavMesh;
+        /*
+                    -
+                    -
+          - - -     - 5
+          - 1 - 2   - -
+          - - - - - - - -
+              - 3 - - 4 -
+              - - - - - -
+        */
+        // prettier-ignore
+        const polygons = [
+            [v2(0, 0), v2(10, 0), v2(10, 10), v2(0, 10)], // 1
+            [v2(10, 0), v2(20, 10), v2(10, 10)], // 2
+            [v2(10, 10), v2(20, 10), v2(20, 20), v2(10, 20)],// 3
+            [v2(20, 10), v2(30, 10), v2(30, 20), v2(20, 20)],// 4
+            [v2(20, -10), v2(30, 10), v2(20, 10)],// 5
+        ];
+
+        beforeAll(() => (navMesh = new NavMesh(polygons)));
+        it("should return the point in navMesh", () => {
+            const targetPoint = navMesh.getReachableNearTarget(new Vector(10, 10), 1, 1);
+            expect(targetPoint).toEqual(v2(10, 10));
+        });
+
+
+        it("should return the point in navmesh that is the closest to target", () => {
+            const targetPoint = navMesh.getReachableNearTarget(new Vector(0, -10), 22, 22);
+            expect(targetPoint).toEqual(v2(0, 0));
+        });
+    });
 });
