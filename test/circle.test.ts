@@ -2,8 +2,44 @@ import {Vector} from "../src/vector";
 import {Polygon} from "../src/polygon";
 import {Circle} from "../src/circle";
 import {CollisionResult} from "../src/collision/collision-result";
+import {Segment} from "../src";
 
 describe("Circle", () => {
+    describe('.intersectSegment', () => {
+        test('intersect', () => {
+            let circle = new Circle(new Vector(10, 10),  10);
+            let testResult = new CollisionResult();
+            let collided = circle.intersectsSegment(new Segment(new Vector(20, 2), new Vector(0, 2)), testResult);
+            expect(collided).toBe(true);
+            expect(testResult.depth).toBeCloseTo(4, 0.01);
+            expect(testResult.normal.x).toBeCloseTo(0.6, 0.01);
+            expect(testResult.normal.y).toBeCloseTo(-0.8, 0.01);
+            expect(testResult.contacts.length).toBe(1);
+            expect(testResult.contacts[0].x).toBeCloseTo(16, 1);
+            expect(testResult.contacts[0].y).toBeCloseTo(2, 1);
+        });
+
+        test('intersect on circle', () => {
+            let circle = new Circle(new Vector(10, 10),  10);
+            let testResult = new CollisionResult();
+            let collided = circle.intersectsSegment(new Segment(new Vector(20, 0), new Vector(0, 0)), testResult);
+            expect(collided).toBe(true);
+            expect(testResult.depth).toBeCloseTo(10, 0.01);
+            expect(testResult.normal.x).toBeCloseTo(0, 0.01);
+            expect(testResult.normal.y).toBeCloseTo(-1, 0.01);
+            expect(testResult.contacts.length).toBe(1);
+            expect(testResult.contacts[0].x).toBeCloseTo(10, 1);
+            expect(testResult.contacts[0].y).toBeCloseTo(0, 1);
+        });
+
+        test('not intersect', () => {
+            let circle = new Circle(new Vector(10, 10),  10);
+            let testResult = new CollisionResult();
+            let collided = circle.intersectsSegment(new Segment(new Vector(20, -1), new Vector(0, -1)), testResult);
+            expect(collided).toBe(false);
+        });
+    });
+
     describe(".intersect", () => {
         test("testCircleCircle", () => {
 

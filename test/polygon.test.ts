@@ -1,4 +1,4 @@
-import {Circle, Polygon, Vector} from "../src";
+import {Circle, Polygon, Segment, Vector} from "../src";
 import {CollisionResult} from "../src/collision/collision-result";
 
 
@@ -44,6 +44,50 @@ describe('Polygon', () => {
             ]);
             let c = polygon.getArea();
             expect(c).toBe(9900 / 2);
+        });
+    });
+
+    describe('.intersectSegment', () => {
+        test('test collinear', () => {
+            let polygon = new Polygon(new Vector(), [
+                new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
+            ]);
+            polygon.recenter();
+            let testResult = new CollisionResult();
+            let collided = polygon.intersectsSegment(new Segment(new Vector(-10, 0), new Vector(50, 0)), testResult);
+            expect(collided).toBe(true);
+            expect(testResult.depth).toBeCloseTo(10,0.01);
+            expect(testResult.normal.x).toBeCloseTo(-1, 0.01);
+            expect(testResult.normal.y).toBeCloseTo(0, 0.01);
+            expect(testResult.contacts.length).toBe(1);
+            expect(testResult.contacts[0].x).toBeCloseTo(0, 1);
+            expect(testResult.contacts[0].y).toBeCloseTo(0, 1);
+        });
+
+        test('test reverse', () => {
+            let polygon = new Polygon(new Vector(), [
+                new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
+            ]);
+            polygon.recenter();
+            let testResult = new CollisionResult();
+            let collided = polygon.intersectsSegment(new Segment(new Vector(50, 10), new Vector(-10, 10)), testResult);
+            expect(collided).toBe(true);
+            expect(testResult.depth).toBeCloseTo(10,0.01);
+            expect(testResult.normal.x).toBeCloseTo(1, 0.01);
+            expect(testResult.normal.y).toBeCloseTo(0, 0.01);
+            expect(testResult.contacts.length).toBe(1);
+            expect(testResult.contacts[0].x).toBeCloseTo(40, 1);
+            expect(testResult.contacts[0].y).toBeCloseTo(10, 1);
+        });
+
+        test('no intersect', () => {
+            let polygon = new Polygon(new Vector(), [
+                new Vector(0, 0), new Vector(40, 0), new Vector(40, 40), new Vector(0, 40)
+            ]);
+            polygon.recenter();
+            let testResult = new CollisionResult();
+            let collided = polygon.intersectsSegment(new Segment(new Vector(50, -10), new Vector(-10, -10)), testResult);
+            expect(collided).toBe(false);
         });
     });
 

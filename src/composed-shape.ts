@@ -17,7 +17,7 @@ export class ComposedShape implements Shape {
       } else {
           this.transform = transform;
       }
-      for(var i = 0; i < shapes.length; i ++) {
+      for(let i = 0; i < shapes.length; i ++) {
           this.localTransforms.push(shapes[i].transform.clone().mulInverseTransform(this.transform));
       }
   };

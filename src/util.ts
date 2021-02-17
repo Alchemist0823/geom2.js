@@ -164,13 +164,13 @@ export function testSegmentSegment(s1p1: Vector, s1p2: Vector, s2p1: Vector, s2p
     return false; // Doesn't fall in any of the above cases
 }
 
-
+/*
 export function lineIntersection(p1:Vector, p2:Vector, p3:Vector, p4:Vector):Vector {
     // From http://paulbourke.net/geometry/lineline2d/
     var s = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x))
         / ((p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y));
     return new Vector(p1.x + s * (p2.x - p1.x), p1.y + s * (p2.y - p1.y));
-}
+}*/
 
 
 /******              Polygon                            *****/
@@ -457,11 +457,7 @@ export function point2polygon(pt:Vector, points:Array<Vector>, cp?: Vector): num
     }
     for (let i = 0; i < n; i++) {
         let next = (i + 1) % n;
-        //console.log(points[i]);
-        //console.log(points[next]);
         let dist = point2segment(pt, points[i], points[next], local_cp);
-        //console.log(local_cp);
-        //console.log(dist);
         if (min_dist > dist) {
             min_dist = dist;
             if (cp !== undefined) {
@@ -471,6 +467,30 @@ export function point2polygon(pt:Vector, points:Array<Vector>, cp?: Vector): num
     }
     T_VECTORS.push(local_cp);
     return min_dist;
+}
+
+export function lineLineIntersection(A: Vector, B: Vector, C: Vector, D: Vector): Vector {
+    // Line AB represented as a1x + b1y = c1
+    let a1 = B.y - A.y;
+    let b1 = A.x - B.x;
+    let c1 = a1*(A.x) + b1*(A.y);
+
+    // Line CD represented as a2x + b2y = c2
+    let a2 = D.y - C.y;
+    let b2 = C.x - D.x;
+    let c2 = a2*(C.x)+ b2*(C.y);
+
+    let determinant = a1*b2 - a2*b1;
+
+    if (determinant == 0) {
+        // The lines are parallel. This is simplified
+        // by returning a pair of FLT_MAX
+        return new Vector(Number.MAX_VALUE, Number.MAX_VALUE);
+    } else {
+        let x = (b2*c1 - b1*c2)/determinant;
+        let y = (a1*c2 - a2*c1)/determinant;
+        return new Vector(x, y);
+    }
 }
 
 export function clamp(value: number, min: number, max: number) {

@@ -1,7 +1,7 @@
 import {Polygon} from "../polygon";
 import {Vector} from "../vector";
 import {isConvex} from "./convex";
-import {intersectingVertex, lineIntersection} from "../util";
+import {intersectingVertex, lineLineIntersection} from "../util";
 import {Transform} from "../transform";
 
 export enum Orientation {
@@ -724,8 +724,8 @@ export function getEnlargedPolygon(old_points: Array<Vector>, offset: number) : 
         let rev_mid = mid.clone().scl(-offset).add(old_points[j]);
         let p = mid.clone().perp().add(rev_mid);
 
-        enlarged_points.push(lineIntersection(pij1, pij2, rev_mid, p));
-        enlarged_points.push(lineIntersection(rev_mid, p, pjk1, pjk2));
+        enlarged_points.push(lineLineIntersection(pij1, pij2, rev_mid, p));
+        enlarged_points.push(lineLineIntersection(rev_mid, p, pjk1, pjk2));
     }
 
     return enlarged_points;

@@ -33,6 +33,44 @@ export class Circle implements ConvexShape {
         return this;
     };
 
+
+    //(ray.v2.x * t + ray.v1.x * (1 - t) - this.center.x) ^ 2 +
+    //(ray.v2.y * t + ray.v1.y * (1 - t) - this.center.y) ^ 2 = this.r ^ 2
+    intersectsSegment(ray: Segment, result?: CollisionResult): boolean {
+        let a = ray.v2.x;
+        let b = ray.v1.x;
+        let c = this.center.x;
+        let d = ray.v2.y;
+        let e = ray.v1.y;
+        let f = this.center.y;
+
+        let aa = ((a - b) * (a - b) + (d - e) * (d - e));
+        let bb = (a * b - b * b - a * c + b * c - e * e + e * d - d * f + e * f) * 2;
+        let cc = (b - c) * (b - c) + (e - f) * (e - f) - this.r * this.r;
+
+        let det = bb * bb - 4 * aa * cc;
+        if (det >= 0) {
+            let t1 = (- bb - Math.sqrt(det)) / (2 * aa);
+            let t2 = (- bb + Math.sqrt(det)) / (2 * aa);
+            let t = NaN;
+            if (t1 >= 0 && t1 <= 1) {
+                t = t1;
+            }
+            if (t2 >= 0 && t2 <= 1 && t2 < t) {
+                t = t2;
+            }
+            if (!isNaN(t)) {
+                if (result) {
+                    result.contacts = [new Vector(a * t + b * (1 - t), d * t + e * (1 - t))];
+                    result.depth = result.contacts[0].dist(ray.v1);
+                    result.normal = result.contacts[0].clone().sub(this.center).normalize();
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     intersects(shape: ConvexShape, result?: CollisionResult): boolean {
         const simplex: [Vector, Vector, Vector] = [new Vector(), new Vector(), new Vector()];
         const collided = gjk(this, shape, simplex);

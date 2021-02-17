@@ -1,12 +1,11 @@
 import {ConvexShape} from "./convex-shape";
 import {Vector} from "./vector";
 import {AABB} from "./aabb";
-import {orientation, segmentHasPoint} from "./util";
+import {lineLineIntersection, orientation, segmentHasPoint} from "./util";
 import {Transform} from "./transform";
 import { Segment } from "./segment";
 import {CollisionResult} from "./collision/collision-result";
 import {epa, gjk, resolvePointsOfContact} from "./collision";
-
 
 
 const TEMP = new Vector();
@@ -121,17 +120,36 @@ export class Polygon implements ConvexShape {
         return new Vector(cx, cy);
     }
 
-    public intersectsSegment(line: Segment) {
+    public intersectsSegment(line: Segment, result?: CollisionResult): boolean {
         let points = this.calcPoints;
         let segment = new Segment(new Vector(), new Vector());
+        if (result) {
+            result.depth = Number.MAX_VALUE;
+        }
         for (let i = 0; i < points.length; i ++) {
             segment.v1 = points[i];
             segment.v2 = points[(i + 1) % points.length];
-            if (line.intersects(segment))
-                return true;
+            if (line.intersects(segment)) {
+                if (result) {
+                    let p = lineLineIntersection(segment.v1, segment.v2, line.v1, line.v2);
+                    let dist = p.dist(line.v1);
+                    if (dist < result.depth) {
+                        result.contacts = [p];
+                        result.depth = dist;
+                        result.normal.set(segment.v2).sub(segment.v1).normalize().perp();
+                    }
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        if (result) {
+            return (result.depth !== Number.MAX_VALUE);
         }
         return false;
     }
+
 
     public intersects(shape: ConvexShape, result?: CollisionResult): boolean {
         const simplex: [Vector, Vector, Vector] = [new Vector(), new Vector(), new Vector()];
