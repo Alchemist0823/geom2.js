@@ -1,6 +1,6 @@
 {
   "name": "geom2.js",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "high performance 2d geometry library",
   "main": "./dist/geom2.js",
   "module": "./dist/geom2.module.js",

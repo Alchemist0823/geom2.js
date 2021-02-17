@@ -13,6 +13,12 @@ export interface ConvexShape extends Shape {
   intersects(shape: ConvexShape, result?: CollisionResult): boolean;
 
   /**
+   * whether the shape intersects with a segment
+   * @param segment the ray
+   * @param result collision information for the first contact
+   */
+  intersectsSegment(segment: Segment, result?: CollisionResult): boolean;
+  /**
    * get a newly allocated farthest point in direction d.
    * the center of the shape must be inside.
    * used in GJK
