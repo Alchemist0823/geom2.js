@@ -291,6 +291,23 @@ export class Polygon implements ConvexShape {
         }
     }
 
+    validate(): boolean {
+        let points = this.calcPoints;
+        let length = points.length;
+        let temp = new Vector();
+        let temp2 = new Vector();
+        for (let i = 0; i < length; i ++) {
+            let p1 = points[i];
+            let p2 = points[(i + 1) % length];
+            let p3 = points[(i + 2) % length];
+            temp2.set(p3).sub(p2);
+            if (temp.set(p2).sub(p1).cross(temp2) <= 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     recenter() {
         const c = this.getCentroid();
         for(let p of this.points) {

@@ -3,6 +3,7 @@ import {Vector} from "../vector";
 import {isConvex} from "./convex";
 import {intersectingVertex, lineLineIntersection} from "../util";
 import {Transform} from "../transform";
+import {LQTree} from "../container";
 
 export enum Orientation {
     CCW = 1,
@@ -113,6 +114,10 @@ export class PolyVertex extends Vector{
 }
 
 export function preprocessIntersection(polys: Array<UnionPolygon>) {
+    /*let tree = new LQTree(8000, 8000);
+    for (let p1 = 0; p1 < polys.length; p1++) {
+        tree.insert(polys[p1].getAABB(), p1);
+    }*/
     for (let p1 = 0; p1 < polys.length; p1++) {
         for (let p2 = 0; p2 < polys.length; p2++) {
             if (p1===p2) continue;
@@ -136,7 +141,7 @@ export function preprocessIntersection(polys: Array<UnionPolygon>) {
 
 export function unionPolygons(polys: Array<UnionPolygon>): Array<Array<Vector>> {
     preprocessIntersection(polys);
-    //console.log("preprocess ok");
+    console.log("preprocess ok");
     let polysLeft = polys.length;
     let res = [];
     while(polysLeft > 0) {

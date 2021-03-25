@@ -224,7 +224,22 @@ describe('Polygon', () => {
         });
     });
 
-
+    describe('.validate', () => {
+        test('valid', () => {
+            let square = new Polygon(new Vector(10, 10), [
+                new Vector(-10, -10), new Vector(10, -10),
+                new Vector(10, 10), new Vector(-10, 10),
+            ]);
+            expect(square.validate()).toBe(true);
+        });
+        test('valid', () => {
+            let square = new Polygon(new Vector(10, 10), [
+                new Vector(-10, -10), new Vector(10, -10), new Vector(0, 0),
+                new Vector(10, 10), new Vector(-10, 10),
+            ]);
+            expect(square.validate()).toBe(false);
+        });
+    });
 
     describe('.getFarthestPointInDirection', () => {
 
