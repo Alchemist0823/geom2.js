@@ -111,7 +111,7 @@ export class NavPoly implements GraphNode {
     }
 
     centroidDistance(navPolygon: NavPoly) {
-        return this.polygon.getCentroid().dist(navPolygon.polygon.getCentroid());
+        return this.centroid.dist(navPolygon.centroid);
     }
 
     getCost(navPolygon: GraphNode) {
