@@ -1,9 +1,9 @@
 import {Polygon} from "../polygon";
 import {Vector} from "../vector";
-import {isConvex} from "./convex";
 import {intersectingVertex, lineLineIntersection} from "../util";
 import {Transform} from "../transform";
 import {LQTree} from "../container";
+import {AABB} from "../aabb";
 
 export enum Orientation {
     CCW = 1,
@@ -235,14 +235,15 @@ export class PartitionVertex {
 
 
 export function inCone(p1: Vector, p2: Vector, p3: Vector, p: Vector): boolean {
-    let convex = isConvexAndNotHole([p1, p2, p3]);
+
+    let convex = isConvex(p1, p2, p3);
     if (convex) {
-        if (!isConvexAndNotHole([p1, p2, p])) return false;
-        if (!isConvexAndNotHole([p2, p3, p])) return false;
+        if (!isConvex(p1, p2, p)) return false;
+        if (!isConvex(p2, p3, p)) return false;
         return true;
     } else {
-        if (isConvexAndNotHole([p1, p2, p])) return true;
-        if (isConvexAndNotHole([p2, p3, p])) return true;
+        if (isConvex(p1, p2, p)) return true;
+        if (isConvex(p2, p3, p)) return true;
         return false;
     }
 }
@@ -343,32 +344,17 @@ export function removeHoles(polys: Array<PartitionPolygon>): boolean {
             // If candidate point in cone of previous, this, next.
             for (let pointIndex = 0; pointIndex < poly.calcPoints.length; pointIndex++) {
                 const point = poly.calcPoints[pointIndex];
-                //if (index === 2 && (pointIndex ===7 || pointIndex ===8)) console.log(point);
                 if (point.x <= holePoint.x) continue;
-                //if (index === 2 && (pointIndex ===7 || pointIndex ===8)) console.log(holePoint.x);
-                // if (index === 2 && (pointIndex ===7 || pointIndex ===8)) {
-                //     console.log(poly.calcPoints[(pointIndex + poly.calcPoints.length - 1) % poly.calcPoints.length]);
-                //     console.log(point);
-                //     console.log(poly.calcPoints[(pointIndex + 1) % poly.calcPoints.length]);
-                //     console.log(holePoint);
-                // }
                 if (!inCone(poly.calcPoints[(pointIndex + poly.calcPoints.length - 1) % poly.calcPoints.length],
                     point,
                     poly.calcPoints[(pointIndex + 1) % poly.calcPoints.length],
                     holePoint)) continue;
-                //if (index === 2 && (pointIndex ===7 || pointIndex ===8)) console.log(pointIndex, "incone");
                 polyPoint = point;
                 if (pointFound) {
-                    // if (index === 2 && (pointIndex ===7 || pointIndex ===8)) {
-                    //     console.log("polypoint", polyPoint);
-                    //     console.log("bestPolyPoint", bestPolyPoint);
-                    //     console.log("holePoint", holePoint);
-                    // }
                     let v1 = polyPoint.clone().sub(holePoint).normalize();
                     let v2 = bestPolyPoint.clone().sub(holePoint).normalize();
                     if (v2.x > v1.x) continue;
                 }
-                //if (index === 2 && (pointIndex ===7 || pointIndex ===8)) console.log("found");
                 pointVisible = true;
                 for (let poly2 of polys) {
                     if (poly2.isHole) continue;
@@ -423,9 +409,9 @@ function isReflex(p1: Vector, p2: Vector, p3: Vector) {
 }
 
 function isInside(p1: Vector, p2: Vector, p3: Vector, p: Vector) {
-    if (isConvexAndNotHole([p1, p, p2])) return false;
-    if (isConvexAndNotHole([p2, p, p3])) return false;
-    if (isConvexAndNotHole([p3, p, p1])) return false;
+    if (isConvex(p1, p, p2)) return false;
+    if (isConvex(p2, p, p3)) return false;
+    if (isConvex(p3, p, p1)) return false;
     return true;
 }
 
@@ -433,7 +419,7 @@ function updateVertex(vertices: Array<PartitionVertex>, v: PartitionVertex) {
 
     let v1 = v.prev!, v3 = v.next!;
 
-    v.isConvex = isConvexAndNotHole([v1.p, v.p, v3.p]);
+    v.isConvex = isConvex(v1.p, v.p, v3.p);
 
     let vec1 = v1.p.clone().sub(v.p).normalize();
     let vec3 = v3.p.clone().sub(v.p).normalize();
@@ -523,8 +509,8 @@ export function triangulateEC(poly: PartitionPolygon): Array<PartitionPolygon> {
     return triangles;
 }
 
-function isConvexAndNotHole(points: Array<Vector>) {
-    return isConvex(points, 0, points.length, 0, true);
+function isConvex(p1: Vector, p2: Vector, p3: Vector): boolean {
+    return p2.crossRef(p3, p1) > 0;
 }
 /**
  * Partitions a polygon into convex polygons by using Hertel-Mehlhorn algorithm
@@ -595,7 +581,7 @@ export function convexPartitionHM(poly: PartitionPolygon): Array<PartitionPolygo
             else i23 = i22+1;
             let p3 = poly2.calcPoints[i23];
 
-            if(!isConvexAndNotHole([p1,p2,p3])) continue;
+            if(!isConvex(p1,p2,p3)) continue;
 
             p2 = poly1.calcPoints[i12];
             if(i12 == (poly1.calcPoints.length-1)) i13 = 0;
@@ -605,7 +591,7 @@ export function convexPartitionHM(poly: PartitionPolygon): Array<PartitionPolygo
             else i23 = i21-1;
             p1 = poly2.calcPoints[i23];
 
-            if(!isConvexAndNotHole([p1,p2,p3])) continue;
+            if(!isConvex(p1,p2,p3)) continue;
 
             let newPolyPoints = [];
             k = 0;
@@ -647,11 +633,16 @@ export function convexPartitionHM(poly: PartitionPolygon): Array<PartitionPolygo
 export function convexPartitionHMList(inpolys: Array<PartitionPolygon>): Array<PartitionPolygon> {
     let outPolys = [];
 
+    console.log("start remove holes");
     if(!removeHoles(inpolys)) return [];
+    console.log("start partition " + " concaves");
+    let i = 0;
     for(let poly of inpolys) {
         const polyResult = convexPartitionHM(poly);
         if (polyResult.length === 0) return [];
         outPolys.push(...polyResult);
+        console.log("finished " + i);
+        i ++
     }
     return outPolys;
 }
