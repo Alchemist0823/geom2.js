@@ -1,4 +1,5 @@
 import {AABB} from '../aabb';
+import {Segment} from "../segment";
 
 class LQTreeElement<T> {
     public aabb: AABB;
@@ -260,6 +261,11 @@ export class LQTree<T> {
         this.searchNode(this.root, query, callBack);
     }
 
+    // callBack if return true stop search
+    public searchSeg(query: Segment, callBack: (data:T) => boolean) {
+        this.searchNodeSeg(this.root, query, callBack);
+    }
+
     protected searchNode(node: LQTreeNode<T>, query: AABB, callBack: (data:T)=>boolean) {
         if (node.children === null) {
             for (let element of node.getElements()) {
@@ -273,6 +279,28 @@ export class LQTree<T> {
             for (let i = 0; i < 4; i ++) {
                 if (node.children[i].intersects(query)) {
                     let stop = this.searchNode(node.children[i], query, callBack);
+                    if (stop) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    protected searchNodeSeg(node: LQTreeNode<T>, query: Segment, callBack: (data:T)=>boolean) {
+        if (node.children === null) {
+            for (let element of node.getElements()) {
+                if (AABB.fromSegment(query).intersects(element.aabb)) {
+                    if (callBack(element.data)) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            for (let i = 0; i < 4; i ++) {
+                if (node.children[i].intersects(AABB.fromSegment(query))) {
+                    let stop = this.searchNodeSeg(node.children[i], query, callBack);
                     if (stop) {
                         return true;
                     }

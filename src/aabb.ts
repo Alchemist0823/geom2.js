@@ -1,4 +1,5 @@
 import {Vector} from "./vector";
+import {Segment} from "./segment";
 
 export class AABB {
     public left: number;
@@ -8,6 +9,11 @@ export class AABB {
 
     static fromVector(v: Vector) {
         return new AABB(v.x, v.y);
+    }
+
+    static fromSegment(v: Segment) {
+        return new AABB(Math.min(v.v1.x, v.v2.x), Math.min(v.v1.y, v.v2.y),
+            Math.max(v.v1.x, v.v2.x), Math.max(v.v1.y, v.v2.y));
     }
 
     constructor(left: number, bottom: number, right: number = left, top: number = bottom) {
