@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Example</title>
+    <meta name="description" content="">
+</head>
+<body>
+<input type="file" id="file-input" />
+<label for="scale-input">Scale</label><input type="text" id="scale-input" value="1" />
+<canvas id="canvas" width="800" height="800"></canvas>
+<script src="geom2.min.js"></script>
+<script>
+    function readSingleFile(e) {
+        let file = e.target.files[0];
+        if (!file) {
+            return;
+        }
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            let contents = e.target.result;
+            displayMap(contents);
+        };
+        reader.readAsText(file);
+    }
+
+    document.getElementById('file-input')
+        .addEventListener('change', readSingleFile, false);
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let navmesh;
+    let scale = 1;
+    let startLocation, endLocation;
+
+    function displayMap(contents) {
+        //console.log(JSON.parse(contents));
+        navmesh = new Geom2.NavMesh(JSON.parse(contents));
+        scale = parseFloat(document.getElementById('scale-input').value);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //console.log(navmesh._navPolygons);
+        for (let navPoly of navmesh._navPolygons) {
+            ctx.beginPath();
+            const length = navPoly.polygon.calcPoints.length;
+
+            ctx.moveTo(navPoly.polygon.calcPoints[length - 1].x / scale, navPoly.polygon.calcPoints[length - 1].y / scale);
+            for (let point of navPoly.polygon.calcPoints) {
+                ctx.lineTo(point.x / scale, point.y / scale);
+            }
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+        }
+    }
+
+    function getMousePosition(canvas, event) {
+        let rect = canvas.getBoundingClientRect();
+        let x = event.clientX - rect.left;
+        let y = event.clientY - rect.top;
+        return new Geom2.Vector(x * scale, y * scale);
+    }
+
+    canvas.addEventListener("mousedown", function(e) {
+        const loc = getMousePosition(canvas, e);
+        if (startLocation === undefined) {
+            startLocation = loc;
+        } else {
+            endLocation = loc;
+            const results = navmesh.findPath(startLocation, endLocation);
+
+            ctx.beginPath();
+            ctx.moveTo(results[0].x / scale, results[0].y / scale);
+            for (let point of results) {
+                ctx.lineTo(point.x / scale, point.y / scale);
+            }
+            ctx.strokeStyle = "red";
+            ctx.stroke();
+            startLocation = undefined;
+        }
+    });
+
+</script>
+</body>
+</html>

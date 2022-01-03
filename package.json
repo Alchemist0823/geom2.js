@@ -4,6 +4,7 @@
   "description": "high performance 2d geometry library",
   "main": "./dist/geom2.js",
   "module": "./dist/geom2.module.js",
+  "umd": "./dist/geom2.umd.js",
   "types": "./dist/types/index.d.ts",
   "files": [
     "dist"

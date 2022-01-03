@@ -280,6 +280,26 @@ export function intersects(p11: Vector, p12: Vector, p21: Vector, p22: Vector): 
 
     return true;
 }
+/*
+export function fastRemoveHoles(holes: Array<PartitionPolygon>) {
+    let connectedHoles = [];
+    let aabbs = [];
+    //O(n)
+    for (let i = 0; i < holes.length; i ++) {
+        aabbs.push(holes[i].getAABB());
+    }
+
+    for (let i = 0; i < holes.length; i ++) {
+        connectedHoles.push(i);
+
+        let possibleShortest
+        for (let j = 0; j < holes.length; j ++) {
+            if (connectedHoles[j] === connectedHoles[i])
+                continue;
+            holes[i].calcPoints[0].dist(holes[j].calcPoints[0]);
+        }
+    }
+}*/
 
 /**
  * Remove holes from a list of PartitionPolygon.

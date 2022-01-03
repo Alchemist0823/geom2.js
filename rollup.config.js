@@ -20,6 +20,11 @@ export default [
                 file: pkg.module,
                 format: 'esm',
             },
+            {
+                file: pkg.umd,
+                name: 'Geom2',
+                format: 'umd',
+            },
         ],
         external: [],
         plugins: [
@@ -38,14 +43,14 @@ export default [
         ],
     },
     {
-        input: pkg.main,
+        input: pkg.umd,
         external: [],
         plugins: [
             uglify(),
         ],
         output: {
-            file: pkg.main.replace('.js', '.min.js'),
-            format: 'cjs',
+            file: pkg.umd.replace('.js', '.min.js'),
+            format: 'umd',
         }
     }
 ]

@@ -158,4 +158,32 @@ describe("NavMesh", () => {
             expect(targetPoint).toEqual(v2(0, 0));
         });
     });
+
+    describe("A NavMesh instance with holes", () => {
+        let navMesh: NavMesh;
+        /*
+                    -
+              6 - - -
+          - - - - - - 5
+          - 1 - 2   - -
+          - - - - - - - -
+              - 3 - - 4 -
+              - - - - - -
+        */
+        // prettier-ignore
+        const polygons = [
+            [v2(0, 0), v2(10, 0), v2(10, 10), v2(0, 10)], // 1
+            [v2(10, 0), v2(20, 10), v2(10, 10)], // 2
+            [v2(10, 10), v2(20, 10), v2(20, 20), v2(10, 20)],// 3
+            [v2(20, 10), v2(30, 10), v2(30, 20), v2(20, 20)],// 4
+            [v2(20, -10), v2(30, 10), v2(20, 10), v2(20, 0)],// 5
+            [v2(0, 0), v2(20, -10), v2(20, 0), v2(10, 0)],// 6
+        ];
+        beforeAll(() => (navMesh = new NavMesh(polygons)));
+
+        it("should return a straight line", () => {
+            const path = navMesh.findPath(v2(0, 0), v2(25, 5));
+            expect(path).toEqual([v2(0, 0), v2(20, 0), v2(25, 5)]);
+        });
+    });
 });
